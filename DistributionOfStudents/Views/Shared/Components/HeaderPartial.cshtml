@@ -1,0 +1,53 @@
+﻿<header>
+    <!-- Sidebar -->
+    @await Html.PartialAsync("Components/SidebarPartial")
+    <!-- Sidebar -->
+    <!-- Navbar -->
+    <nav id="main-navbar"
+         class="navbar navbar-expand-lg navbar-light bg-success fixed-top shadow-sm">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+            <!-- Toggle button -->
+            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Brand -->
+            <a class="navbar-brand p-0" href="/">
+                <p class="text-light font-monospace ms-3 m-0" style="font-size: xx-large; line-height: normal">БНТУ</p>
+            </a>
+            <!-- Search form -->
+            <form class="d-none d-md-flex input-group w-auto my-auto">
+                <input autocomplete="off"
+                       type="search"
+                       class="form-control rounded"
+                       placeholder='Найти студента'
+                       style="min-width: 225px" />
+                <span class="input-group-text border-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                    </svg>
+                </span>
+            </form>
+            <!-- Right links -->
+            <ul class="navbar-nav ms-auto d-flex flex-row">
+                <!-- Avatar -->
+                <li class="dropdown mt-2-dropdown">
+                    <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="~/img/Users/bntu.jpg" alt="avatar" style="object-fit: cover; width: 40px; height: 40px; border-radius: 50%;" />
+                    </a>
+                    <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                        <li><p class="dropdown-item-text text-nowrap my-0">Приветствуем <b>@*@User.FindFirst("Name").Value.ToString()*@</b></p></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Профиль</a></li>
+                        <li><a class="dropdown-item disabled" asp-controller="Account" asp-action="Settings" target="_blank">Настройки</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Выйти</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!-- Container wrapper -->
+    </nav>
+    <!-- Navbar -->
+    <script src="~/js/sidebar.js" asp-append-version="true"></script>
+</header>
