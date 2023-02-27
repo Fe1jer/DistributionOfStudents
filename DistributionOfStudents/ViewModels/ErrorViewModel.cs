@@ -1,4 +1,4 @@
-namespace DistributionOfStudents.Models
+namespace DistributionOfStudents.ViewModels
 {
     public class ErrorViewModel
     {
