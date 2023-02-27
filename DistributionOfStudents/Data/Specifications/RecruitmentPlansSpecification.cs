@@ -1,0 +1,57 @@
+﻿using DistributionOfStudents.Data.Models;
+using DistributionOfStudents.Data.Specifications.Base;
+using System.Linq.Expressions;
+
+namespace DistributionOfStudents.Data.Specifications
+{
+    public class RecruitmentPlansSpecification : Specification<RecruitmentPlan>
+    {
+
+        public RecruitmentPlansSpecification() : base()
+        {
+        }
+
+        public RecruitmentPlansSpecification(Expression<Func<RecruitmentPlan, bool>> expression) : base(expression)
+        {
+        }
+
+        public RecruitmentPlansSpecification IncludeSpecialty()
+        {
+            AddInclude(rp => rp.Speciality);
+
+            return this;
+        }
+
+        public RecruitmentPlansSpecification IncludeEnrolledStudents()
+        {
+            AddInclude("EnrolledStudents.Student");
+
+            return this;
+        }
+
+        public RecruitmentPlansSpecification WhereGroup(GroupOfSpecialties group)
+        {
+            AddWhere(i => i.IsBudget == group.IsBudget && i.IsDailyForm == group.IsDailyForm && i.IsFullTime == group.IsFullTime);
+
+            return this;
+        }
+
+        public RecruitmentPlansSpecification SortBySpecialties()
+        {
+            AddOrdering(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c)))));
+            return this;
+        }
+
+        public RecruitmentPlansSpecification WithoutTracking()
+        {
+            IsNoTracking = true;
+            return this;
+        }
+
+        public RecruitmentPlansSpecification WithTracking()
+        {
+            IsNoTracking = false;
+            return this;
+        }
+    }
+}
