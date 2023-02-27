@@ -1,9 +1,9 @@
 using DistributionOfStudents.Data;
+using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
-using Microsoft.AspNetCore.Builder;
+using DistributionOfStudents.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DistributionOfStudents
 {
@@ -43,6 +43,8 @@ namespace DistributionOfStudents
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+            AddTransients(builder.Services);
+
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
         }
@@ -77,6 +79,17 @@ namespace DistributionOfStudents
             app.MapRazorPages();
 
             app.Run();
+        }
+
+        private static void AddTransients(IServiceCollection services)
+        {
+            services.AddTransient<IFacultiesRepository, FacultiesRepository>();
+            services.AddTransient<IAdmissionsRepository, AdmissionsRepository>();
+            services.AddTransient<IFacultiesRepository, FacultiesRepository>();
+            services.AddTransient<IGroupsOfSpecialitiesRepository, GroupsOfSpecialitiesRepository>();
+            services.AddTransient<ISpecialitiesRepository, SpecialitiesRepository>();
+            services.AddTransient<ISubjectsRepository, SubjectsRepository>();
+            services.AddTransient<IRecruitmentPlansRepository, RecruitmentPlansRepository>();
         }
     }
 }
