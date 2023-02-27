@@ -1,4 +1,4 @@
-﻿using DistributionOfStudents.Models;
+﻿using DistributionOfStudents.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

@@ -4,6 +4,7 @@ using DistributionOfStudents.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DistributionOfStudents.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230227152705_CreateGroupsOfSpecialitiesAndRecrutmentPlans")]
+    partial class CreateGroupsOfSpecialitiesAndRecrutmentPlans
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,55 +23,6 @@ namespace DistributionOfStudents.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.Admission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("DateOfApplication")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GroupOfSpecialtiesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupOfSpecialtiesId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Admissions");
-                });
-
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.EnrolledStudent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("RecruitmentPlanId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecruitmentPlanId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("EnrolledStudents");
-                });
 
             modelBuilder.Entity("DistributionOfStudents.Data.Models.Faculty", b =>
                 {
@@ -220,32 +173,6 @@ namespace DistributionOfStudents.Data.Migrations
                     b.ToTable("Specialities");
                 });
 
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.SpecialityPriority", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("AdmissionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RecruitmentPlanId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdmissionId");
-
-                    b.HasIndex("RecruitmentPlanId");
-
-                    b.ToTable("SpecialtyPriorities");
-                });
-
             modelBuilder.Entity("DistributionOfStudents.Data.Models.Student", b =>
                 {
                     b.Property<int>("Id")
@@ -282,9 +209,6 @@ namespace DistributionOfStudents.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("AdmissionId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
@@ -292,8 +216,6 @@ namespace DistributionOfStudents.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AdmissionId");
 
                     b.HasIndex("SubjectId");
 
@@ -550,40 +472,6 @@ namespace DistributionOfStudents.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.Admission", b =>
-                {
-                    b.HasOne("DistributionOfStudents.Data.Models.GroupOfSpecialties", "GroupOfSpecialties")
-                        .WithMany("Admissions")
-                        .HasForeignKey("GroupOfSpecialtiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DistributionOfStudents.Data.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GroupOfSpecialties");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.EnrolledStudent", b =>
-                {
-                    b.HasOne("DistributionOfStudents.Data.Models.RecruitmentPlan", null)
-                        .WithMany("EnrolledStudents")
-                        .HasForeignKey("RecruitmentPlanId");
-
-                    b.HasOne("DistributionOfStudents.Data.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("DistributionOfStudents.Data.Models.RecruitmentPlan", b =>
                 {
                     b.HasOne("DistributionOfStudents.Data.Models.Speciality", "Speciality")
@@ -606,27 +494,8 @@ namespace DistributionOfStudents.Data.Migrations
                     b.Navigation("Faculty");
                 });
 
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.SpecialityPriority", b =>
-                {
-                    b.HasOne("DistributionOfStudents.Data.Models.Admission", null)
-                        .WithMany("SpecialityPriorities")
-                        .HasForeignKey("AdmissionId");
-
-                    b.HasOne("DistributionOfStudents.Data.Models.RecruitmentPlan", "RecruitmentPlan")
-                        .WithMany()
-                        .HasForeignKey("RecruitmentPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RecruitmentPlan");
-                });
-
             modelBuilder.Entity("DistributionOfStudents.Data.Models.StudentScore", b =>
                 {
-                    b.HasOne("DistributionOfStudents.Data.Models.Admission", null)
-                        .WithMany("StudentScores")
-                        .HasForeignKey("AdmissionId");
-
                     b.HasOne("DistributionOfStudents.Data.Models.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
@@ -702,26 +571,9 @@ namespace DistributionOfStudents.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.Admission", b =>
-                {
-                    b.Navigation("SpecialityPriorities");
-
-                    b.Navigation("StudentScores");
-                });
-
             modelBuilder.Entity("DistributionOfStudents.Data.Models.Faculty", b =>
                 {
                     b.Navigation("Specialities");
-                });
-
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.GroupOfSpecialties", b =>
-                {
-                    b.Navigation("Admissions");
-                });
-
-            modelBuilder.Entity("DistributionOfStudents.Data.Models.RecruitmentPlan", b =>
-                {
-                    b.Navigation("EnrolledStudents");
                 });
 
             modelBuilder.Entity("DistributionOfStudents.Data.Models.Speciality", b =>
