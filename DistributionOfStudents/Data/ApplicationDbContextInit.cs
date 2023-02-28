@@ -9,8 +9,8 @@ namespace DistributionOfStudents.Data
     {
         public async static Task InitDbContextAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
         {
-            context.Database.EnsureDeleted(); //Удалить базу данных
-            context.Database.EnsureCreated(); //Создать базу данных, если она не существует на компьютере
+            /*context.Database.EnsureDeleted(); //Удалить базу данных
+            context.Database.EnsureCreated(); //Создать базу данных, если она не существует на компьютере*/
             if (!await roleManager.Roles.AnyAsync())
             {
                 await CreateRoles(roleManager);
@@ -51,6 +51,7 @@ namespace DistributionOfStudents.Data
                     IsBudget = true,
                     IsDailyForm = true,
                     IsFullTime = true,
+                    Year = DateTime.Today.Year
                 };
 
                 context.RecruitmentPlans.Add(plan);
@@ -69,6 +70,7 @@ namespace DistributionOfStudents.Data
                 IsBudget = true,
                 IsDailyForm = true,
                 IsFullTime = true,
+                Year = DateTime.Today.Year,
                 Specialities = context.Specialities.ToList()
             };
 
