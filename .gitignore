@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /DistributionOfStudents/wwwroot/img/Users
+/DistributionOfStudents/wwwroot/img/Faculties

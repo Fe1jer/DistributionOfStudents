@@ -11,6 +11,6 @@ namespace DistributionOfStudents.ViewModels
 
         [Display(Name = "Изображение")]
         [ValidateImg]
-        public IFormFile Img { get; set; }
+        public IFormFile? Img { get; set; }
     }
 }

@@ -1,0 +1,85 @@
+﻿@model DistributionOfStudents.ViewModels.DetailsFacultyVM
+
+<table class="table mb-0">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().Speciality.FullName)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().DailyFullBudget)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().DailyFullPaid)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().DailyAbbreviatedBudget)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().DailyAbbreviatedPaid)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().EveningFullBudget)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().EveningFullPaid)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().EveningAbbreviatedBudget)
+            </th>
+            <th width="85">
+                @Html.DisplayNameFor(model => model.AllPlansForSpecialities.PlansForSpecialities.FirstOrDefault().EveningAbbreviatedPaid)
+            </th>
+            <th>
+                <a class="text-success ms-2" asp-controller="RecrutmentPlans" asp-action="Create" asp-route-facultyName="@Model.Faculty.ShortName">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus-circle-fill suc" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                    </svg>
+                </a>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.AllPlansForSpecialities.PlansForSpecialities)
+        {
+            <tr>
+                <td>
+                    @if (item.Speciality.DirectionName != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Speciality.DirectionName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.Speciality.FullName)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DailyFullBudget)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DailyFullPaid)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DailyAbbreviatedBudget)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DailyAbbreviatedPaid)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EveningFullBudget)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EveningFullPaid)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EveningAbbreviatedBudget)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EveningAbbreviatedPaid)
+                </td>
+                <td>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

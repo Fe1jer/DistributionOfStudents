@@ -39,17 +39,20 @@ namespace DistributionOfStudents.Controllers
         {
             Faculty faculty = (await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans().WhereShortName(name))).Single();
             List<GroupOfSpecialties> groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName));
-            Dictionary<GroupOfSpecialties, List<RecruitmentPlan>> keyValuePairs = new();
-            List<DetailsAllPlansForSpecialityVM> AllPlansForSpecialities = new();
+            List<DetailsGroupOfSpecialitiesVM> groupsOfSpecialities = new();
+            DetailsAllPlansForSpecialityVM AllPlansForSpecialities = new()
+            {
+                PlansForSpecialities = new List<PlansForSpecialityVM>()
+            };
 
             if (faculty.Specialities != null)
             {
-
+                AllPlansForSpecialities.Year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) : 0).Max() : 0;
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == speciality.RecruitmentPlans.Max(p => p.Year)).ToList();
 
-                    DetailsAllPlansForSpecialityVM plans = new()
+                    PlansForSpecialityVM plans = new()
                     {
                         Speciality = speciality,
                         DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == true && p.IsBudget == true) != null
@@ -69,20 +72,21 @@ namespace DistributionOfStudents.Controllers
                         EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == false && p.IsBudget == false) != null
                         ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == false && p.IsBudget == false).Count : 0
                     };
-                    AllPlansForSpecialities.Add(plans);
+
+                    AllPlansForSpecialities.PlansForSpecialities.Add(plans);
                 }
             }
 
             foreach (GroupOfSpecialties group in groups)
             {
                 List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereGroup(group));
-                keyValuePairs.Add(group, plans);
+                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM() { GroupOfSpecialties = group, RecruitmentPlans = plans });
             }
 
             DetailsFacultyVM model = new()
             {
                 Faculty = faculty,
-                GroupOfSpecialties = keyValuePairs,
+                GroupsOfSpecialties = groupsOfSpecialities,
                 AllPlansForSpecialities = AllPlansForSpecialities
             };
 
@@ -103,6 +107,7 @@ namespace DistributionOfStudents.Controllers
         // POST: FacultiesController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("[controller]/[action]")]
         public async Task<IActionResult> Create(CreateChangeFacultyVM model)
         {
             try
