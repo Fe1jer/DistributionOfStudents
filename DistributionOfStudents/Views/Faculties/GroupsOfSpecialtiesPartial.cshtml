@@ -4,13 +4,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.GroupsOfSpecialties.FirstOrDefault().GroupOfSpecialties.Name)
+                @Html.DisplayNameFor(model => model.GroupsOfSpecialties.First().GroupOfSpecialties.Name)
             </th>
             <th>
                 Срок
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GroupsOfSpecialties.FirstOrDefault().RecruitmentPlans)
+                @Html.DisplayNameFor(model => model.GroupsOfSpecialties.First().RecruitmentPlans)
             </th>
             <th style="text-align-last: center">
                 <a class="text-success ms-2" asp-controller="GroupsOfSpecialties" asp-action="Create" asp-route-facultyName="@Model.Faculty.ShortName">
