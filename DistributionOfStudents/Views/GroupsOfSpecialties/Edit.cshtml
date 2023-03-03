@@ -1,0 +1,134 @@
+﻿@model DistributionOfStudents.ViewModels.CreateChangeGroupOfSpecVM
+
+@{
+    ViewData["Title"] = "Редактирование группы";
+}
+@section Css{
+    <link href="/css/slider-radio.css" rel="stylesheet" asp-append-version="true">
+    <style type="text/css">
+        .animated {
+            -webkit-transition: height 0.2s;
+            -moz-transition: height 0.2s;
+            transition: height 0.2s;
+        }
+    </style>
+}
+
+<h1 class="text-center">Редактировать группу</h1>
+<hr />
+<div id="content" class="ps-lg-4 pe-lg-4 pt-2" style="position: relative">
+    <form class="row" asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-xl-7">
+            <div class="form-group px-2">
+                <label asp-for="Group.Name" class="control-label"></label>
+                <input asp-for="Group.Name" class="form-control" />
+                <span asp-validation-for="Group.Name" class="text-danger"></span>
+            </div>
+            <div class="row mt-2 px-2">
+                <div class="form-group col-sm-6">
+                    <label asp-for="Group.StartDate" class="control-label"></label>
+                    <input asp-for="Group.StartDate" class="form-control datePicker" id="datePicker" />
+                    <span asp-validation-for="Group.StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group col-sm-6">
+                    <label asp-for="Group.EnrollmentDate" class="control-label"></label>
+                    <input asp-for="Group.EnrollmentDate" class="form-control datePicker" id="datePicker" />
+                    <span asp-validation-for="Group.EnrollmentDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group px-2">
+                <label asp-for="Group.Description" class="control-label"></label>
+                <textarea asp-for="Group.Description" class="form-control animated"></textarea>
+                <span asp-validation-for="Group.Description" class="text-danger"></span>
+            </div>
+            <div class="row mt-2 px-2 align-items-end">
+                <div class="form-group col-sm-4">
+                    <div class="slider-radio elegant">
+                        <input asp-for="Group.IsDailyForm" type="radio" id="IsDaily" value="True"><label for="IsDaily">Дневная</label>
+                        <input asp-for="Group.IsDailyForm" type="radio" id="IsEvening" value="False"><label for="IsEvening">Вечерняя</label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <div class="slider-radio elegant">
+                        <input asp-for="Group.IsBudget" type="radio" id="IsBudget" value="True"><label for="IsBudget">Бюджет</label>
+                        <input asp-for="Group.IsBudget" type="radio" id="IsPaid" value="False"><label for="IsPaid">Платное</label>
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <div class="slider-radio elegant">
+                        <input asp-for="Group.IsFullTime" type="radio" id="IsFull" value="True"><label for="IsFull">Полный</label>
+                        <input asp-for="Group.IsFullTime" type="radio" id="IsAbbreviated" value="False"><label for="IsAbbreviated">Сокращённый</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5">
+            @await Html.PartialAsync("SelectSpecialtiesInGroupPartial", Model)
+        </div>
+        <input asp-for="FacultyShortName" type="hidden" />
+        <input asp-for="Group.IsCompleted" type="hidden" />
+        <input asp-for="Group.Year" type="hidden" />
+        <input asp-for="Group.Id" type="hidden" />
+        <div class="col text-center pt-4">
+            <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#ChangeGroup">
+                Сохранить
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#DeleteGroup">
+                Удалить
+            </button>
+            <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="Faculties" asp-action="Details" asp-route-name="@Model.FacultyShortName">Вернуться</a>
+        </div>
+        <div class="modal fade" id="ChangeGroup" tabindex="-1" aria-labelledby="ChangeGroup" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ChangeGroup">Сохранить изменения</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Перед тем как изменить данные специальности, проверьте заполнение всех ячеек описания этой специальности.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="DeleteGroup" aria-labelledby="DeleteGroup" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Удалить <b class="text-success">@Model.Group.Name</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Вы уверенны, что хотите удалить группу?
+                            <br />
+                            Группа<b class="text-success">"@Model.Group.Name"</b> будет удалёна без возможности восстановления.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <a type="button" class="btn btn-outline-danger py-1" asp-controller="GroupsOfSpecialties" asp-action="Delete" asp-route-facultyName="@Model.FacultyShortName" asp-route-id="@Model.Group.Id">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('.animated').autosize({ append: "\n" });
+    });
+</script>
+
+@section Scripts {
+    @{
+        <script src="~/js/slider-radio.js" asp-append-version="true"></script>
+        <script src="~/lib/jquery-autosize/jquery.autosize.min.js"></script>
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -56,7 +56,7 @@ namespace DistributionOfStudents.Controllers
                     speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == FacultyPlans.Year).ToList();
 
 #pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
-                    PlansForSpecialityVM plans = new()  
+                    PlansForSpecialityVM plans = new()
                     {
                         SpecialityName = speciality.DirectionName ?? speciality.FullName,
                         SpecialityId = speciality.Id,
@@ -83,11 +83,12 @@ namespace DistributionOfStudents.Controllers
                 }
             }
 
-            groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).WhereYear(FacultyPlans.Year));
+            groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).IncludeSpecialties().WhereYear(FacultyPlans.Year));
             foreach (GroupOfSpecialties group in groups)
             {
                 List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
-                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM() { GroupOfSpecialties = group, RecruitmentPlans = plans });
+                plans = plans.Where(p => group.Specialities.Contains(p.Speciality)).ToList();
+                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM() { GroupOfSpecialties = group, RecruitmentPlans = plans, Year = FacultyPlans.Year, FacultyShortName = faculty.ShortName });
             }
 
             DetailsFacultyVM model = new()
@@ -162,6 +163,7 @@ namespace DistributionOfStudents.Controllers
         }
 
         // GET: FacultiesController/Edit/5
+        [Route("[controller]/[action]")]
         public async Task<IActionResult> Edit(int id)
         {
             Faculty faculty = await _facultyRepository.GetByIdAsync(id, new FacultiesSpecification());
@@ -177,6 +179,7 @@ namespace DistributionOfStudents.Controllers
         // POST: FacultiesController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("[controller]/[action]")]
         public async Task<IActionResult> Edit(CreateChangeFacultyVM model)
         {
             try
@@ -217,6 +220,7 @@ namespace DistributionOfStudents.Controllers
         }
 
         // GET: FacultiesController/Delete/5
+        [Route("[controller]/[action]")]
         public async Task<RedirectToActionResult> DeleteAsync(int id)
         {
             Faculty faculty = await _facultyRepository.GetByIdAsync(id);
