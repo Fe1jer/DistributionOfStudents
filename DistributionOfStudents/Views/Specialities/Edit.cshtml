@@ -72,6 +72,9 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <input type="hidden" asp-for="Id" />
+            <input asp-for="Faculty.Id" type="hidden" />
+            <input asp-for="Faculty.FullName" type="hidden" />
+            <input asp-for="Faculty.ShortName" type="hidden" />
             <div class="col text-center pt-4">
                 <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#ChangeSpecialty">
                     Сохранить
