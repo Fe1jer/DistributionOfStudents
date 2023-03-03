@@ -6,7 +6,9 @@ namespace DistributionOfStudents.ViewModels
     public class PlansForSpecialityVM
     {
         [Display(Name = "Специальность")]
-        public Speciality Speciality { get; set; }
+        public string SpecialityName { get; set; }
+
+        public int SpecialityId { get; set; }
 
         [Display(Name = "Бюджет")]
         public int DailyFullBudget { get; set; }

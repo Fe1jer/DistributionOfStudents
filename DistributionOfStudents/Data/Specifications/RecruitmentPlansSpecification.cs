@@ -36,6 +36,20 @@ namespace DistributionOfStudents.Data.Specifications
             return this;
         }
 
+        public RecruitmentPlansSpecification WhereForm(bool isDailyForm, bool isFullTime, bool isBudget, int year, int specialityId)
+        {
+            AddWhere(i => i.IsBudget == isBudget && i.IsDailyForm == isDailyForm && i.IsFullTime == isFullTime && i.Year == year && i.Speciality.Id == specialityId);
+
+            return this;
+        }
+
+        public RecruitmentPlansSpecification WhereFaculty(string facultyName)
+        {
+            AddWhere(i => i.Speciality.Faculty.ShortName == facultyName);
+
+            return this;
+        }
+
         public RecruitmentPlansSpecification WhereYear(int year)
         {
             AddWhere(i => i.Year == year);

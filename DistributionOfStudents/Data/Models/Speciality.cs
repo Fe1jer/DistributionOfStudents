@@ -37,7 +37,7 @@ namespace DistributionOfStudents.Data.Models
         [Display(Name = "Код специализации")]
         public string? SpecializationCode { get; set; }
 
-        public Faculty? Faculty { get; set; }
+        public Faculty Faculty { get; set; }
         public List<GroupOfSpecialties>? GroupsOfSpecialties { get; set; }
         public List<RecruitmentPlan>? RecruitmentPlans { get; set; }
     }

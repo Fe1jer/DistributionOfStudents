@@ -1,0 +1,18 @@
+﻿@model List<DistributionOfStudents.ViewModels.DetailsFacultyRecruitmentPlans>
+
+@{
+    ViewData["Title"] = "План приёма";
+}
+
+<h1 class="text-center"> План приёма на @(Model.Count != 0 ? Model.Select(f => f.Year).Max() : 0) год</h1>
+
+<div id="content" class="ps-lg-4 pe-lg-4" style="position: relative">
+    @foreach (DetailsFacultyRecruitmentPlans facultyPlan in Model)
+    {
+        <hr class="mt-4 mx-0" />
+        <h4>@facultyPlan.FacultyFullName</h4>
+        <div class="card shadow">
+            @await Html.PartialAsync("RecrutmentPlansPartial", facultyPlan)
+        </div>
+    }
+</div>

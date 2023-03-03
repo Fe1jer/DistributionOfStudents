@@ -8,7 +8,7 @@ namespace DistributionOfStudents.ViewModels
         [Display(Name = "Факультет")]
         public Faculty Faculty { get; set; }
 
-        public DetailsAllPlansForSpecialityVM AllPlansForSpecialities { get; set; }
+        public DetailsFacultyRecruitmentPlans AllPlansForSpecialities { get; set; }
 
         [Display(Name = "Группы")]
         public List<DetailsGroupOfSpecialitiesVM> GroupsOfSpecialties { get;set; }

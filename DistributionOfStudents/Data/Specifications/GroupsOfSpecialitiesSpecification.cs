@@ -45,6 +45,12 @@ namespace DistributionOfStudents.Data.Specifications
             return this;
         }
 
+        public GroupsOfSpecialitiesSpecification WhereYear(int year)
+        {
+            AddWhere(p => p.Year == year);
+            return this;
+        }
+
         public GroupsOfSpecialitiesSpecification SortByDate()
         {
             AddDescendingOrdering(f => f.StartDate);
