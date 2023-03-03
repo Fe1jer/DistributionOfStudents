@@ -14,7 +14,7 @@ namespace DistributionOfStudents.ViewModels
 
         [Display(Name = "Год")]
         public int Year { get; set; }
-
+        
         [Display(Name = "План набора")]
         public List<PlansForSpecialityVM> PlansForSpecialities { get; set; }
     }

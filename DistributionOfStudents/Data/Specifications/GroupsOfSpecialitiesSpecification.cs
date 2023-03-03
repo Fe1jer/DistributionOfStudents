@@ -19,7 +19,14 @@ namespace DistributionOfStudents.Data.Specifications
 
         public GroupsOfSpecialitiesSpecification IncludeRecruitmentPlans()
         {
-            AddInclude("Specialties.RecruitmentPlans");
+            AddInclude("Specialities.RecruitmentPlans");
+
+            return this;
+        }
+
+        public GroupsOfSpecialitiesSpecification IncludeSpecialties()
+        {
+            AddInclude(gr => gr.Specialities);
 
             return this;
         }
@@ -27,7 +34,7 @@ namespace DistributionOfStudents.Data.Specifications
         public GroupsOfSpecialitiesSpecification IncludeAdmissions()
         {
             AddInclude("Admissions.Student");
-            AddInclude("Admissions.SpecialtyPriorities");
+            AddInclude("Admissions.SpecialityPriorities");
             AddInclude("Admissions.StudentScores");
 
             return this;
