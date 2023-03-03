@@ -38,48 +38,55 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Details(string name)
         {
             Faculty faculty = (await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans().WhereShortName(name))).Single();
-            List<GroupOfSpecialties> groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName));
+            List<GroupOfSpecialties> groups = new();
             List<DetailsGroupOfSpecialitiesVM> groupsOfSpecialities = new();
-            DetailsAllPlansForSpecialityVM AllPlansForSpecialities = new()
+            DetailsFacultyRecruitmentPlans FacultyPlans = new()
             {
                 PlansForSpecialities = new List<PlansForSpecialityVM>()
             };
 
             if (faculty.Specialities != null)
             {
-                AllPlansForSpecialities.Year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) : 0).Max() : 0;
+                faculty.Specialities = faculty.Specialities.OrderBy(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c))))).ToList();
+                FacultyPlans.Year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) : 0).Max() : 0;
+                FacultyPlans.FacultyFullName = faculty.FullName;
+                FacultyPlans.FacultyShortName = faculty.ShortName;
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == speciality.RecruitmentPlans.Max(p => p.Year)).ToList();
+                    speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == FacultyPlans.Year).ToList();
 
-                    PlansForSpecialityVM plans = new()
+#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
+                    PlansForSpecialityVM plans = new()  
                     {
-                        Speciality = speciality,
-                        DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == true && p.IsBudget == true) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == true && p.IsBudget == true).Count : 0,
-                        DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == true && p.IsBudget == false) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == true && p.IsBudget == false).Count : 0,
-                        DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == false && p.IsBudget == true) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == false && p.IsBudget == true).Count : 0,
-                        DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == false && p.IsBudget == false) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == true && p.IsFullTime == false && p.IsBudget == false).Count : 0,
-                        EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == true && p.IsBudget == true) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == true && p.IsBudget == true).Count : 0,
-                        EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == true && p.IsBudget == false) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == true && p.IsBudget == false).Count : 0,
-                        EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == false && p.IsBudget == true) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == false && p.IsBudget == true).Count : 0,
-                        EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == false && p.IsBudget == false) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm == false && p.IsFullTime == false && p.IsBudget == false).Count : 0
+                        SpecialityName = speciality.DirectionName ?? speciality.FullName,
+                        SpecialityId = speciality.Id,
+                        DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
+                        DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
+                        DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
+                        DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
+                        EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
+                        EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
+                        EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
+                        EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
+                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
                     };
+#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
 
-                    AllPlansForSpecialities.PlansForSpecialities.Add(plans);
+                    FacultyPlans.PlansForSpecialities.Add(plans);
                 }
             }
 
+            groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).WhereYear(FacultyPlans.Year));
             foreach (GroupOfSpecialties group in groups)
             {
-                List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereGroup(group));
+                List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
                 groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM() { GroupOfSpecialties = group, RecruitmentPlans = plans });
             }
 
@@ -87,7 +94,7 @@ namespace DistributionOfStudents.Controllers
             {
                 Faculty = faculty,
                 GroupsOfSpecialties = groupsOfSpecialities,
-                AllPlansForSpecialities = AllPlansForSpecialities
+                AllPlansForSpecialities = FacultyPlans
             };
 
             return View(model);
