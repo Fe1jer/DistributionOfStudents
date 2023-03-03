@@ -28,9 +28,12 @@
             </svg>
         </a>
     </h4>
-    <div class="card shadow">
-        @await Html.PartialAsync("RecrutmentPlansPartial", Model.AllPlansForSpecialities)
-    </div>
+    @if (Model.AllPlansForSpecialities.Year != 0)
+    {
+        <div class="card shadow">
+            @await Html.PartialAsync("FacultyRecrutmentPlansPartial", Model.AllPlansForSpecialities)
+        </div>
+    }
     <hr class="mt-4" />
     <h4>Ход приёма документов</h4>
     <div class="card shadow">

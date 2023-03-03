@@ -1,0 +1,16 @@
+﻿@model DistributionOfStudents.ViewModels.CreateChangeGroupOfSpecVM
+<div class="shadow px-2">
+    <h5 class="text-center">
+        @Html.DisplayNameFor(model => model.SelectedSpecialities)
+    </h5>
+    <hr />
+    @for (int i = 0; i < Model.SelectedSpecialities.Count(); i++)
+    {
+        <label class="control-label mb-2">
+            <input type="checkbox" asp-for="@Model.SelectedSpecialities[i].IsSelected" class="form-check-input" />
+            @Html.DisplayFor(modelItem => Model.SelectedSpecialities[i].SpecialityName)
+        </label>
+        <input asp-for="@Model.SelectedSpecialities[i].SpecialityId" type="hidden" />
+        <input asp-for="@Model.SelectedSpecialities[i].SpecialityName" type="hidden" />
+    }
+</div>
