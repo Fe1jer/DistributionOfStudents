@@ -45,7 +45,7 @@ namespace DistributionOfStudents.Controllers
 
             List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
             plans = plans.Where(p => group.Specialities.Contains(p.Speciality)).ToList();
-            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans };
+            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, FacultyShortName = facultyName, Year = group.Year };
 
             return View(model);
         }

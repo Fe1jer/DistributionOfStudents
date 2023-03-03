@@ -6,11 +6,13 @@
     <hr />
     @for (int i = 0; i < Model.SelectedSpecialities.Count(); i++)
     {
-        <label class="control-label mb-2">
-            <input type="checkbox" asp-for="@Model.SelectedSpecialities[i].IsSelected" class="form-check-input" />
-            @Html.DisplayFor(modelItem => Model.SelectedSpecialities[i].SpecialityName)
-        </label>
-        <input asp-for="@Model.SelectedSpecialities[i].SpecialityId" type="hidden" />
-        <input asp-for="@Model.SelectedSpecialities[i].SpecialityName" type="hidden" />
+        <div class="mb-2">
+            <label class="control-label">
+                <input type="checkbox" asp-for="@Model.SelectedSpecialities[i].IsSelected" class="form-check-input" />
+                @Html.DisplayFor(modelItem => Model.SelectedSpecialities[i].SpecialityName)
+            </label>
+            <input asp-for="@Model.SelectedSpecialities[i].SpecialityId" type="hidden" />
+            <input asp-for="@Model.SelectedSpecialities[i].SpecialityName" type="hidden" />
+        </div>
     }
 </div>
