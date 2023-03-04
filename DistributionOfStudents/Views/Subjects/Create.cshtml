@@ -1,0 +1,47 @@
+﻿@model DistributionOfStudents.Data.Models.Subject
+
+@{
+    ViewData["Title"] = "Создать предмет";
+}
+
+<h1 class="text-center">Создать предмет</h1>
+<hr />
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group pt-2">
+                <label asp-for="Name" class="control-label"></label><sup>*</sup>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="col text-center pt-4">
+                <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#CreateSubject">
+                    Создать
+                </button>
+                <a type="button" class="btn btn-outline-secondary btn-lg" asp-action="Index">Вернуться</a>
+            </div>
+            <div class="modal fade" id="CreateSubject" tabindex="-1" aria-labelledby="CreateSubject" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="CreateSubject">Создать предмет</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Перед тем как создать предмет, проверьте заполнение ячейки с его названием.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
