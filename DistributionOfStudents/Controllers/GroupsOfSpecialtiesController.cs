@@ -121,6 +121,7 @@ namespace DistributionOfStudents.Controllers
             if (ModelState.IsValid)
             {
                 List<Speciality> recruitmentPlans = new();
+                List<Subject> subjects = new();
                 if (model.SelectedSpecialities != null)
                 {
                     foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in model.SelectedSpecialities.Where(p => p.IsSelected == true))
@@ -129,8 +130,17 @@ namespace DistributionOfStudents.Controllers
                         recruitmentPlans.Add(await getSpecialty);
                     }
                 }
+                if (model.SelectedSubjects != null)
+                {
+                    foreach (IsSelectedSubjectVM isSelectedSubject in model.SelectedSubjects.Where(p => p.IsSelected == true))
+                    {
+                        Task<Subject> getSubject = _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
+                        subjects.Add(await getSubject);
+                    }
+                }
                 model.Group.Year = model.Group.StartDate.Year;
                 model.Group.Specialities = recruitmentPlans;
+                model.Group.Subjects = subjects;
                 await _groupsOfSpecialtiesRepository.AddAsync(model.Group);
                 _logger.LogInformation("Создана группа - {GroupName} - {Year} года на факультете - {FacultyName}", model.Group.Name, model.Group.Year, facultyName);
 
