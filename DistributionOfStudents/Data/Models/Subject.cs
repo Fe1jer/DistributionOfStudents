@@ -9,6 +9,6 @@ namespace DistributionOfStudents.Data.Models
         [DataType(DataType.Text)]
         public string Name { get; set; }
 
-        public List<GroupOfSpecialties> GroupsOfSpecialties { get; set; }
+        public List<GroupOfSpecialties>? GroupsOfSpecialties { get; set; }
     }
 }
