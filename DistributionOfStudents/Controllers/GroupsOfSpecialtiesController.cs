@@ -195,7 +195,7 @@ namespace DistributionOfStudents.Controllers
                             subjects.Add(await getSubject);
                         }
                     }
-                    GroupOfSpecialties group = (await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(model.Group.Id).IncludeSpecialties())).Single();
+                    GroupOfSpecialties group = (await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(model.Group.Id).IncludeSubjects().IncludeSpecialties())).Single();
                     group.Year = model.Group.StartDate.Year;
                     group.Name = model.Group.Name;
                     group.IsBudget = model.Group.IsBudget;
