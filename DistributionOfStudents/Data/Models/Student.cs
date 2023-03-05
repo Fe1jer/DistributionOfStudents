@@ -17,7 +17,10 @@ namespace DistributionOfStudents.Data.Models
         [DataType(DataType.Text)]
         public string Patronymic { get; set; }
 
-        [Display(Name = "Средний балл в школе")]
-        public int? GPS { get; set; }
+        [Display(Name = "Аттестат")]
+        public int GPS { get; set; }
+
+        [Display(Name = "Заявки")]
+        public List<Admission>? Admissions { get; set; }
     }
 }

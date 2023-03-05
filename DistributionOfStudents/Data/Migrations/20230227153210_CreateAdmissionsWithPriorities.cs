@@ -59,7 +59,8 @@ namespace DistributionOfStudents.Data.Migrations
                         name: "FK_SpecialtyPriorities_Admissions_AdmissionId",
                         column: x => x.AdmissionId,
                         principalTable: "Admissions",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SpecialtyPriorities_RecruitmentPlans_RecruitmentPlanId",
                         column: x => x.RecruitmentPlanId,
@@ -98,7 +99,8 @@ namespace DistributionOfStudents.Data.Migrations
                 table: "StudentScores",
                 column: "AdmissionId",
                 principalTable: "Admissions",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
