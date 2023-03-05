@@ -12,6 +12,7 @@ using DistributionOfStudents.Data.Specifications;
 using Microsoft.CodeAnalysis;
 using DistributionOfStudents.ViewModels;
 using NuGet.Protocol.Plugins;
+using System.Numerics;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -23,15 +24,18 @@ namespace DistributionOfStudents.Controllers
         private readonly IGroupsOfSpecialitiesRepository _groupsOfSpecialtiesRepository;
         private readonly ISpecialitiesRepository _specialtiesRepository;
         private readonly IRecruitmentPlansRepository _plansRepository;
+        private readonly ISubjectsRepository _subjectsRepository;
 
         public GroupsOfSpecialtiesController(ILogger<GroupsOfSpecialtiesController> logger, IFacultiesRepository facultiesRepository,
-            IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository, ISpecialitiesRepository specialtiesRepository, IRecruitmentPlansRepository plansRepository)
+            IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository, ISpecialitiesRepository specialtiesRepository,
+            IRecruitmentPlansRepository plansRepository, ISubjectsRepository subjectsRepository)
         {
             _logger = logger;
             _facultiesRepository = facultiesRepository;
             _groupsOfSpecialtiesRepository = groupsOfSpecialtiesRepository;
             _specialtiesRepository = specialtiesRepository;
             _plansRepository = plansRepository;
+            _subjectsRepository = subjectsRepository;
         }
 
         [Route("~/Faculties/{facultyName}/{id}")]
@@ -52,7 +56,6 @@ namespace DistributionOfStudents.Controllers
 
         public async Task<IActionResult> Create(string facultyName, int year)
         {
-            List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
             CreateChangeGroupOfSpecVM model;
             Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName).IncludeSpecialties())).Single();
             GroupOfSpecialties group = new()
@@ -62,25 +65,53 @@ namespace DistributionOfStudents.Controllers
                 IsFullTime = true,
                 Year = year
             };
-
-            foreach (Speciality specialty in faculty.Specialities)
-            {
-                IsSelectedSpecialityInGroupVM isSelectedSpecialty = new()
-                {
-                    SpecialityId = specialty.Id,
-                    SpecialityName = specialty.DirectionName ?? specialty.FullName,
-                    IsSelected = false
-                };
-                isSelectedSpecialties.Add(isSelectedSpecialty);
-            }
             model = new CreateChangeGroupOfSpecVM()
             {
                 FacultyShortName = facultyName,
                 Group = group,
-                SelectedSpecialities = isSelectedSpecialties
+                SelectedSpecialities = GetSelectedSpecialityAsync(faculty, group),
+                SelectedSubjects = await GetSelectedSpeciality(group)
             };
 
             return View(model);
+        }
+
+        private static List<IsSelectedSpecialityInGroupVM> GetSelectedSpecialityAsync(Faculty faculty, GroupOfSpecialties group)
+        {
+            List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
+
+            foreach (Speciality specialty in faculty.Specialities ?? new List<Speciality>())
+            {
+                Speciality? plan = (group.Specialities ?? new List<Speciality>()).Where(i => i.Equals(specialty)).SingleOrDefault();
+                IsSelectedSpecialityInGroupVM isSelectedSpecialty = new()
+                {
+                    SpecialityId = specialty.Id,
+                    SpecialityName = specialty.DirectionName ?? specialty.FullName,
+                    IsSelected = plan != null,
+                };
+                isSelectedSpecialties.Add(isSelectedSpecialty);
+            }
+
+            return isSelectedSpecialties;
+        }
+
+        private async Task<List<IsSelectedSubjectVM>> GetSelectedSpeciality(GroupOfSpecialties group)
+        {
+            List<IsSelectedSubjectVM> isSelectedSubjects = new();
+
+            foreach (Subject subject in (await _subjectsRepository.GetAllAsync()) ?? new List<Subject>())
+            {
+                Subject? isSubject = (group.Subjects ?? new List<Subject>()).Where(i => i.Equals(subject)).SingleOrDefault();
+                IsSelectedSubjectVM isSelectedSubject = new()
+                {
+                    SubjectId = subject.Id,
+                    Subject = subject.Name,
+                    IsSelected = isSubject != null,
+                };
+                isSelectedSubjects.Add(isSelectedSubject);
+            }
+
+            return isSelectedSubjects;
         }
 
         [HttpPost]
@@ -111,26 +142,15 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Edit(string facultyName, int id)
         {
             CreateChangeGroupOfSpecVM model;
-            List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
             Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName).IncludeSpecialties())).Single();
-            GroupOfSpecialties group = (await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(id).IncludeSpecialties())).Single();
+            GroupOfSpecialties group = (await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(id).IncludeSubjects().IncludeSpecialties())).Single();
 
-            foreach (Speciality specialty in faculty.Specialities)
-            {
-                Speciality? plan = group.Specialities.Where(i => i.Equals(specialty)).SingleOrDefault();
-                IsSelectedSpecialityInGroupVM isSelectedSpecialty = new()
-                {
-                    SpecialityId = specialty.Id,
-                    SpecialityName = specialty.DirectionName ?? specialty.FullName,
-                    IsSelected = plan != null,
-                };
-                isSelectedSpecialties.Add(isSelectedSpecialty);
-            }
             model = new CreateChangeGroupOfSpecVM()
             {
                 FacultyShortName = facultyName,
                 Group = group,
-                SelectedSpecialities = isSelectedSpecialties
+                SelectedSpecialities = GetSelectedSpecialityAsync(faculty, group),
+                SelectedSubjects = await GetSelectedSpeciality(group)
             };
             if (group == null)
             {
@@ -148,12 +168,21 @@ namespace DistributionOfStudents.Controllers
                 try
                 {
                     List<Speciality> recruitmentPlans = new();
+                    List<Subject> subjects = new();
                     if (model.SelectedSpecialities != null)
                     {
                         foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in model.SelectedSpecialities.Where(p => p.IsSelected == true))
                         {
                             Task<Speciality> getSpecialty = _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
                             recruitmentPlans.Add(await getSpecialty);
+                        }
+                    }
+                    if (model.SelectedSubjects != null)
+                    {
+                        foreach (IsSelectedSubjectVM isSelectedSubject in model.SelectedSubjects.Where(p => p.IsSelected == true))
+                        {
+                            Task<Subject> getSubject = _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
+                            subjects.Add(await getSubject);
                         }
                     }
                     GroupOfSpecialties group = (await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(model.Group.Id).IncludeSpecialties())).Single();
@@ -166,6 +195,7 @@ namespace DistributionOfStudents.Controllers
                     group.StartDate = model.Group.StartDate;
                     group.EnrollmentDate = model.Group.EnrollmentDate;
                     group.Specialities = recruitmentPlans;
+                    group.Subjects = subjects;
 
                     await _groupsOfSpecialtiesRepository.UpdateAsync(group);
                     _logger.LogInformation("Изменена группа - {GroupName} - {Year} года на факультете {FacultyName}", model.Group.Name, model.Group.Year, facultyName);
