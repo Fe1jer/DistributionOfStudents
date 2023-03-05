@@ -1,8 +1,9 @@
 ﻿@model DistributionOfStudents.ViewModels.CreateChangeGroupOfSpecVM
-<div class="shadow px-2">
+<div class="shadow card px-2">
     <h5 class="text-center">
         @Html.DisplayNameFor(model => model.SelectedSpecialities)
     </h5>
+    <span asp-validation-for="SelectedSpecialities" class="text-danger"></span>
     <hr />
     @for (int i = 0; i < Model.SelectedSpecialities.Count(); i++)
     {

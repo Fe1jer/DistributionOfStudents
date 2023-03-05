@@ -30,6 +30,7 @@ namespace DistributionOfStudents.Data.Models
 
         public bool IsCompleted { get; set; }
 
+        public List<Subject>? Subjects { get; set; }
         public List<Admission>? Admissions { get; set; }
         public List<Speciality>? Specialities { get; set; }
     }
