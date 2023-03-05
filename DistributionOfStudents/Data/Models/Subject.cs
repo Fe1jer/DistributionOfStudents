@@ -8,5 +8,7 @@ namespace DistributionOfStudents.Data.Models
         [Display(Name = "Название")]
         [DataType(DataType.Text)]
         public string Name { get; set; }
+
+        public List<GroupOfSpecialties> GroupsOfSpecialties { get; set; }
     }
 }
