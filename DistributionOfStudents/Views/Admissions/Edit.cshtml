@@ -1,0 +1,99 @@
+﻿@model DistributionOfStudents.ViewModels.CreateChangeAdmissionVM
+
+@{
+    ViewData["Title"] = "Редактирование заявки";
+}
+
+<h1 class="text-center">Редактировать заявку</h1>
+<hr />
+<div id="content" class="ps-lg-4 pe-lg-4 pt-2" style="position: relative">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-2">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label asp-for="Student.Surname" class="control-label"></label>
+                    <input asp-for="Student.Surname" class="form-control" />
+                    <span asp-validation-for="Student.Surname" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Student.Name" class="control-label"></label>
+                    <input asp-for="Student.Name" class="form-control" />
+                    <span asp-validation-for="Student.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Student.Patronymic" class="control-label"></label>
+                    <input asp-for="Student.Patronymic" class="form-control" />
+                    <span asp-validation-for="Student.Patronymic" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DateOfApplication" class="control-label"></label>
+                    <input asp-for="DateOfApplication" class="form-control datePickerWithTime" id="datePickerWithTime" />
+                    <span asp-validation-for="DateOfApplication" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                @await Html.PartialAsync("StudentScoresPartial", Model)
+            </div>
+            <div class="col-sm-6">
+                @await Html.PartialAsync("PrioritySpecialtiesPartial", Model)
+            </div>
+        </div>
+        <input asp-for="Id" type="hidden"/>
+        <div class="col text-center pt-4">
+            <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#ChangeAdmission">
+                Сохранить
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#DeleteAdmission">
+                Удалить
+            </button>
+            <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="GroupsOfSpecialties" asp-action="Details"
+               asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.GroupId">Вернуться</a>
+        </div>
+        <div class="modal fade" id="ChangeAdmission" tabindex="-1" aria-labelledby="ChangeAdmission" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ChangeAdmission">Сохранить изменения</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Перед тем как изменить данные заявки, проверьте заполнение всех ячеек этой заявки.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="DeleteAdmission" aria-labelledby="DeleteAdmission" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Удалить заявку "<b class="text-success">@Model.Student.Surname @Model.Student.Name @Model.Student.Patronymic</b>"</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Вы уверенны, что хотите удалить эту заявку?
+                            <br />
+                            Заявка аббитуриента <b class="text-success">"@Model.Student.Surname @Model.Student.Name @Model.Student.Patronymic"</b> будет удалёна без возможности восстановления.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <a type="button" class="btn btn-outline-danger py-1" asp-controller="Admissions" asp-action="Delete"
+                           asp-route-groupId="@Model.GroupId" asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.Id">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

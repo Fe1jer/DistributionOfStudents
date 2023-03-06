@@ -15,6 +15,8 @@ namespace DistributionOfStudents.Data.Models
 
         [Display(Name = "Приоритет")]
         public List<SpecialityPriority> SpecialityPriorities { get; set; }
+
+        [Display(Name = "Баллы по ЦТ(ЦЭ)")]
         public List<StudentScore> StudentScores { get; set; }
     }
 }

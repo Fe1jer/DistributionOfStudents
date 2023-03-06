@@ -63,12 +63,12 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Edit(string facultyName, int id)
         {
             Speciality specialty = await _specialtiesRepository.GetByIdAsync(id);
-            Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName))).Single();
-            specialty.Faculty = faculty;
             if (specialty == null)
             {
                 return NotFound();
             }
+            Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName))).Single();
+            specialty.Faculty = faculty;
             return View(specialty);
         }
 

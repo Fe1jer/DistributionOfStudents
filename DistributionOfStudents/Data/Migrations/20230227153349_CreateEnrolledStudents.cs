@@ -24,7 +24,8 @@ namespace DistributionOfStudents.Data.Migrations
                         name: "FK_EnrolledStudents_RecruitmentPlans_RecruitmentPlanId",
                         column: x => x.RecruitmentPlanId,
                         principalTable: "RecruitmentPlans",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_EnrolledStudents_Students_StudentId",
                         column: x => x.StudentId,

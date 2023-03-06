@@ -1,0 +1,93 @@
+﻿@model DistributionOfStudents.ViewModels.DetailsAdmissionVM
+
+@{
+    ViewData["Title"] = Model.Admission.Student.Surname + " " + Model.Admission.Student.Name + " " + Model.Admission.Student.Patronymic;
+}
+
+<h1 class="text-center">
+    @Model.Admission.Student.Surname @Model.Admission.Student.Name @Model.Admission.Student.Patronymic
+</h1>
+
+<hr />
+<div id="content" class="ps-lg-4 pe-lg-4 pt-2" style="position: relative">
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="shadow card px-2">
+                <h5 class="text-center">
+                    @Html.DisplayNameFor(model => model.Admission.SpecialityPriorities)
+                </h5>
+                <span asp-validation-for="Admission.SpecialityPriorities" class="text-danger"></span>
+                <hr />
+                @{
+                    int i = 1;
+                }
+                @foreach (SpecialityPriority priority in Model.Admission.SpecialityPriorities)
+                {
+                    <div class="mb-2">
+                        <label class="control-label">
+                            @i : @{
+                                string a = priority.RecruitmentPlan.Speciality.DirectionName ?? priority.RecruitmentPlan.Speciality.FullName;
+                            }
+                            @a
+                        </label>
+                    </div>
+                    i++;
+                }
+            </div>
+        </div>
+        <div class="col-sm-5">
+            <div class="shadow card px-2">
+                <h5 class="text-center">
+                    @Html.DisplayNameFor(modelItem => Model.Admission.StudentScores)
+                </h5>
+                <hr class="my-1" />
+                <div class="form-group mb-1">
+                    <label class="control-label">
+                        @Html.DisplayNameFor(modelItem => Model.Admission.Student.GPS) : @Html.DisplayFor(modelItem => Model.Admission.Student.GPS)
+                    </label>
+                </div>
+                @foreach (StudentScore studentScore in Model.Admission.StudentScores)
+                {
+                    <hr class="my-1" />
+                    <div class="mb-1">
+                        <label class="control-label">
+                            @Html.DisplayFor(modelItem => studentScore.Subject.Name) : @Html.DisplayFor(modelItem => studentScore.Score)
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col text-center pt-4">
+        <a type="button" class="btn btn-outline-success btn-lg" asp-controller="Admissions" asp-action="Edit"
+           asp-route-groupId="@Model.Admission.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.Admission.Id">Изменить</a>
+        <button type="button" class="btn btn-outline-danger btn-lg" data-bs-toggle="modal" data-bs-target="#DeleteAdmission">
+            Удалить
+        </button>
+        <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="GroupsOfSpecialties" asp-action="Details"
+           asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.Admission.GroupOfSpecialties.Id">Вернуться</a>
+    </div>
+
+    <div class="modal fade" id="DeleteAdmission" aria-labelledby="DeleteAdmission" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Удалить заявку "<b class="text-success">@Model.Admission.Student.Surname @Model.Admission.Student.Name @Model.Admission.Student.Patronymic</b>"</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Вы уверенны, что хотите удалить эту заявку?
+                        <br />
+                        Заявка аббитуриента <b class="text-success">"@Model.Admission.Student.Surname @Model.Admission.Student.Name @Model.Admission.Student.Patronymic"</b> будет удалёна без возможности восстановления.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <a type="button" class="btn btn-outline-danger py-1" asp-controller="Admissions" asp-action="Delete"
+                       asp-route-groupId="@Model.Admission.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.Admission.Id">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -21,6 +21,6 @@ namespace DistributionOfStudents.Data.Models
         public bool IsBudget { get; set; }
         public bool IsFullTime { get; set; }
 
-        public List<EnrolledStudent> EnrolledStudents { get; set; }
+        public List<EnrolledStudent>? EnrolledStudents { get; set; }
     }
 }
