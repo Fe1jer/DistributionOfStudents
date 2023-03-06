@@ -12,9 +12,9 @@
             <th>
                 Сумма баллов
             </th>
-            @*            <th>
-            @Html.DisplayNameFor(model => model.Admissions.FirstOrDefault().SpecialtyPriorities)
-            </th>*@
+            <th>
+                Приоритет
+            </th>
             <th style="text-align-last: center" width="120">
                 <a class="text-success ms-2" asp-controller="Admissions" asp-action="Create"
                    asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName">
@@ -41,22 +41,21 @@
                 <td>
                     @(item.Student.GPS + item.StudentScores.Sum(i => i.Score))
                 </td>
-                @*                <td>
-            @foreach (var specialtyPriority in item.SpecialtyPriorities)
-            {
-            @specialtyPriority.Priority
-            <label>)</label>
-            @if (specialtyPriority.RecruitmentPlan.Specialty.DirectionName != null)
-            {
-            @Html.DisplayFor(modelItem => specialtyPriority.RecruitmentPlan.Specialty.DirectionName)
-            }
-            else
-            {
-            @Html.DisplayFor(modelItem => specialtyPriority.RecruitmentPlan.Specialty.FullName)
-            }
-            <p class="m-1"></p>
-            }
-            </td>*@
+                <td>
+                    @{
+                        string priorities = String.Empty;
+                    }
+                    @foreach (SpecialityPriority priority in item.SpecialityPriorities.Where(i => i.Priority > 0).OrderBy(i => i.Priority))
+                    {
+                        priorities += Model.RecruitmentPlans.IndexOf(priority.RecruitmentPlan) + 1;
+                        priorities += " -> ";
+                    }
+                    @{
+                        int i = priorities.Length - 1;
+                        priorities = priorities.Remove(i - 3, 3);
+                    }
+                    @priorities
+                </td>
                 <td style="text-align-last: center">
                     <div class="d-inline-flex">
                         <a type="button" class="btn btn-outline-success py-1" asp-controller="Admissions" asp-action="Edit"

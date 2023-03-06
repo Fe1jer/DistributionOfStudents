@@ -3,6 +3,9 @@
 <table class="table mb-0">
     <thead>
         <tr>
+            <th width="20">
+                №
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Speciality)
             </th>
@@ -15,9 +18,15 @@
         </tr>
     </thead>
     <tbody>
+        @{
+            int i = 1;
+        }
         @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    @i
+                </td>
                 <td>
                     @if (item.Speciality.DirectionName != null)
                     {
@@ -35,6 +44,7 @@
                     @Html.DisplayFor(modelItem => item.PassingScore)
                 </td>
             </tr>
+            i++;
         }
     </tbody>
 </table>

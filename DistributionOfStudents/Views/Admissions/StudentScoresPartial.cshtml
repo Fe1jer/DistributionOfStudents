@@ -1,0 +1,27 @@
+﻿@model DistributionOfStudents.ViewModels.CreateChangeAdmissionVM
+
+<div class="shadow card px-2">
+    <h5 class="text-center">
+        @Html.DisplayNameFor(modelItem => Model.StudentScores)
+    </h5>
+    <hr class="my-1" />
+    <div class="form-group mb-1">
+        <label asp-for="Student.GPS" class="control-label"></label>
+        <input min="0" asp-for="Student.GPS" class="form-control" style="width: 100px" />
+        <span asp-validation-for="Student.GPS" class="text-danger"></span>
+    </div>
+    @for (int i = 0; i < Model.StudentScores.Count(); i++)
+    {
+        <hr class="my-1" />
+        <div class="mb-1">
+            <label class="control-label">
+                @Html.DisplayFor(modelItem => Model.StudentScores[i].Subject.Name)
+            </label>
+            <input min="0" asp-for="@Model.StudentScores[i].Score" class="form-control" style="width: 100px" />
+            <span asp-validation-for="@Model.StudentScores[i].Score" class="text-danger"></span>
+            <input asp-for="@Model.StudentScores[i].Subject.Id" type="hidden" />
+            <input asp-for="@Model.StudentScores[i].Subject.Name" type="hidden" />
+            <input asp-for="@Model.StudentScores[i].Id" type="hidden" />
+        </div>
+    }
+</div>
