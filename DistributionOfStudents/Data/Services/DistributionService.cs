@@ -10,15 +10,13 @@ namespace DistributionOfStudents.Data.Services
         private readonly List<Admission> _admissions;
         private readonly Dictionary<RecruitmentPlan, List<Admission>> _distributedStudents;
 
-        public DistributionService(List<RecruitmentPlan> recruitmentPlans, List<Admission> admissions)
+        public DistributionService(List<RecruitmentPlan> recruitmentPlans, List<Admission>? admissions)
         {
             _recruitmentPlans = recruitmentPlans;
-            _admissions = admissions;
+            _admissions = admissions ?? new();
             _distributedStudents = new();
-            foreach (RecruitmentPlan plan in _recruitmentPlans)
-            {
-                _distributedStudents.Add(plan, new List<Admission>());
-            }
+
+            _recruitmentPlans.ForEach(plan => _distributedStudents.Add(plan, new List<Admission>()));
             if (_recruitmentPlans.All(i => i.EnrolledStudents == null))
             {
                 DistridutionPlans(_recruitmentPlans, GetCloneOfAdmissions());

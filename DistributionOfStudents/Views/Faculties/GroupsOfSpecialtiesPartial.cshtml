@@ -10,6 +10,9 @@
                 Срок
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.GroupsOfSpecialties.First().Competition)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.GroupsOfSpecialties.First().RecruitmentPlans)
             </th>
             <th style="text-align-last: center" width="120">
@@ -35,6 +38,9 @@
                         @Html.DisplayFor(modelItem => item.GroupOfSpecialties.StartDate) -
                         <p class="m-1"></p>
                         @Html.DisplayFor(modelItem => item.GroupOfSpecialties.EnrollmentDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Competition)
                     </td>
                     <td>
                         @foreach (var plan in item.RecruitmentPlans)

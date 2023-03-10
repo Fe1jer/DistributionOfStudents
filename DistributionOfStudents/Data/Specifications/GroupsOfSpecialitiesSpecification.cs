@@ -11,8 +11,6 @@ namespace DistributionOfStudents.Data.Specifications
             WhereFaculty(facultyShortName);
         }
 
-        public GroupsOfSpecialitiesSpecification(int id) : this(faculty => faculty.Id == id) { }
-
         public GroupsOfSpecialitiesSpecification(Expression<Func<GroupOfSpecialties, bool>> expression) : base(expression)
         {
         }

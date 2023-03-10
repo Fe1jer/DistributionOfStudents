@@ -32,6 +32,7 @@ namespace DistributionOfStudents.Data.Specifications
         public RecruitmentPlansSpecification WhereGroup(GroupOfSpecialties group)
         {
             AddWhere(i => i.IsBudget == group.IsBudget && i.IsDailyForm == group.IsDailyForm && i.IsFullTime == group.IsFullTime && i.Year == group.Year);
+            AddWhere(p => group.Specialities.Contains(p.Speciality));
 
             return this;
         }

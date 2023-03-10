@@ -164,7 +164,11 @@ namespace DistributionOfStudents.Controllers
         // GET: RecruitmentPlans/Create
         public async Task<IActionResult> Create(string facultyName)
         {
-            Faculty faculty = (await _facultyRepository.GetAllAsync(new FacultiesSpecification(facultyName).IncludeRecruitmentPlans())).Single();
+            Faculty faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            if (faculty == null)
+            {
+                return NotFound();
+            }
             int year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) + 1 : DateTime.Now.Year).Max() : DateTime.Now.Year;
             DetailsFacultyRecruitmentPlans model = new()
             {
@@ -187,11 +191,7 @@ namespace DistributionOfStudents.Controllers
             if (ModelState.IsValid)
             {
                 List<RecruitmentPlan> plans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
-
-                foreach (RecruitmentPlan plan in plans)
-                {
-                    await _plansRepository.AddAsync(plan);
-                }
+                plans.ForEach(async plan => await _plansRepository.AddAsync(plan));
 
                 return RedirectToAction("Details", "Faculties", new { name = facultyName });
             }
@@ -201,7 +201,11 @@ namespace DistributionOfStudents.Controllers
         // GET: RecruitmentPlans/Edit/5
         public async Task<IActionResult> Edit(string facultyName, int year)
         {
-            Faculty faculty = (await _facultyRepository.GetAllAsync(new FacultiesSpecification(facultyName).IncludeRecruitmentPlans())).Single();
+            Faculty faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            if (faculty == null)
+            {
+                return NotFound();
+            }
             DetailsFacultyRecruitmentPlans model = new()
             {
                 PlansForSpecialities = GetFacultyPlans(faculty, year),
@@ -226,10 +230,7 @@ namespace DistributionOfStudents.Controllers
                 List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
                 List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
 
-                foreach (RecruitmentPlan plan in diff)
-                {
-                    await _plansRepository.DeleteAsync(plan.Id);
-                }
+                diff.ForEach(async plan => await _plansRepository.DeleteAsync(plan.Id));
                 foreach (RecruitmentPlan plan in changedPlans)
                 {
                     if (plan.Id > 0)
@@ -252,10 +253,7 @@ namespace DistributionOfStudents.Controllers
         {
             List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
 
-            foreach (RecruitmentPlan plan in allPlans)
-            {
-                await _plansRepository.DeleteAsync(plan.Id);
-            }
+            allPlans.ForEach(async plan => await _plansRepository.DeleteAsync(plan.Id));
             _logger.LogInformation("План приёма на - {FacultyName} -  за {Year} год был удалён", facultyName, year);
 
             return RedirectToAction("Details", "Faculties", new { name = facultyName });

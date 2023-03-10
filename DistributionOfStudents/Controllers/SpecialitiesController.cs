@@ -30,7 +30,12 @@ namespace DistributionOfStudents.Controllers
         // GET: Specialties/Create
         public async Task<IActionResult> Create(string facultyName)
         {
-            Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName))).Single();
+            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification());
+            if(faculty == null)
+            {
+                return NotFound();
+            }
+
             Speciality specialty = new()
             {
                 Faculty = faculty
@@ -48,8 +53,11 @@ namespace DistributionOfStudents.Controllers
         {
             if (ModelState.IsValid)
             {
-                Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(specialty.Faculty.ShortName))).Single();
-
+                Faculty faculty = await _facultiesRepository.GetByShortNameAsync(specialty.Faculty.ShortName, new FacultiesSpecification());
+                if (faculty == null)
+                {
+                    return NotFound();
+                }
                 specialty.Faculty = faculty;
                 await _specialtiesRepository.AddAsync(specialty);
                 _logger.LogInformation("Создана специальность - {SpecialityName}", specialty.FullName);
@@ -63,11 +71,11 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Edit(string facultyName, int id)
         {
             Speciality specialty = await _specialtiesRepository.GetByIdAsync(id);
-            if (specialty == null)
+            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification());
+            if (specialty == null || faculty == null)
             {
                 return NotFound();
             }
-            Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName))).Single();
             specialty.Faculty = faculty;
             return View(specialty);
         }

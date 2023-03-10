@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using DistributionOfStudents.ViewModels;
 using NuGet.Protocol.Plugins;
 using System.Numerics;
+using DistributionOfStudents.Data.Services;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -41,9 +42,19 @@ namespace DistributionOfStudents.Controllers
         [Route("~/Faculties/{facultyName}/{id}")]
         public async Task<IActionResult> Details(string facultyName, int id, string? searchStudents)
         {
-            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(id).IncludeAdmissions().IncludeSpecialties());
-            group.Admissions = group.Admissions.OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
-            if(searchStudents != null)
+            List<RecruitmentPlan> plans;
+            DistributionService distributionService;
+            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+            plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
+            distributionService = new(plans, group.Admissions);
+            var plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
+
+            if (searchStudents != null)
             {
                 List<string> searchWords = searchStudents.Split(" ").ToList();
                 foreach (string word in searchWords)
@@ -53,17 +64,10 @@ namespace DistributionOfStudents.Controllers
                         .Union(group.Admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
                         .ToList();
                 }
-
-                group.Admissions = group.Admissions;
-            }
-            if (group == null)
-            {
-                return NotFound();
             }
 
-            List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            plans = plans.Where(p => group.Specialities.Contains(p.Speciality)).ToList();
-            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, FacultyShortName = facultyName, Year = group.Year };
+            group.Admissions = group.Admissions.OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
+            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plansWithEnrolledStudents, FacultyShortName = facultyName, Year = group.Year };
 
             return View(model);
         }
@@ -71,7 +75,11 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Create(string facultyName, int year)
         {
             CreateChangeGroupOfSpecVM model;
-            Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName).IncludeSpecialties())).Single();
+            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
+            if(faculty == null)
+            {
+                return NotFound();
+            }
             GroupOfSpecialties group = new()
             {
                 IsBudget = true,
@@ -166,13 +174,13 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Edit(string facultyName, int id)
         {
             CreateChangeGroupOfSpecVM model;
-            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(id).IncludeSubjects().IncludeSpecialties());
+            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
+            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
 
-            if (group == null)
+            if (group == null || faculty == null)
             {
                 return NotFound();
             }
-            Faculty faculty = (await _facultiesRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(facultyName).IncludeSpecialties())).Single();
 
             model = new CreateChangeGroupOfSpecVM()
             {
@@ -211,7 +219,7 @@ namespace DistributionOfStudents.Controllers
                             subjects.Add(await getSubject);
                         }
                     }
-                    GroupOfSpecialties group = (await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(model.Group.Id).IncludeSubjects().IncludeSpecialties())).Single();
+                    GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(model.FacultyShortName).IncludeSubjects().IncludeSpecialties());
                     group.Year = model.Group.StartDate.Year;
                     group.Name = model.Group.Name;
                     group.IsBudget = model.Group.IsBudget;
