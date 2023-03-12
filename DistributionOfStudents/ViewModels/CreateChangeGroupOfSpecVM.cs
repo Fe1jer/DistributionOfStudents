@@ -14,11 +14,11 @@ namespace DistributionOfStudents.ViewModels
         public GroupOfSpecialties Group { get; set; }
 
         [ValidateSelectedSpecialities]
-        [Display(Name = "Специальности, входящие в группу")]
+        [Display(Name = "Специальности, составляющие общий конкурс")]
         public List<IsSelectedSpecialityInGroupVM> SelectedSpecialities { get; set; }
 
         [ValidateSelectedSubjects]
-        [Display(Name = "Предметы, для которых нужны сертификаты")]
+        [Display(Name = "Предметы, по которым нужны сертификаты")]
         public List<IsSelectedSubjectVM> SelectedSubjects { get; set; }
     }
 }

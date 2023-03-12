@@ -40,7 +40,7 @@ namespace DistributionOfStudents.Data.Specifications
         {
             AddInclude("Admissions.Student");
             AddInclude("Admissions.SpecialityPriorities");
-            AddInclude("Admissions.StudentScores");
+            AddInclude("Admissions.StudentScores.Subject");
 
             return this;
         }

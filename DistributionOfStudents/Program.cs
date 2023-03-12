@@ -37,7 +37,7 @@ namespace DistributionOfStudents
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
+                    builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -85,7 +85,7 @@ namespace DistributionOfStudents
         {
             services.AddTransient<IFacultiesRepository, FacultiesRepository>();
             services.AddTransient<IAdmissionsRepository, AdmissionsRepository>();
-            services.AddTransient<IFacultiesRepository, FacultiesRepository>();
+            services.AddTransient<IStudentsRepository, StudentsRepository>();
             services.AddTransient<IGroupsOfSpecialitiesRepository, GroupsOfSpecialitiesRepository>();
             services.AddTransient<ISpecialitiesRepository, SpecialitiesRepository>();
             services.AddTransient<ISubjectsRepository, SubjectsRepository>();
