@@ -44,7 +44,7 @@ namespace DistributionOfStudents.Controllers
         {
             List<RecruitmentPlan> plans;
             DistributionService distributionService;
-            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
 
             if (group == null)
             {
@@ -55,7 +55,7 @@ namespace DistributionOfStudents.Controllers
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
                 distributionService = new(plans, group.Admissions);
                 plans = distributionService.GetPlansWithEnrolledStudents();
-
+                group.Admissions ??= new();
                 if (searchStudents != null)
                 {
                     List<string> searchWords = searchStudents.Split(" ").ToList();
@@ -74,7 +74,7 @@ namespace DistributionOfStudents.Controllers
             {
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
-           
+
             DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, Year = group.Year };
 
             return View(model);
@@ -83,8 +83,8 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Create(string facultyName, int year)
         {
             CreateChangeGroupOfSpecVM model;
-            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
-            if(faculty == null)
+            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
+            if (faculty == null)
             {
                 return NotFound();
             }
@@ -155,16 +155,22 @@ namespace DistributionOfStudents.Controllers
                 {
                     foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in model.SelectedSpecialities.Where(p => p.IsSelected == true))
                     {
-                        Task<Speciality> getSpecialty = _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
-                        recruitmentPlans.Add(await getSpecialty);
+                        Speciality? specialty = await _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
+                        if (specialty != null)
+                        {
+                            recruitmentPlans.Add(specialty);
+                        }
                     }
                 }
                 if (model.SelectedSubjects != null)
                 {
                     foreach (IsSelectedSubjectVM isSelectedSubject in model.SelectedSubjects.Where(p => p.IsSelected == true))
                     {
-                        Task<Subject> getSubject = _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
-                        subjects.Add(await getSubject);
+                        Subject? subject = await _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
+                        if (subject != null)
+                        {
+                            subjects.Add(subject);
+                        }
                     }
                 }
                 model.Group.Year = model.Group.StartDate.Year;
@@ -181,8 +187,8 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Edit(string facultyName, int id)
         {
             CreateChangeGroupOfSpecVM model;
-            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
-            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
+            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
 
             if (group == null || faculty == null)
             {
@@ -213,31 +219,40 @@ namespace DistributionOfStudents.Controllers
                     {
                         foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in model.SelectedSpecialities.Where(p => p.IsSelected == true))
                         {
-                            Task<Speciality> getSpecialty = _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
-                            recruitmentPlans.Add(await getSpecialty);
+                            Speciality? specialty = await _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
+                            if (specialty != null)
+                            {
+                                recruitmentPlans.Add(specialty);
+                            }
                         }
                     }
                     if (model.SelectedSubjects != null)
                     {
                         foreach (IsSelectedSubjectVM isSelectedSubject in model.SelectedSubjects.Where(p => p.IsSelected == true))
                         {
-                            Task<Subject> getSubject = _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
-                            subjects.Add(await getSubject);
+                            Subject? subject = await _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
+                            if (subject != null)
+                            {
+                                subjects.Add(subject);
+                            }
                         }
                     }
-                    GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
-                    group.Year = model.Group.StartDate.Year;
-                    group.Name = model.Group.Name;
-                    group.IsBudget = model.Group.IsBudget;
-                    group.IsDailyForm = model.Group.IsDailyForm;
-                    group.IsFullTime = model.Group.IsFullTime;
-                    group.Description = model.Group.Description;
-                    group.StartDate = model.Group.StartDate;
-                    group.EnrollmentDate = model.Group.EnrollmentDate;
-                    group.Specialities = recruitmentPlans;
-                    group.Subjects = subjects;
+                    GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
+                    if (group != null)
+                    {
+                        group.Year = model.Group.StartDate.Year;
+                        group.Name = model.Group.Name;
+                        group.IsBudget = model.Group.IsBudget;
+                        group.IsDailyForm = model.Group.IsDailyForm;
+                        group.IsFullTime = model.Group.IsFullTime;
+                        group.Description = model.Group.Description;
+                        group.StartDate = model.Group.StartDate;
+                        group.EnrollmentDate = model.Group.EnrollmentDate;
+                        group.Specialities = recruitmentPlans;
+                        group.Subjects = subjects;
 
-                    await _groupsOfSpecialtiesRepository.UpdateAsync(group);
+                        await _groupsOfSpecialtiesRepository.UpdateAsync(group);
+                    }
                     _logger.LogInformation("Изменена группа - {GroupName} - {Year} года на факультете {FacultyName}", model.Group.Name, model.Group.Year, facultyName);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -258,10 +273,13 @@ namespace DistributionOfStudents.Controllers
 
         public async Task<RedirectToActionResult> Delete(string facultyName, int id)
         {
-            GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id);
-            await _groupsOfSpecialtiesRepository.DeleteAsync(id);
-            _logger.LogInformation("Группа - {GroupName} - {Year} года на факультете - {FacultyName} - была удалена", group.Name, group.Year, facultyName);
-
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id);
+            if (group != null)
+            {
+                await _groupsOfSpecialtiesRepository.DeleteAsync(id);
+                _logger.LogInformation("Группа - {GroupName} - {Year} года на факультете - {FacultyName} - была удалена", group.Name, group.Year, facultyName);
+            }
+            
             return RedirectToAction("Details", "Faculties", new { name = facultyName, });
         }
 

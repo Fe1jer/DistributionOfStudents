@@ -10,6 +10,7 @@ using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Specifications;
 using Microsoft.CodeAnalysis;
+using NuGet.Protocol.Plugins;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -30,8 +31,8 @@ namespace DistributionOfStudents.Controllers
         // GET: Specialties/Create
         public async Task<IActionResult> Create(string facultyName)
         {
-            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification());
-            if(faculty == null)
+            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification());
+            if (faculty == null)
             {
                 return NotFound();
             }
@@ -53,7 +54,7 @@ namespace DistributionOfStudents.Controllers
         {
             if (ModelState.IsValid)
             {
-                Faculty faculty = await _facultiesRepository.GetByShortNameAsync(specialty.Faculty.ShortName, new FacultiesSpecification());
+                Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(specialty.Faculty.ShortName, new FacultiesSpecification());
                 if (faculty == null)
                 {
                     return NotFound();
@@ -70,8 +71,8 @@ namespace DistributionOfStudents.Controllers
         // GET: Specialties/Edit/5
         public async Task<IActionResult> Edit(string facultyName, int id)
         {
-            Speciality specialty = await _specialtiesRepository.GetByIdAsync(id);
-            Faculty faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification());
+            Speciality? specialty = await _specialtiesRepository.GetByIdAsync(id);
+            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification());
             if (specialty == null || faculty == null)
             {
                 return NotFound();
@@ -118,9 +119,12 @@ namespace DistributionOfStudents.Controllers
         // GET: FacultiesController/Delete/5
         public async Task<RedirectToActionResult> Delete(string facultyName, int id)
         {
-            Speciality specialty = await _specialtiesRepository.GetByIdAsync(id);
-            await _specialtiesRepository.DeleteAsync(id);
-            _logger.LogInformation("Специальность - {SpecialityName} - была удалена", specialty.FullName);
+            Speciality? specialty = await _specialtiesRepository.GetByIdAsync(id);
+            if (specialty != null)
+            {
+                await _specialtiesRepository.DeleteAsync(id);
+                _logger.LogInformation("Специальность - {SpecialityName} - была удалена", specialty.FullName);
+            }
 
             return RedirectToAction("Details", "Faculties", new { name = facultyName, });
         }

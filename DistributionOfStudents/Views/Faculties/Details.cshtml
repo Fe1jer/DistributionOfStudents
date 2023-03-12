@@ -19,7 +19,7 @@
     <div class="card shadow">
         @await Html.PartialAsync("SpecialtiesPartial", Model.Faculty)
     </div>
-    @if (Model.Faculty.Specialities.Any())
+    @if (Model.Faculty.Specialities != null && Model.Faculty.Specialities.Any())
     {
         <hr class="mt-4" />
         <h4>

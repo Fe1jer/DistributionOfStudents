@@ -5,8 +5,8 @@ namespace DistributionOfStudents.Data.Interfaces
 {
     public interface IAdmissionsRepository
     {
-        Task<Admission> GetByIdAsync(int admissionId);
-        Task<Admission> GetByIdAsync(int id, ISpecification<Admission> specification);
+        Task<Admission?> GetByIdAsync(int admissionId);
+        Task<Admission?> GetByIdAsync(int id, ISpecification<Admission> specification);
         Task<List<Admission>> GetAllAsync();
         Task<List<Admission>> GetAllAsync(ISpecification<Admission> specification);
         Task AddAsync(Admission admission);

@@ -35,7 +35,7 @@ namespace DistributionOfStudents.Controllers
                 return NotFound();
             }
 
-            var subject = await _subjectsRepository
+            Subject? subject = await _subjectsRepository
                 .GetByIdAsync(id);
             if (subject == null)
             {
@@ -74,7 +74,7 @@ namespace DistributionOfStudents.Controllers
             {
                 return NotFound();
             }
-            var subject = await _subjectsRepository.GetByIdAsync(id);
+            Subject? subject = await _subjectsRepository.GetByIdAsync(id);
             if (subject == null)
             {
                 return NotFound();
@@ -124,7 +124,7 @@ namespace DistributionOfStudents.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Subjects'  is null.");
             }
-            var subject = await _subjectsRepository.GetByIdAsync(id);
+            Subject? subject = await _subjectsRepository.GetByIdAsync(id);
             if (subject != null)
             {
                 await _subjectsRepository.DeleteAsync(id);

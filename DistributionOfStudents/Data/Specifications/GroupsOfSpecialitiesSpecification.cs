@@ -1,5 +1,6 @@
 ﻿using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Specifications.Base;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace DistributionOfStudents.Data.Specifications
@@ -24,14 +25,18 @@ namespace DistributionOfStudents.Data.Specifications
 
         public GroupsOfSpecialitiesSpecification IncludeSubjects()
         {
+#nullable disable
             AddInclude(f => f.Subjects);
 
+#nullable restore
             return this;
         }
 
         public GroupsOfSpecialitiesSpecification IncludeSpecialties()
         {
+#nullable disable
             AddInclude(gr => gr.Specialities);
+#nullable restore
 
             return this;
         }
@@ -47,7 +52,9 @@ namespace DistributionOfStudents.Data.Specifications
 
         public GroupsOfSpecialitiesSpecification WhereFaculty(string facultyShortName)
         {
+#nullable disable
             AddWhere(p => p.Specialities.Any(i => i.Faculty.ShortName == facultyShortName));
+#nullable restore
             return this;
         }
 

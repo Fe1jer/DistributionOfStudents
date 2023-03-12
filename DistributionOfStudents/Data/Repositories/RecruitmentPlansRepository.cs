@@ -12,8 +12,11 @@ namespace DistributionOfStudents.Data.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            RecruitmentPlan recruitmentPlan = await GetByIdAsync(id);
-            await DeleteAsync(recruitmentPlan);
+            RecruitmentPlan? recruitmentPlan = await GetByIdAsync(id);
+            if (recruitmentPlan != null)
+            {
+                await DeleteAsync(recruitmentPlan);
+            }
         }
     }
 }

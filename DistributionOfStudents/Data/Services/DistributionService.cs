@@ -74,7 +74,7 @@ namespace DistributionOfStudents.Data.Services
 
         public bool AreControversialStudents()
         {
-            return _recruitmentPlans.Any(i => i.EnrolledStudents.Count > i.Count);
+            return _recruitmentPlans.Any(i => (i.EnrolledStudents ?? new()).Count > i.Count);
         }
 
         public List<RecruitmentPlan> GetPlansWithEnrolledStudents()

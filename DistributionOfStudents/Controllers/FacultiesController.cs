@@ -37,7 +37,7 @@ namespace DistributionOfStudents.Controllers
         [Route("[controller]/{name}")]
         public async Task<IActionResult> Details(string name)
         {
-            Faculty faculty = await _facultyRepository.GetByShortNameAsync(name, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(name, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
             List<GroupOfSpecialties> groups = new();
             List<DetailsGroupOfSpecialitiesVM> groupsOfSpecialities = new();
             DetailsFacultyRecruitmentPlans FacultyPlans = new()
@@ -52,36 +52,34 @@ namespace DistributionOfStudents.Controllers
             if (faculty.Specialities != null)
             {
                 faculty.Specialities = faculty.Specialities.OrderBy(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c))))).ToList();
-                FacultyPlans.Year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) : 0).Max() : 0;
+                FacultyPlans.Year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) : 0).Max() : 0;
                 FacultyPlans.FacultyFullName = faculty.FullName;
                 FacultyPlans.FacultyShortName = faculty.ShortName;
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == FacultyPlans.Year).ToList();
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == FacultyPlans.Year).ToList();
 
-#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
                     PlansForSpecialityVM plans = new()
                     {
                         SpecialityName = speciality.DirectionName ?? speciality.FullName,
                         SpecialityId = speciality.Id,
                         DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
                         DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
                         DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
                         DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
                         EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
                         EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
                         EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
                         EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
                     };
-#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
 
                     FacultyPlans.PlansForSpecialities.Add(plans);
                 }
@@ -176,7 +174,7 @@ namespace DistributionOfStudents.Controllers
         [Route("[controller]/[action]")]
         public async Task<IActionResult> Edit(int id)
         {
-            Faculty faculty = await _facultyRepository.GetByIdAsync(id, new FacultiesSpecification());
+            Faculty? faculty = await _facultyRepository.GetByIdAsync(id, new FacultiesSpecification());
 
             if (faculty == null)
             {
@@ -237,9 +235,12 @@ namespace DistributionOfStudents.Controllers
         [Route("[controller]/[action]")]
         public async Task<RedirectToActionResult> DeleteAsync(int id)
         {
-            Faculty faculty = await _facultyRepository.GetByIdAsync(id);
-            await _facultyRepository.DeleteAsync(id);
-            _logger.LogInformation("Факультет - {FacultyName} - был удалён", faculty.FullName);
+            Faculty? faculty = await _facultyRepository.GetByIdAsync(id);
+            if(faculty != null)
+            {
+                await _facultyRepository.DeleteAsync(id);
+                _logger.LogInformation("Факультет - {FacultyName} - был удалён", faculty.FullName);
+            }
 
             return RedirectToAction(nameof(Index));
         }

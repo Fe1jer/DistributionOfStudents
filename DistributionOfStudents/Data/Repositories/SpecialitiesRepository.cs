@@ -12,8 +12,11 @@ namespace DistributionOfStudents.Data.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            Speciality speciality = await GetByIdAsync(id);
-            await DeleteAsync(speciality);
+            Speciality? speciality = await GetByIdAsync(id);
+            if (speciality != null)
+            {
+                await DeleteAsync(speciality);
+            }
         }
     }
 }

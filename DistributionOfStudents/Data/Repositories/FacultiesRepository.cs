@@ -15,18 +15,21 @@ namespace DistributionOfStudents.Data.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            Faculty faculty = await GetByIdAsync(id);
-            await DeleteAsync(faculty);
+            Faculty? faculty = await GetByIdAsync(id);
+            if (faculty != null)
+            {
+                await DeleteAsync(faculty);
+            }
         }
 
-        public async Task<Faculty> GetByShortNameAsync(string name)
+        public async Task<Faculty?> GetByShortNameAsync(string name)
         {
             return (await GetAllAsync()).FirstOrDefault(i => i.ShortName == name);
         }
 
-        public async Task<Faculty> GetByShortNameAsync(string name, ISpecification<Faculty> specification)
+        public async Task<Faculty?> GetByShortNameAsync(string name, ISpecification<Faculty> specification)
         {
-            Faculty faculty = (await GetAllAsync()).FirstOrDefault(i => i.ShortName == name);
+            Faculty? faculty = (await GetAllAsync()).FirstOrDefault(i => i.ShortName == name);
             if (faculty != null)
             {
                 return await GetByIdAsync(faculty.Id, specification);

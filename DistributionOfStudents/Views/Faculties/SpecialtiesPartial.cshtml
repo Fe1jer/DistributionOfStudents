@@ -4,19 +4,19 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Specialities.First().FullName)
+                @Html.DisplayNameFor(model => (model.Specialities ?? new()).First().FullName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Specialities.First().ShortName)
+                @Html.DisplayNameFor(model => (model.Specialities ?? new()).First().ShortName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Specialities.First().Code)
+                @Html.DisplayNameFor(model => (model.Specialities ?? new()).First().Code)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Specialities.First().DirectionCode)
+                @Html.DisplayNameFor(model => (model.Specialities ?? new()).First().DirectionCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Specialities.First().Description)
+                @Html.DisplayNameFor(model => (model.Specialities ?? new()).First().Description)
             </th>
             <th style="text-align-last: center" width="120">
                 <a class="text-success ms-2" asp-controller="Specialities" asp-route-facultyName="@Model.ShortName" asp-action="Create">
@@ -28,7 +28,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Specialities)
+        @foreach (var item in Model.Specialities ?? new())
         {
             <tr style="vertical-align: middle;">
                 <td>

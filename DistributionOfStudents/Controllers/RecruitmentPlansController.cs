@@ -27,7 +27,8 @@ namespace DistributionOfStudents.Controllers
         {
             List<DetailsFacultyRecruitmentPlans> model = new();
             List<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
-            int year = faculties.Count != 0 ? faculties.Select(f => f.Specialities.Count != 0 ? f.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) : 0).Max() : 0).Max() : 0;
+            int year = faculties.Count != 0 ? faculties.Select(f => (f.Specialities ?? new()).Count != 0 ? (f.Specialities ?? new())
+            .Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) : 0).Max() : 0).Max() : 0;
 
             foreach (Faculty faculty in faculties)
             {
@@ -54,31 +55,29 @@ namespace DistributionOfStudents.Controllers
                 faculty.Specialities = faculty.Specialities.OrderBy(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c))))).ToList();
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == year).ToList();
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == year).ToList();
 
-#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
                     PlansForSpecialityVM plans = new()
                     {
-                        SpecialityName = speciality.FullName,
+                        SpecialityName = speciality.DirectionName ?? speciality.FullName,
                         SpecialityId = speciality.Id,
                         DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
                         DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
                         DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
                         DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
                         EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
                         EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
                         EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
                         EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
+                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
                     };
-#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
 
                     facultyPlans.Add(plans);
                 }
@@ -96,47 +95,49 @@ namespace DistributionOfStudents.Controllers
                 RecruitmentPlan plan;
                 foreach (PlansForSpecialityVM plans in facultyPlans)
                 {
-                    Task<Speciality> getSpeciality = _specialityRepository.GetByIdAsync(plans.SpecialityId);
-
-                    if (plans.DailyFullBudget > 0)
+                    Speciality? speciality = await _specialityRepository.GetByIdAsync(plans.SpecialityId);
+                    if (speciality != null)
                     {
-                        plan = await CreatePlan(plans.DailyFullBudget, true, true, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.DailyFullPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.DailyFullPaid, true, true, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.DailyAbbreviatedBudget > 0)
-                    {
-                        plan = await CreatePlan(plans.DailyAbbreviatedBudget, true, false, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.DailyAbbreviatedPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.DailyAbbreviatedPaid, true, false, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningFullBudget > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningFullBudget, false, true, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningFullPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningFullPaid, false, true, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningAbbreviatedBudget > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningAbbreviatedBudget, false, false, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningAbbreviatedPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningAbbreviatedPaid, false, false, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
+                        if (plans.DailyFullBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyFullBudget, true, true, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.DailyFullPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyFullPaid, true, true, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.DailyAbbreviatedBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyAbbreviatedBudget, true, false, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.DailyAbbreviatedPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyAbbreviatedPaid, true, false, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningFullBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningFullBudget, false, true, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningFullPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningFullPaid, false, true, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningAbbreviatedBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningAbbreviatedBudget, false, false, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningAbbreviatedPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningAbbreviatedPaid, false, false, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
                     }
                 }
             }
@@ -161,12 +162,13 @@ namespace DistributionOfStudents.Controllers
         // GET: RecruitmentPlans/Create
         public async Task<IActionResult> Create(string facultyName)
         {
-            Faculty faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
             if (faculty == null)
             {
                 return NotFound();
             }
-            int year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) + 1 : DateTime.Now.Year).Max() : DateTime.Now.Year;
+            int year = (faculty.Specialities ?? new()).Count != 0 ? (faculty.Specialities ?? new())
+                .Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) + 1 : DateTime.Now.Year).Max() : DateTime.Now.Year;
             DetailsFacultyRecruitmentPlans model = new()
             {
                 PlansForSpecialities = GetFacultyPlans(faculty, year),
@@ -201,7 +203,7 @@ namespace DistributionOfStudents.Controllers
         // GET: RecruitmentPlans/Edit/5
         public async Task<IActionResult> Edit(string facultyName, int year)
         {
-            Faculty faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
             if (faculty == null)
             {
                 return NotFound();

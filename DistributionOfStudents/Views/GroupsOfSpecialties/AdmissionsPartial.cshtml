@@ -4,10 +4,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.GroupOfSpecialties.Admissions.First().Student)
+                @Html.DisplayNameFor(model => (model.GroupOfSpecialties.Admissions ?? new()).First().Student)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GroupOfSpecialties.Admissions.First().DateOfApplication)
+                @Html.DisplayNameFor(model => (model.GroupOfSpecialties.Admissions ?? new()).First().DateOfApplication)
             </th>
             <th>
                 Сумма баллов
@@ -26,7 +26,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.GroupOfSpecialties.Admissions)
+        @foreach (var item in Model.GroupOfSpecialties.Admissions ?? new())
         {
             <tr>
                 <td>
@@ -44,7 +44,7 @@
                 <td>
                     @foreach (SpecialityPriority priority in item.SpecialityPriorities.Where(i => i.Priority > 0).OrderBy(i => i.Priority))
                     {
-                        if (Model.RecruitmentPlans.Any(i => i == priority.RecruitmentPlan && i.EnrolledStudents.Any(i => i.Student == item.Student)))
+                        if (priority.RecruitmentPlan.EnrolledStudents != null && Model.RecruitmentPlans.Any(i => i == priority.RecruitmentPlan && i.EnrolledStudents != null && i.EnrolledStudents.Any(i => i.Student == item.Student)))
                         {
                             if (priority.RecruitmentPlan.Count < priority.RecruitmentPlan.EnrolledStudents.Count && item.Score == priority.RecruitmentPlan.PassingScore)
                             {

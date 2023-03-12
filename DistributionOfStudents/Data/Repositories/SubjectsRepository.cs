@@ -12,8 +12,11 @@ namespace DistributionOfStudents.Data.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            Subject subject = await GetByIdAsync(id);
-            await DeleteAsync(subject);
+            Subject? subject = await GetByIdAsync(id);
+            if (subject != null)
+            {
+                await DeleteAsync(subject);
+            }
         }
     }
 }

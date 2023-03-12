@@ -18,7 +18,9 @@ namespace DistributionOfStudents.Data.Specifications
 
         public FacultiesSpecification IncludeSpecialties()
         {
+#nullable disable
             AddInclude(f => f.Specialities);
+#nullable restore
 
             return this;
         }
