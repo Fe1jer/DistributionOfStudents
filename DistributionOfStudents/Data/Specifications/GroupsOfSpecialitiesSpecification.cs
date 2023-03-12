@@ -11,8 +11,6 @@ namespace DistributionOfStudents.Data.Specifications
             WhereFaculty(facultyShortName);
         }
 
-        public GroupsOfSpecialitiesSpecification(int id) : this(faculty => faculty.Id == id) { }
-
         public GroupsOfSpecialitiesSpecification(Expression<Func<GroupOfSpecialties, bool>> expression) : base(expression)
         {
         }
@@ -42,7 +40,7 @@ namespace DistributionOfStudents.Data.Specifications
         {
             AddInclude("Admissions.Student");
             AddInclude("Admissions.SpecialityPriorities");
-            AddInclude("Admissions.StudentScores");
+            AddInclude("Admissions.StudentScores.Subject");
 
             return this;
         }

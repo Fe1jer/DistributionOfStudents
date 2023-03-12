@@ -13,7 +13,7 @@
                 Сумма баллов
             </th>
             <th>
-                Приоритет
+                Приоритет (№ спец.)
             </th>
             <th style="text-align-last: center" width="120">
                 <a class="text-success ms-2" asp-controller="Admissions" asp-action="Create"
@@ -39,22 +39,39 @@
                     @Html.DisplayFor(modelItem => item.DateOfApplication)
                 </td>
                 <td>
-                    @(item.Student.GPS + item.StudentScores.Sum(i => i.Score))
+                    @Html.DisplayFor(modelItem => item.Score)
                 </td>
                 <td>
-                    @{
-                        string priorities = String.Empty;
-                    }
                     @foreach (SpecialityPriority priority in item.SpecialityPriorities.Where(i => i.Priority > 0).OrderBy(i => i.Priority))
                     {
-                        priorities += Model.RecruitmentPlans.IndexOf(priority.RecruitmentPlan) + 1;
-                        priorities += " -> ";
+                        if (Model.RecruitmentPlans.Any(i => i == priority.RecruitmentPlan && i.EnrolledStudents.Any(i => i.Student == item.Student)))
+                        {
+                            if (priority.RecruitmentPlan.Count < priority.RecruitmentPlan.EnrolledStudents.Count && item.Score == priority.RecruitmentPlan.PassingScore)
+                            {
+                                <label class="bg-warning px-1 text-light">
+                                    @(Model.RecruitmentPlans.IndexOf(priority.RecruitmentPlan) + 1)
+                                </label>
+                            }
+                            else
+                            {
+                                <label class="bg-success px-1 text-light">
+                                    @(Model.RecruitmentPlans.IndexOf(priority.RecruitmentPlan) + 1)
+                                </label>
+                            }
+                        }
+                        else
+                        {
+                            <label>
+                                @(Model.RecruitmentPlans.IndexOf(priority.RecruitmentPlan) + 1)
+                            </label>
+                        }
+                        if (priority != item.SpecialityPriorities.Where(i => i.Priority > 0).OrderBy(i => i.Priority).Last())
+                        {
+                            <label>
+                                ->
+                            </label>
+                        }
                     }
-                    @{
-                        int i = priorities.Length - 1;
-                        priorities = priorities.Remove(i - 3, 3);
-                    }
-                    @priorities
                 </td>
                 <td style="text-align-last: center">
                     <div class="d-inline-flex">
@@ -84,7 +101,7 @@
                             <p>
                                 Вы уверенны, что хотите удалить эту заявку?
                                 <br />
-                                Заявка аббитуриента <b class="text-success">"@item.Student.Surname @item.Student.Name @item.Student.Patronymic"</b> будет удалёна без возможности восстановления.
+                                Заявка абитуриента <b class="text-success">"@item.Student.Surname @item.Student.Name @item.Student.Patronymic"</b> будет удалёна без возможности восстановления.
                             </p>
                         </div>
                         <div class="modal-footer">

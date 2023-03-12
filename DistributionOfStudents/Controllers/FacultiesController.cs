@@ -37,13 +37,17 @@ namespace DistributionOfStudents.Controllers
         [Route("[controller]/{name}")]
         public async Task<IActionResult> Details(string name)
         {
-            Faculty faculty = (await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans().WhereShortName(name))).Single();
+            Faculty faculty = await _facultyRepository.GetByShortNameAsync(name, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
             List<GroupOfSpecialties> groups = new();
             List<DetailsGroupOfSpecialitiesVM> groupsOfSpecialities = new();
             DetailsFacultyRecruitmentPlans FacultyPlans = new()
             {
                 PlansForSpecialities = new List<PlansForSpecialityVM>()
             };
+            if(faculty == null)
+            {
+                return NotFound();
+            }
 
             if (faculty.Specialities != null)
             {
@@ -83,12 +87,19 @@ namespace DistributionOfStudents.Controllers
                 }
             }
 
-            groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).IncludeSpecialties().WhereYear(FacultyPlans.Year));
+            groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).IncludeAdmissions().IncludeSpecialties().WhereYear(FacultyPlans.Year));
             foreach (GroupOfSpecialties group in groups)
             {
                 List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
-                plans = plans.Where(p => group.Specialities.Contains(p.Speciality)).ToList();
-                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM() { GroupOfSpecialties = group, RecruitmentPlans = plans, Year = FacultyPlans.Year, FacultyShortName = faculty.ShortName });
+                DistributionService distributionService = new(plans, group.Admissions);
+                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM()
+                {
+                    GroupOfSpecialties = group,
+                    RecruitmentPlans = plans,
+                    Year = FacultyPlans.Year,
+                    FacultyShortName = faculty.ShortName,
+                    Competition = (float)Math.Round(distributionService.Competition, 2)
+                });
             }
 
             DetailsFacultyVM model = new()
@@ -122,7 +133,7 @@ namespace DistributionOfStudents.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Faculty? sameFaculty = (await _facultyRepository.GetAllAsync(new FacultiesSpecification().WhereShortName(model.Faculty.ShortName))).SingleOrDefault();
+                    Faculty? sameFaculty = await _facultyRepository.GetByShortNameAsync(model.Faculty.ShortName, new FacultiesSpecification());
                     if (sameFaculty == null)
                     {
                         string path = "\\img\\Faculties\\";
@@ -167,6 +178,11 @@ namespace DistributionOfStudents.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             Faculty faculty = await _facultyRepository.GetByIdAsync(id, new FacultiesSpecification());
+
+            if(faculty == null)
+            {
+                return NotFound();
+            }
 
             CreateChangeFacultyVM model = new()
             {

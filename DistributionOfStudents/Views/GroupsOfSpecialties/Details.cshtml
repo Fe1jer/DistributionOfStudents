@@ -21,16 +21,60 @@
         @await Html.PartialAsync("RecruitmentPlansPartial", Model.RecruitmentPlans)
     </div>
     <hr class="mt-4" />
-    <h4>Заявки аббитуриентов</h4>
-    <form asp-action="Details" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName" method="get" class="input-group w-auto my-auto pb-2">
-        <input autocomplete="off" class="form-control" type="search" name="searchStudents" placeholder="Найти аббитуриентов" aria-label="Search">
-        <span class="input-group-text border-0">
-            <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-            </svg>
-        </span>
-    </form>
-    <div class="card shadow">
-        @await Html.PartialAsync("AdmissionsPartial", Model)
-    </div>
+    @if (!Model.GroupOfSpecialties.IsCompleted)
+    {
+        <h4 class="d-flex">
+            @{
+                string disabled = DateTime.Now.Date < Model.GroupOfSpecialties.EnrollmentDate ? "disabled" : String.Empty;
+            }
+            Заявки абитуриентов
+            <a type="button" class="btn btn-sm btn-outline-success @disabled ms-2" asp-controller="Distribution" asp-action="Create" asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName">
+                Распределить
+            </a>
+        </h4>
+        <form asp-action="Details" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName" method="get" class="input-group w-auto my-auto pb-2">
+            <input autocomplete="off" class="form-control" type="search" name="searchStudents" placeholder="Найти абитуриентов" aria-label="Search">
+            <span class="input-group-text border-0">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                </svg>
+            </span>
+        </form>
+        <div class="card shadow" style="overflow: auto; max-height:600px;">
+            @await Html.PartialAsync("AdmissionsPartial", Model)
+        </div>
+    }
+    else
+    {
+        <h4 class="d-flex">
+            Зачисленные студенты
+            <button type="button" class="btn btn-outline-danger btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#DeleteDistribution">
+                Перераспределить
+            </button>
+        </h4>
+        @await Html.PartialAsync("DistributedPlansPartial", Model.RecruitmentPlans)
+
+        <div class="modal fade" id="DeleteDistribution" tabindex="-1" aria-labelledby="DeleteDistribution" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="DeleteDistribution">Перераспределить абитуриентов</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Вы уверенны, что хотите перераспределить абитуриентов?
+                        <br />
+                        Специальности в группе <b class="text-success">"@Model.GroupOfSpecialties.Name"</b> будут расформированы без возможности восстановления.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <a type="button" class="btn btn-primary" asp-controller="Distribution" asp-action="Delete"
+                        asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName">
+                            Подтвердить
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

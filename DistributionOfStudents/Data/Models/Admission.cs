@@ -18,5 +18,13 @@ namespace DistributionOfStudents.Data.Models
 
         [Display(Name = "Баллы по ЦТ(ЦЭ)")]
         public List<StudentScore> StudentScores { get; set; }
+
+        public int Score
+        {
+            get
+            {
+                return StudentScores.Sum(i => i.Score) + Student.GPS;
+            }
+        }
     }
 }

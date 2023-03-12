@@ -11,10 +11,13 @@ namespace DistributionOfStudents.ViewModels
         
         [Display(Name = "год")]
         public int? Year{ get; set; }
+        
+        [Display(Name = "Конкурс")]
+        public float Competition{ get; set; }
 
         public GroupOfSpecialties GroupOfSpecialties { get; set; }
 
-        [Display(Name = "Специальность")]
+        [Display(Name = "Специальности")]
         public List<RecruitmentPlan> RecruitmentPlans { get; set; }
     }
 }
