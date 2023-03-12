@@ -50,24 +50,32 @@ namespace DistributionOfStudents.Controllers
             {
                 return NotFound();
             }
-            plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            distributionService = new(plans, group.Admissions);
-            var plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
-
-            if (searchStudents != null)
+            if (!group.IsCompleted)
             {
-                List<string> searchWords = searchStudents.Split(" ").ToList();
-                foreach (string word in searchWords)
-                {
-                    group.Admissions = group.Admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
-                        .Union(group.Admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
-                        .Union(group.Admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
-                        .ToList();
-                }
-            }
+                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
+                distributionService = new(plans, group.Admissions);
+                plans = distributionService.GetPlansWithEnrolledStudents();
 
-            group.Admissions = group.Admissions.OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
-            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plansWithEnrolledStudents, FacultyShortName = facultyName, Year = group.Year };
+                if (searchStudents != null)
+                {
+                    List<string> searchWords = searchStudents.Split(" ").ToList();
+                    foreach (string word in searchWords)
+                    {
+                        group.Admissions = group.Admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
+                            .Union(group.Admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
+                            .Union(group.Admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
+                            .ToList();
+                    }
+                }
+
+                group.Admissions = group.Admissions.OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
+            }
+            else
+            {
+                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
+            }
+           
+            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, FacultyShortName = facultyName, Year = group.Year };
 
             return View(model);
         }

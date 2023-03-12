@@ -41,5 +41,10 @@
         <div class="card shadow">
             @await Html.PartialAsync("GroupsOfSpecialtiesPartial", Model)
         </div>
+        <hr class="mt-4" />
+        <h4>Зачисление</h4>
+        <div class="card shadow">
+            @await Html.PartialAsync("DistributedGroupsOfSpecialtiesPartial", Model)
+        </div>
     }
 </div>

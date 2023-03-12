@@ -156,6 +156,8 @@ namespace DistributionOfStudents.Controllers
             GroupOfSpecialties group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
             List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
 
+            group.IsCompleted = false;
+            await _groupsRepository.UpdateAsync(group);
             foreach (RecruitmentPlan plan in plans)
             {
                 plan.EnrolledStudents = null;
