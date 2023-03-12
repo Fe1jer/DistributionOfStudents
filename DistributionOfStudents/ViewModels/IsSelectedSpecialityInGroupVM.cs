@@ -5,8 +5,8 @@ namespace DistributionOfStudents.ViewModels
 {
     public class IsSelectedSpecialityInGroupVM
     {
-        [Display(Name = "Специальность")]
-        public string SpecialityName { get; set; }
+        [Display(Name = "Специальность")] 
+        public string SpecialityName { get; set; } = String.Empty;
 
         public int SpecialityId { get; set; }
 

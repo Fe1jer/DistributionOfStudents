@@ -10,7 +10,7 @@ namespace DistributionOfStudents.Data.Specifications.Base
             this.Criteria = criteria;
         }
 
-        public Expression<Func<T, bool>> Criteria { get; }
+        public Expression<Func<T, bool>>? Criteria { get; }
         public List<Expression<Func<T, object>>> Includes { get; } = new List<Expression<Func<T, object>>>();
         public List<string> IncludeStrings { get; } = new List<string>();
         public List<Expression<Func<T, object>>> OrderByExpressions { get; private set; } = new List<Expression<Func<T, object>>>();

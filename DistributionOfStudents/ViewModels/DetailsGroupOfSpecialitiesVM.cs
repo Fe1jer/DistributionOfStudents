@@ -12,9 +12,9 @@ namespace DistributionOfStudents.ViewModels
         [Display(Name = "Конкурс")]
         public float Competition{ get; set; }
 
-        public GroupOfSpecialties GroupOfSpecialties { get; set; }
+        public GroupOfSpecialties GroupOfSpecialties { get; set; } = new();
 
         [Display(Name = "Специальности")]
-        public List<RecruitmentPlan> RecruitmentPlans { get; set; }
+        public List<RecruitmentPlan> RecruitmentPlans { get; set; } = new();
     }
 }

@@ -7,7 +7,7 @@ namespace DistributionOfStudents.ViewModels
     public class IsSelectedSubjectVM
     {
         [Display(Name = "Предмет")]
-        public string Subject { get; set; }
+        public string Subject { get; set; } = String.Empty;
 
         public int SubjectId { get; set; }
 

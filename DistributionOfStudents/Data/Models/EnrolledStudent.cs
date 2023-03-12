@@ -4,6 +4,6 @@ namespace DistributionOfStudents.Data.Models
 {
     public class EnrolledStudent : Entity
     {
-        public Student Student { get; set; }
+        public Student Student { get; set; } = new();
     }
 }

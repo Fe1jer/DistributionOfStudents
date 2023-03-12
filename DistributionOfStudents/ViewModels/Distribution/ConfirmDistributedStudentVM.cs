@@ -8,6 +8,6 @@ namespace DistributionOfStudents.ViewModels.Distribution
         public int StudentId { get; set; }
 
         [Display(Name = "ФИО")]
-        public string FullName { get; set; }
+        public string FullName { get; set; } = String.Empty;
     }
 }

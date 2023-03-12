@@ -7,14 +7,14 @@ namespace DistributionOfStudents.Data.Models
     {
         [Display(Name = "Название")]
         [DataType(DataType.Text)]
-        public string FullName { get; set; }
+        public string FullName { get; set; } = String.Empty;
 
         [Display(Name = "Аббревиатура")]
         [DataType(DataType.Text)]
-        public string ShortName { get; set; }
+        public string ShortName { get; set; } = String.Empty;
 
         [Display(Name = "Код специальности")]
-        public string Code { get; set; }
+        public string Code { get; set; } = String.Empty;
 
         [Display(Name = "Сокращённый код специальности")]
         public string? ShortCode { get; set; }
@@ -37,7 +37,7 @@ namespace DistributionOfStudents.Data.Models
         [Display(Name = "Код специализации")]
         public string? SpecializationCode { get; set; }
 
-        public Faculty Faculty { get; set; }
+        public Faculty Faculty { get; set; } = new();
         public List<GroupOfSpecialties>? GroupsOfSpecialties { get; set; }
         public List<RecruitmentPlan>? RecruitmentPlans { get; set; }
     }

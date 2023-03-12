@@ -7,7 +7,7 @@ namespace DistributionOfStudents.Data.Models
     {
         [Display(Name = "Название")]
         [DataType(DataType.Text)]
-        public string Name { get; set; }
+        public string Name { get; set; } = String.Empty;
 
         [Display(Name = "Описание")]
         [DataType(DataType.Text)]

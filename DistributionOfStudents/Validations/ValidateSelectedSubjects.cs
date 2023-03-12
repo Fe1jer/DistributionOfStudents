@@ -7,17 +7,17 @@ namespace DistributionOfStudents.Validations
 {
     public class ValidateSelectedSubjects : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            List<IsSelectedSubjectVM> dt = (List<IsSelectedSubjectVM>)value;
+            List<IsSelectedSubjectVM>? dt = (List<IsSelectedSubjectVM>?)value;
 
-            if (dt == null || !dt.Where(i => i.IsSelected == true).Any())
+            if (dt != null && dt.Where(i => i.IsSelected == true).Any())
             {
-                return new ValidationResult("Выберите предметы");
+                return ValidationResult.Success;
             }
             else
             {
-                return ValidationResult.Success;
+                return new ValidationResult("Выберите предметы");
             }
         }
     }

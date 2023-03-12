@@ -6,7 +6,7 @@ namespace DistributionOfStudents.Data.Models
     public class RecruitmentPlan : Entity
     {
         [Display(Name = "Специальность")]
-        public Speciality Speciality { get; set; }
+        public Speciality Speciality { get; set; } = new();
 
         [Display(Name = "План приема")]
         public int Count { get; set; }

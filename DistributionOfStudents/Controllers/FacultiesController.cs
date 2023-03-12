@@ -44,7 +44,7 @@ namespace DistributionOfStudents.Controllers
             {
                 PlansForSpecialities = new List<PlansForSpecialityVM>()
             };
-            if(faculty == null)
+            if (faculty == null)
             {
                 return NotFound();
             }
@@ -178,7 +178,7 @@ namespace DistributionOfStudents.Controllers
         {
             Faculty faculty = await _facultyRepository.GetByIdAsync(id, new FacultiesSpecification());
 
-            if(faculty == null)
+            if (faculty == null)
             {
                 return NotFound();
             }
@@ -206,7 +206,6 @@ namespace DistributionOfStudents.Controllers
 
                     if (model.Img != null && model.Faculty.Img != "\\img\\Faculties\\Default.jpg")
                     {
-                        FileService.DeleteFile(model.Faculty.Img);
                         string[] deletePath = model.Faculty.Img.Split('.');
                         model.Faculty.Img = deletePath[0] + "_300x170." + deletePath[1];
                         FileService.DeleteFile(model.Faculty.Img);

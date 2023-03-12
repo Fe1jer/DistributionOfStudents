@@ -7,9 +7,9 @@ namespace DistributionOfStudents.ViewModels.Distribution
     {
         public int PlanId { get; set; }
         public int Count { get; set; }
-        public string SpecialityName { get; set; }
+        public string SpecialityName { get; set; } = String.Empty;
         public int PassingScore { get; set; }
 
-        public List<IsDistributedStudentVM> DistributedStudents { get; set; }
+        public List<IsDistributedStudentVM> DistributedStudents { get; set; } = new();
     }
 }

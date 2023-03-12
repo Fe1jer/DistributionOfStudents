@@ -7,7 +7,7 @@ namespace DistributionOfStudents.ViewModels
 {
     public class CreateChangeFacultyVM
     {
-        public Faculty Faculty { get; set; }
+        public Faculty Faculty { get; set; } = new();
 
         [Display(Name = "Изображение")]
         [ValidateImg]

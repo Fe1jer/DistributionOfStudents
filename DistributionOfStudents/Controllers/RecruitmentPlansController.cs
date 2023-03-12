@@ -226,7 +226,7 @@ namespace DistributionOfStudents.Controllers
         {
             if (ModelState.IsValid)
             {
-                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(model.FacultyShortName).WhereYear(model.Year));
+                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(model.Year));
                 List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
                 List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
 
