@@ -3,9 +3,6 @@ using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Drawing;
-using System.Numerics;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -191,7 +188,10 @@ namespace DistributionOfStudents.Controllers
             if (ModelState.IsValid)
             {
                 List<RecruitmentPlan> plans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
-                plans.ForEach(async plan => await _plansRepository.AddAsync(plan));
+                foreach (RecruitmentPlan plan in plans)
+                {
+                    await _plansRepository.AddAsync(plan);
+                }
 
                 return RedirectToAction("Details", "Faculties", new { name = facultyName });
             }
@@ -230,7 +230,10 @@ namespace DistributionOfStudents.Controllers
                 List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
                 List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
 
-                diff.ForEach(async plan => await _plansRepository.DeleteAsync(plan.Id));
+                foreach (RecruitmentPlan plan in diff)
+                {
+                    await _plansRepository.DeleteAsync(plan.Id);
+                }
                 foreach (RecruitmentPlan plan in changedPlans)
                 {
                     if (plan.Id > 0)
@@ -253,7 +256,10 @@ namespace DistributionOfStudents.Controllers
         {
             List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
 
-            allPlans.ForEach(async plan => await _plansRepository.DeleteAsync(plan.Id));
+            foreach (RecruitmentPlan plan in allPlans)
+            {
+                await _plansRepository.DeleteAsync(plan.Id);
+            }
             _logger.LogInformation("План приёма на - {FacultyName} -  за {Year} год был удалён", facultyName, year);
 
             return RedirectToAction("Details", "Faculties", new { name = facultyName });

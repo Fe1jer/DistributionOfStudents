@@ -67,14 +67,13 @@
             @await Html.PartialAsync("SelectSpecialtiesInGroupPartial", Model)
             @await Html.PartialAsync("SelectSubjectsPartial", Model)
         </div>
-        <input asp-for="FacultyShortName" type="hidden" />
         <input asp-for="Group.IsCompleted" type="hidden" />
         <input asp-for="Group.Year" type="hidden" />
         <div class="col text-center pt-4">
             <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#CreateGroup">
                 Создать
             </button>
-            <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="Faculties" asp-action="Details" asp-route-name="@Model.FacultyShortName">Вернуться</a>
+            <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="Faculties" asp-action="Details" asp-route-name="@ViewContext.RouteData.Values["facultyName"]">Вернуться</a>
         </div>
         <div class="modal fade" id="CreateGroup" tabindex="-1" aria-labelledby="CreateGroup" style="display: none;" aria-hidden="true">
             <div class="modal-dialog">

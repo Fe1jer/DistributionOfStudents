@@ -7,9 +7,6 @@ namespace DistributionOfStudents.ViewModels
 {
     public class CreateChangeGroupOfSpecVM
     {
-        [Display(Name = "Факультет")]
-        public string FacultyShortName { get; set; }
-
         [Display(Name = "Группа")]
         public GroupOfSpecialties Group { get; set; }
 

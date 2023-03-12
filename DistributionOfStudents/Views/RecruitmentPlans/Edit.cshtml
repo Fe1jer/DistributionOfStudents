@@ -88,12 +88,11 @@
         </table>
         <input type="hidden" asp-for="Year" />
         <input type="hidden" asp-for="FacultyFullName" />
-        <input type="hidden" asp-for="FacultyShortName" />
         <div class="col text-center pt-4">
             <button type="button" class="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#ChangePlans">
                 Сохранить
             </button>
-            <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="Faculties" asp-action="Details" asp-route-name="@Model.FacultyShortName">В факультет</a>
+            <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="Faculties" asp-action="Details" asp-route-name="@ViewContext.RouteData.Values["facultyName"]">В факультет</a>
         </div>
         <div class="modal fade" id="ChangePlans" tabindex="-1" aria-labelledby="ChangePlans" style="display: none;" aria-hidden="true">
             <div class="modal-dialog">

@@ -5,10 +5,7 @@ using System.Xml.Linq;
 namespace DistributionOfStudents.ViewModels
 {
     public class DetailsGroupOfSpecialitiesVM
-    {
-        [Display(Name = "Факультет")]
-        public string FacultyShortName { get; set; }
-        
+    {        
         [Display(Name = "год")]
         public int? Year{ get; set; }
         

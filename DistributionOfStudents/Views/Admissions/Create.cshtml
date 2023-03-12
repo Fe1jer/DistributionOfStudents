@@ -45,7 +45,7 @@
                 Создать
             </button>
             <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="GroupsOfSpecialties" asp-action="Details"
-               asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.GroupId">Вернуться</a>
+               asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" asp-route-id="@ViewContext.RouteData.Values["groupId"]">Вернуться</a>
         </div>
         <div class="modal fade" id="CreateAdmission" tabindex="-1" aria-labelledby="CreateAdmission" style="display: none;" aria-hidden="true">
             <div class="modal-dialog">

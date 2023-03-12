@@ -75,7 +75,7 @@ namespace DistributionOfStudents.Controllers
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
            
-            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, FacultyShortName = facultyName, Year = group.Year };
+            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, Year = group.Year };
 
             return View(model);
         }
@@ -97,7 +97,6 @@ namespace DistributionOfStudents.Controllers
             };
             model = new CreateChangeGroupOfSpecVM()
             {
-                FacultyShortName = facultyName,
                 Group = group,
                 SelectedSpecialities = GetSelectedSpecialityAsync(faculty, group),
                 SelectedSubjects = await GetSelectedSpeciality(group)
@@ -192,7 +191,6 @@ namespace DistributionOfStudents.Controllers
 
             model = new CreateChangeGroupOfSpecVM()
             {
-                FacultyShortName = facultyName,
                 Group = group,
                 SelectedSpecialities = GetSelectedSpecialityAsync(faculty, group),
                 SelectedSubjects = await GetSelectedSpeciality(group)
@@ -227,7 +225,7 @@ namespace DistributionOfStudents.Controllers
                             subjects.Add(await getSubject);
                         }
                     }
-                    GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(model.FacultyShortName).IncludeSubjects().IncludeSpecialties());
+                    GroupOfSpecialties group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
                     group.Year = model.Group.StartDate.Year;
                     group.Name = model.Group.Name;
                     group.IsBudget = model.Group.IsBudget;

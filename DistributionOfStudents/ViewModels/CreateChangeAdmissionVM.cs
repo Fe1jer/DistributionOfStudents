@@ -8,8 +8,6 @@ namespace DistributionOfStudents.ViewModels
     public class CreateChangeAdmissionVM
     {
         public int? Id { get; set; }
-        public int GroupId { get; set; }
-        public string FacultyName { get; set; }
 
         public Student Student { get; set; }
 

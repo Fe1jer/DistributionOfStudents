@@ -97,7 +97,6 @@ namespace DistributionOfStudents.Controllers
                     GroupOfSpecialties = group,
                     RecruitmentPlans = plans,
                     Year = FacultyPlans.Year,
-                    FacultyShortName = faculty.ShortName,
                     Competition = (float)Math.Round(distributionService.Competition, 2)
                 });
             }

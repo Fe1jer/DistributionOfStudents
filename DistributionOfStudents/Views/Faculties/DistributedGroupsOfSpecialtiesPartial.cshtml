@@ -23,7 +23,7 @@
             <tr style="vertical-align: middle;">
                 <td>
                     <a class="nav-link text-success p-0" asp-controller="GroupsOfSpecialties" asp-action="Details"
-                   asp-route-facultyName="@item.FacultyShortName" asp-route-id="@item.GroupOfSpecialties.Id">@Html.DisplayFor(modelItem => item.GroupOfSpecialties.Name)</a>
+                   asp-route-facultyName="@Model.Faculty.ShortName" asp-route-id="@item.GroupOfSpecialties.Id">@Html.DisplayFor(modelItem => item.GroupOfSpecialties.Name)</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.GroupOfSpecialties.StartDate) -

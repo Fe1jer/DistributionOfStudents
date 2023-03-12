@@ -48,7 +48,7 @@
                 Удалить
             </button>
             <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="GroupsOfSpecialties" asp-action="Details"
-               asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.GroupId">Вернуться</a>
+               asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" asp-route-id="@ViewContext.RouteData.Values["groupId"]">Вернуться</a>
         </div>
         <div class="modal fade" id="ChangeAdmission" tabindex="-1" aria-labelledby="ChangeAdmission" style="display: none;" aria-hidden="true">
             <div class="modal-dialog">
@@ -84,7 +84,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
                         <a type="button" class="btn btn-outline-danger py-1" asp-controller="Admissions" asp-action="Delete"
-                           asp-route-groupId="@Model.GroupId" asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.Id">Удалить</a>
+                           asp-route-groupId="@ViewContext.RouteData.Values["groupId"]" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" asp-route-id="@Model.Id">Удалить</a>
                     </div>
                 </div>
             </div>

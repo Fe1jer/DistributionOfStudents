@@ -10,7 +10,7 @@ namespace DistributionOfStudents.ViewModels
         public string FacultyFullName { get; set; }
 
         [Display(Name = "Факультет")]
-        public string FacultyShortName { get; set; }
+        public string? FacultyShortName { get; set; }
 
         [Display(Name = "Год")]
         public int Year { get; set; }

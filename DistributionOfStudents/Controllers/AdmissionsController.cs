@@ -46,13 +46,8 @@ namespace DistributionOfStudents.Controllers
                 return NotFound();
             }
             admission.SpecialityPriorities = admission.SpecialityPriorities.OrderBy(i => i.Priority).ToList();
-            DetailsAdmissionVM model = new()
-            {
-                FacultyName = facultyName,
-                Admission= admission,
-            };
 
-            return View(model);
+            return View(admission);
         }
 
         // GET: Admissions/Create
@@ -86,9 +81,7 @@ namespace DistributionOfStudents.Controllers
             {
                 SpecialitiesPriority = priorities,
                 StudentScores = scores,
-                Student = new(),
-                FacultyName = facultyName,
-                GroupId = group.Id
+                Student = new()
             };
 
             return View(model);
@@ -172,9 +165,7 @@ namespace DistributionOfStudents.Controllers
                 SpecialitiesPriority = priorities,
                 StudentScores = admission.StudentScores,
                 Student = admission.Student,
-                DateOfApplication = admission.DateOfApplication,
-                FacultyName = facultyName,
-                GroupId = group.Id
+                DateOfApplication = admission.DateOfApplication
             };
 
             return View(model);
