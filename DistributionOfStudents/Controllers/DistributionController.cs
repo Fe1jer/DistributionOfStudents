@@ -59,7 +59,6 @@ namespace DistributionOfStudents.Controllers
         {
             if (ModelState.IsValid)
             {
-                List<RecruitmentPlan> plans;
                 GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
                 if (group == null)
                 {
@@ -67,8 +66,7 @@ namespace DistributionOfStudents.Controllers
                 }
                 try
                 {
-                    plans = await GetPlansFromModel(model, facultyName, group);
-                    DistributionService distributionService = new(plans, group.Admissions);
+                    DistributionService distributionService = new(await GetPlansFromModel(model, facultyName, group), group.Admissions);
                     List<RecruitmentPlan> plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
                     if (!distributionService.AreControversialStudents())
                     {
@@ -254,8 +252,7 @@ namespace DistributionOfStudents.Controllers
                 plan.EnrolledStudents ??= new();
                 foreach (EnrolledStudent student in plan.EnrolledStudents)
                 {
-                    Admission studentAdmission = admissions.First(i => i.Student.Id == student.Student.Id);
-                    distributedStudents.Add(new(studentAdmission, plan));
+                    distributedStudents.Add(new(admissions.First(i => i.Student.Id == student.Student.Id), plan));
                     isControversialPlan = plan.Count < plan.EnrolledStudents.Count;
                 }
                 distributedPlan.DistributedStudents = distributedStudents.OrderByDescending(i => i.Score).ToList();

@@ -49,8 +49,7 @@ namespace DistributionOfStudents.Controllers
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == FacultyPlans.Year).ToList();
-                    PlansForSpecialityVM plans = new(speciality);
-                    FacultyPlans.PlansForSpecialities.Add(plans);
+                    FacultyPlans.PlansForSpecialities.Add(new(speciality));
                 }
             }
 

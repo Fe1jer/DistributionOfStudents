@@ -27,8 +27,8 @@ namespace DistributionOfStudents.Controllers
         {
             List<DetailsFacultyRecruitmentPlans> model = new();
             List<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
-            int year = faculties.Count != 0 ? faculties.Select(f => (f.Specialities ?? new()).Count != 0 ? (f.Specialities ?? new())
-            .Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) : 0).Max() : 0).Max() : 0;
+            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync();
+            int year = allPlans.Count != 0 ? allPlans.Max(i => i.Year) : 0;
 
             foreach (Faculty faculty in faculties)
             {
@@ -38,6 +38,97 @@ namespace DistributionOfStudents.Controllers
             }
 
             return View(model);
+        }
+
+        // GET: RecruitmentPlans/Create
+        public async Task<IActionResult> Create(string facultyName)
+        {
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            if (faculty == null)
+            {
+                return NotFound();
+            }
+
+            List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync().Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
+            int year = allPlans.Count != 0 ? allPlans.Max(i => i.Year) + 1 : DateTime.Now.Year;
+            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
+
+            return View(model);
+        }
+
+        // POST: RecruitmentPlans/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string facultyName, DetailsFacultyRecruitmentPlans model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<RecruitmentPlan> plans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
+                foreach (RecruitmentPlan plan in plans)
+                {
+                    await _plansRepository.AddAsync(plan);
+                }
+
+                return RedirectToAction("Details", "Faculties", new { name = facultyName });
+            }
+            return View(model);
+        }
+
+        // GET: RecruitmentPlans/Edit/5
+        public async Task<IActionResult> Edit(string facultyName, int year)
+        {
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            if (faculty == null)
+            {
+                return NotFound();
+            }
+            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
+
+            return View(model);
+        }
+
+        // POST: RecruitmentPlans/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string facultyName, DetailsFacultyRecruitmentPlans model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(model.Year));
+                List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
+                List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
+
+                foreach (RecruitmentPlan plan in diff)
+                {
+                    await _plansRepository.DeleteAsync(plan.Id);
+                }
+                foreach (RecruitmentPlan plan in changedPlans)
+                {
+                    Task task = plan.Id > 0 ? _plansRepository.UpdateAsync(plan) : _plansRepository.AddAsync(plan);
+                    await task;
+                }
+
+                return RedirectToAction("Details", "Faculties", new { name = facultyName });
+            }
+            return View(model);
+        }
+
+        // GET: RecruitmentPlans/Delete/5
+        public async Task<IActionResult> Delete(string facultyName, int year)
+        {
+            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
+
+            foreach (RecruitmentPlan plan in allPlans)
+            {
+                await _plansRepository.DeleteAsync(plan.Id);
+            }
+            _logger.LogInformation("План приёма на - {FacultyName} -  за {Year} год был удалён", facultyName, year);
+
+            return RedirectToAction("Details", "Faculties", new { name = facultyName });
         }
 
         private static List<PlansForSpecialityVM> GetFacultyPlans(Faculty faculty, int year)
@@ -50,8 +141,7 @@ namespace DistributionOfStudents.Controllers
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == year).ToList();
-                    PlansForSpecialityVM plans = new(speciality);
-                    facultyPlans.Add(plans);
+                    facultyPlans.Add(new(speciality));
                 }
             }
 
@@ -129,102 +219,6 @@ namespace DistributionOfStudents.Controllers
             plan.Speciality = speciality;
 
             return plan;
-        }
-
-        // GET: RecruitmentPlans/Create
-        public async Task<IActionResult> Create(string facultyName)
-        {
-            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            int year = (faculty.Specialities ?? new()).Count != 0 ? (faculty.Specialities ?? new())
-                .Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) + 1 : DateTime.Now.Year).Max() : DateTime.Now.Year;
-            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
-
-            return View(model);
-        }
-
-        // POST: RecruitmentPlans/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string facultyName, DetailsFacultyRecruitmentPlans model)
-        {
-            if (ModelState.IsValid)
-            {
-                List<RecruitmentPlan> plans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
-                foreach (RecruitmentPlan plan in plans)
-                {
-                    await _plansRepository.AddAsync(plan);
-                }
-
-                return RedirectToAction("Details", "Faculties", new { name = facultyName });
-            }
-            return View(model);
-        }
-
-        // GET: RecruitmentPlans/Edit/5
-        public async Task<IActionResult> Edit(string facultyName, int year)
-        {
-            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
-
-            return View(model);
-        }
-
-        // POST: RecruitmentPlans/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string facultyName, DetailsFacultyRecruitmentPlans model)
-        {
-            if (ModelState.IsValid)
-            {
-                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(model.Year));
-                List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
-                List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
-
-                foreach (RecruitmentPlan plan in diff)
-                {
-                    await _plansRepository.DeleteAsync(plan.Id);
-                }
-                foreach (RecruitmentPlan plan in changedPlans)
-                {
-                    if (plan.Id > 0)
-                    {
-                        await _plansRepository.UpdateAsync(plan);
-                    }
-                    else
-                    {
-                        await _plansRepository.AddAsync(plan);
-                    }
-                }
-
-                return RedirectToAction("Details", "Faculties", new { name = facultyName });
-            }
-            return View(model);
-        }
-
-        // GET: RecruitmentPlans/Delete/5
-        public async Task<IActionResult> Delete(string facultyName, int year)
-        {
-            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
-
-            foreach (RecruitmentPlan plan in allPlans)
-            {
-                await _plansRepository.DeleteAsync(plan.Id);
-            }
-            _logger.LogInformation("План приёма на - {FacultyName} -  за {Year} год был удалён", facultyName, year);
-
-            return RedirectToAction("Details", "Faculties", new { name = facultyName });
         }
     }
 }

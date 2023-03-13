@@ -29,7 +29,6 @@ namespace DistributionOfStudents.Controllers
         // GET: Admissions/Details/5
         public async Task<IActionResult> Details(string facultyName, int groupId, int id)
         {
-
             Admission? admission = await _admissionsRepository.GetByIdAsync(id, new AdmissionsSpecification().IncludeGroup().IncludeSpecialtyPriorities().IncludeStudentScores());
 
             if (admission == null)
@@ -44,16 +43,15 @@ namespace DistributionOfStudents.Controllers
         // GET: Admissions/Create
         public async Task<IActionResult> Create(string facultyName, int groupId)
         {
+            List<StudentScore> scores = new();
+            List<SpecialityPriorityVM> priorities = new();
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSpecialties().IncludeSubjects());
             if (group == null)
             {
                 return NotFound();
             }
-            List<StudentScore> scores = new();
-            List<SpecialityPriorityVM> priorities = new();
             List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
             plans = plans.Where(p => (group.Specialities ?? new()).Contains(p.Speciality)).ToList();
-
             (group.Subjects ?? new()).ForEach(subject => scores.Add(new StudentScore() { Subject = subject }));
             plans.ForEach(plan => priorities.Add(new SpecialityPriorityVM(plan)));
 
@@ -113,6 +111,7 @@ namespace DistributionOfStudents.Controllers
         // GET: Admissions/Edit/5
         public async Task<IActionResult> Edit(string facultyName, int groupId, int id)
         {
+            List<SpecialityPriorityVM> priorities;
             Admission? admission = await _admissionsRepository.GetByIdAsync(id, new AdmissionsSpecification().IncludeGroup().IncludeSpecialtyPriorities().IncludeStudentScores());
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSpecialties().IncludeSubjects());
             if (admission == null || group == null)
@@ -120,22 +119,9 @@ namespace DistributionOfStudents.Controllers
                 return NotFound();
             }
 
-            List<SpecialityPriorityVM> priorities = new();
             List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
             plans = plans.Where(p => (group.Specialities ?? new()).Contains(p.Speciality)).ToList();
-
-            foreach (RecruitmentPlan plan in plans)
-            {
-                SpecialityPriorityVM priority = new(plan);
-                foreach (SpecialityPriority admissionPriority in admission.SpecialityPriorities)
-                {
-                    if (plan.Id == admissionPriority.RecruitmentPlan.Id)
-                    {
-                        priority.Priority = admissionPriority.Priority;
-                    }
-                }
-                priorities.Add(priority);
-            }
+            priorities = GetSpecialityPrioritiesVM(plans, admission);
 
             CreateChangeAdmissionVM model = new(id, admission, priorities);
 
@@ -217,6 +203,25 @@ namespace DistributionOfStudents.Controllers
         {
             var admissions = await _admissionsRepository.GetAllAsync();
             return admissions.Any(e => e.Id == id);
+        }
+
+        private static List<SpecialityPriorityVM> GetSpecialityPrioritiesVM(List<RecruitmentPlan> plans, Admission admission)
+        {
+            List<SpecialityPriorityVM> priorities = new();
+            foreach (RecruitmentPlan plan in plans)
+            {
+                SpecialityPriorityVM priority = new(plan);
+                foreach (SpecialityPriority admissionPriority in admission.SpecialityPriorities)
+                {
+                    if (plan.Id == admissionPriority.RecruitmentPlan.Id)
+                    {
+                        priority.Priority = admissionPriority.Priority;
+                    }
+                }
+                priorities.Add(priority);
+            }
+
+            return priorities;
         }
     }
 }

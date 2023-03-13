@@ -47,20 +47,7 @@ namespace DistributionOfStudents.Controllers
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
                 distributionService = new(plans, group.Admissions);
                 plans = distributionService.GetPlansWithEnrolledStudents();
-                group.Admissions ??= new();
-                if (searchStudents != null)
-                {
-                    List<string> searchWords = searchStudents.Split(" ").ToList();
-                    foreach (string word in searchWords)
-                    {
-                        group.Admissions = group.Admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
-                            .Union(group.Admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
-                            .Union(group.Admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
-                            .ToList();
-                    }
-                }
-
-                group.Admissions = group.Admissions.OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
+                group.Admissions = SearchAdmissions(searchStudents, group.Admissions).OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
             }
             else
             {
@@ -97,67 +84,15 @@ namespace DistributionOfStudents.Controllers
             return View(model);
         }
 
-        private static List<IsSelectedSpecialityInGroupVM> GetSelectedSpecialityAsync(Faculty faculty, GroupOfSpecialties group)
-        {
-            List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
-
-            foreach (Speciality speciality in faculty.Specialities ?? new List<Speciality>())
-            {
-                Speciality? plan = (group.Specialities ?? new List<Speciality>()).Where(i => i.Equals(speciality)).SingleOrDefault();
-                IsSelectedSpecialityInGroupVM isSelectedSpecialty = new(speciality, plan != null);
-                isSelectedSpecialties.Add(isSelectedSpecialty);
-            }
-
-            return isSelectedSpecialties;
-        }
-
-        private async Task<List<IsSelectedSubjectVM>> GetSelectedSpeciality(GroupOfSpecialties group)
-        {
-            List<IsSelectedSubjectVM> isSelectedSubjects = new();
-
-            foreach (Subject subject in (await _subjectsRepository.GetAllAsync()) ?? new List<Subject>())
-            {
-                Subject? isSubject = (group.Subjects ?? new List<Subject>()).Where(i => i.Equals(subject)).SingleOrDefault();
-                IsSelectedSubjectVM isSelectedSubject = new(subject, isSubject != null);
-                isSelectedSubjects.Add(isSelectedSubject);
-            }
-
-            return isSelectedSubjects;
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string facultyName, CreateChangeGroupOfSpecVM model)
         {
             if (ModelState.IsValid)
             {
-                List<Speciality> recruitmentPlans = new();
-                List<Subject> subjects = new();
-                if (model.SelectedSpecialities != null)
-                {
-                    foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in model.SelectedSpecialities.Where(p => p.IsSelected == true))
-                    {
-                        Speciality? specialty = await _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
-                        if (specialty != null)
-                        {
-                            recruitmentPlans.Add(specialty);
-                        }
-                    }
-                }
-                if (model.SelectedSubjects != null)
-                {
-                    foreach (IsSelectedSubjectVM isSelectedSubject in model.SelectedSubjects.Where(p => p.IsSelected == true))
-                    {
-                        Subject? subject = await _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
-                        if (subject != null)
-                        {
-                            subjects.Add(subject);
-                        }
-                    }
-                }
                 model.Group.Year = model.Group.StartDate.Year;
-                model.Group.Specialities = recruitmentPlans;
-                model.Group.Subjects = subjects;
+                model.Group.Specialities = await GetSelectedSpecialitiesFromModelAsync(model.SelectedSpecialities);
+                model.Group.Subjects = await GetSelectedSubjectsFromModelAsync(model.SelectedSubjects);
                 await _groupsOfSpecialtiesRepository.AddAsync(model.Group);
                 _logger.LogInformation("Создана группа - {GroupName} - {Year} года на факультете - {FacultyName}", model.Group.Name, model.Group.Year, facultyName);
 
@@ -195,30 +130,6 @@ namespace DistributionOfStudents.Controllers
             {
                 try
                 {
-                    List<Speciality> recruitmentPlans = new();
-                    List<Subject> subjects = new();
-                    if (model.SelectedSpecialities != null)
-                    {
-                        foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in model.SelectedSpecialities.Where(p => p.IsSelected == true))
-                        {
-                            Speciality? specialty = await _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
-                            if (specialty != null)
-                            {
-                                recruitmentPlans.Add(specialty);
-                            }
-                        }
-                    }
-                    if (model.SelectedSubjects != null)
-                    {
-                        foreach (IsSelectedSubjectVM isSelectedSubject in model.SelectedSubjects.Where(p => p.IsSelected == true))
-                        {
-                            Subject? subject = await _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
-                            if (subject != null)
-                            {
-                                subjects.Add(subject);
-                            }
-                        }
-                    }
                     GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
                     if (group != null)
                     {
@@ -230,8 +141,8 @@ namespace DistributionOfStudents.Controllers
                         group.Description = model.Group.Description;
                         group.StartDate = model.Group.StartDate;
                         group.EnrollmentDate = model.Group.EnrollmentDate;
-                        group.Specialities = recruitmentPlans;
-                        group.Subjects = subjects;
+                        group.Specialities = await GetSelectedSpecialitiesFromModelAsync(model.SelectedSpecialities);
+                        group.Subjects = await GetSelectedSubjectsFromModelAsync(model.SelectedSubjects);
 
                         await _groupsOfSpecialtiesRepository.UpdateAsync(group);
                     }
@@ -269,6 +180,89 @@ namespace DistributionOfStudents.Controllers
         {
             var group = await _groupsOfSpecialtiesRepository.GetAllAsync();
             return group.Any(e => e.Id == id);
+        }
+
+        private static List<IsSelectedSpecialityInGroupVM> GetSelectedSpecialityAsync(Faculty faculty, GroupOfSpecialties group)
+        {
+            List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
+
+            foreach (Speciality speciality in faculty.Specialities ?? new List<Speciality>())
+            {
+                Speciality? plan = (group.Specialities ?? new List<Speciality>()).Where(i => i.Equals(speciality)).SingleOrDefault();
+                isSelectedSpecialties.Add(new(speciality, plan != null));
+            }
+
+            return isSelectedSpecialties;
+        }
+
+        private async Task<List<IsSelectedSubjectVM>> GetSelectedSpeciality(GroupOfSpecialties group)
+        {
+            List<IsSelectedSubjectVM> isSelectedSubjects = new();
+
+            foreach (Subject subject in (await _subjectsRepository.GetAllAsync()) ?? new List<Subject>())
+            {
+                Subject? isSubject = (group.Subjects ?? new List<Subject>()).Where(i => i.Equals(subject)).SingleOrDefault();
+                isSelectedSubjects.Add(new(subject, isSubject != null));
+            }
+
+            return isSelectedSubjects;
+        }
+
+        private async Task<List<Speciality>> GetSelectedSpecialitiesFromModelAsync(List<IsSelectedSpecialityInGroupVM>? selectedSpecialities)
+        {
+            List<Speciality> specialities = new();
+
+            if (selectedSpecialities != null)
+            {
+                foreach (IsSelectedSpecialityInGroupVM isSelectedSpecialty in selectedSpecialities.Where(p => p.IsSelected))
+                {
+                    Speciality? specialty = await _specialtiesRepository.GetByIdAsync(isSelectedSpecialty.SpecialityId);
+                    if (specialty != null)
+                    {
+                        specialities.Add(specialty);
+                    }
+                }
+            }
+
+            return specialities;
+        }
+
+        private async Task<List<Subject>> GetSelectedSubjectsFromModelAsync(List<IsSelectedSubjectVM>? selectedSubjects)
+        {
+            List<Subject> subjects = new();
+
+            if (selectedSubjects != null)
+            {
+                foreach (IsSelectedSubjectVM isSelectedSubject in selectedSubjects.Where(p => p.IsSelected))
+                {
+                    Subject? subject = await _subjectsRepository.GetByIdAsync(isSelectedSubject.SubjectId);
+                    if (subject != null)
+                    {
+                        subjects.Add(subject);
+                    }
+                }
+            }
+
+            return subjects;
+        }
+
+        private static List<Admission> SearchAdmissions(string? searchStudents, List<Admission>? admissions)
+        {
+            admissions ??= new();
+
+            if (searchStudents != null)
+            {
+                List<string> searchWords = searchStudents.Split(" ").ToList();
+                foreach (string word in searchWords)
+                {
+                    admissions = admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
+                        .Union(admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
+                        .Union(admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
+                        .ToList();
+                }
+            }
+
+            return admissions;
         }
     }
 }
