@@ -1,4 +1,5 @@
 using DistributionOfStudents.Data;
+using DistributionOfStudents.Data.DBInitialization;
 using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Repositories;
@@ -15,10 +16,9 @@ namespace DistributionOfStudents
             var builder = WebApplication.CreateBuilder(args);
             ConfigureServices(builder);
             var app = builder.Build();
-            Task initDB = InitContext(app);
-            // Configure the HTTP request pipeline.
+            await InitContext(app);
+
             Configure(app);
-            await initDB;
         }
 
         private async static Task InitContext(WebApplication app)

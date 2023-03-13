@@ -11,7 +11,7 @@ namespace DistributionOfStudents.Data.Models
 
         [Display(Name = "Аббревиатура")]
         [DataType(DataType.Text)]
-        public string ShortName { get; set; } = String.Empty;
+        public string? ShortName { get; set; }
 
         [Display(Name = "Код специальности")]
         public string Code { get; set; } = String.Empty;
