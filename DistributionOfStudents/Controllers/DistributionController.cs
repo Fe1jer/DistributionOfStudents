@@ -1,6 +1,5 @@
 ﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
-using DistributionOfStudents.Data.Repositories;
 using DistributionOfStudents.Data.Services;
 using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.ViewModels.Distribution;

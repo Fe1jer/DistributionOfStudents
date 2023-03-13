@@ -1,6 +1,5 @@
 ﻿using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Specifications.Base;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace DistributionOfStudents.Data.Specifications

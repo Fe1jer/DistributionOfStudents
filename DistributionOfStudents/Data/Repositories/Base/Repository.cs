@@ -1,7 +1,7 @@
 ﻿using DistributionOfStudents.Data.AbstractClasses;
 using DistributionOfStudents.Data.Interfaces;
-using DistributionOfStudents.Data.Specifications.Base;
 using DistributionOfStudents.Data.Specifications;
+using DistributionOfStudents.Data.Specifications.Base;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

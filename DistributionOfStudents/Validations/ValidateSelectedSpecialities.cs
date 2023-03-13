@@ -1,5 +1,4 @@
 ﻿using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
-using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 
 namespace DistributionOfStudents.Validations

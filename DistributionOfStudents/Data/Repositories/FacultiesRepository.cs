@@ -1,9 +1,7 @@
 ﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Repositories.Base;
-using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.Data.Specifications.Base;
-using System.Xml.Linq;
 
 namespace DistributionOfStudents.Data.Repositories
 {

@@ -1,6 +1,4 @@
-﻿using DistributionOfStudents.Data.Models;
-using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
-using System.Collections.Generic;
+﻿using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
 using System.ComponentModel.DataAnnotations;
 
 namespace DistributionOfStudents.Validations

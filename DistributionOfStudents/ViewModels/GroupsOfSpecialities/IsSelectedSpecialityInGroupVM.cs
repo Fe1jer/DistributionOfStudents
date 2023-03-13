@@ -1,5 +1,4 @@
 ﻿using DistributionOfStudents.Data.Models;
-using Microsoft.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace DistributionOfStudents.ViewModels.GroupsOfSpecialities

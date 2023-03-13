@@ -1,6 +1,4 @@
 ﻿using DistributionOfStudents.Data.Models;
-using System.Drawing;
-using System.Numerics;
 
 namespace DistributionOfStudents.Data.Services
 {

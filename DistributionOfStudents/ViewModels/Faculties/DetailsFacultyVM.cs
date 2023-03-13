@@ -1,7 +1,6 @@
 ﻿using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
 using DistributionOfStudents.ViewModels.RecruitmentPlans;
-using NuGet.Protocol.Plugins;
 using System.ComponentModel.DataAnnotations;
 
 namespace DistributionOfStudents.ViewModels.Faculties

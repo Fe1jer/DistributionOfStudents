@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DistributionOfStudents.Data;
+﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
-using DistributionOfStudents.Data.Interfaces;
-using DistributionOfStudents.Data.Specifications;
-using Microsoft.CodeAnalysis;
-using NuGet.Protocol.Plugins;
-using System.Numerics;
 using DistributionOfStudents.Data.Services;
+using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 
 namespace DistributionOfStudents.Controllers
 {
