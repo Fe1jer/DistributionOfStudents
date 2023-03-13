@@ -1,10 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DistributionOfStudents.Data.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
 namespace DistributionOfStudents.ViewModels.Distribution
 {
     public class ConfirmDistributedStudentVM
     {
+        public ConfirmDistributedStudentVM() { }
+        public ConfirmDistributedStudentVM(Student student)
+        {
+            FullName = student.Surname + " " + student.Name + " " + student.Patronymic;
+            StudentId = student.Id;
+        }
+
         public int StudentId { get; set; }
 
         [Display(Name = "ФИО")]

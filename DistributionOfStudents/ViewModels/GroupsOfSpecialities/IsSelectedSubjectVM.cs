@@ -2,12 +2,19 @@
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
-namespace DistributionOfStudents.ViewModels
+namespace DistributionOfStudents.ViewModels.GroupsOfSpecialities
 {
     public class IsSelectedSubjectVM
     {
+        public IsSelectedSubjectVM() { }
+        public IsSelectedSubjectVM(Subject subject, bool isSelected)
+        {
+            SubjectId = subject.Id;
+            Subject = subject.Name;
+            IsSelected = isSelected;
+        }
         [Display(Name = "Предмет")]
-        public string Subject { get; set; } = String.Empty;
+        public string Subject { get; set; } = string.Empty;
 
         public int SubjectId { get; set; }
 

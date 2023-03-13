@@ -13,6 +13,7 @@ using DistributionOfStudents.Data.Repositories;
 using Microsoft.Extensions.Logging;
 using NuGet.Protocol.Plugins;
 using DistributionOfStudents.ViewModels;
+using DistributionOfStudents.ViewModels.Admissions;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -63,30 +64,10 @@ namespace DistributionOfStudents.Controllers
             List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
             plans = plans.Where(p => (group.Specialities ?? new()).Contains(p.Speciality)).ToList();
 
-            foreach (Subject subject in group.Subjects ?? new())
-            {
-                StudentScore score = new()
-                {
-                    Subject = subject
-                };
-                scores.Add(score);
-            }
-            foreach (RecruitmentPlan plan in plans)
-            {
-                SpecialityPriorityVM priority = new()
-                {
-                    PlanId = plan.Id,
-                    NameSpeciality = plan.Speciality.DirectionName ?? plan.Speciality.FullName
-                };
-                priorities.Add(priority);
-            }
+            (group.Subjects ?? new()).ForEach(subject => scores.Add(new StudentScore() { Subject = subject }));
+            plans.ForEach(plan => priorities.Add(new SpecialityPriorityVM(plan)));
 
-            CreateChangeAdmissionVM model = new()
-            {
-                SpecialitiesPriority = priorities,
-                StudentScores = scores,
-                Student = new()
-            };
+            CreateChangeAdmissionVM model = new(scores, priorities);
 
             return View(model);
         }
@@ -105,13 +86,10 @@ namespace DistributionOfStudents.Controllers
 
                 foreach (StudentScore studentScore in model.StudentScores)
                 {
-                    if (studentScore.Subject != null)
+                    Subject? subject = await _subjectsRepository.GetByIdAsync(studentScore.Subject.Id);
+                    if (subject != null)
                     {
-                        Subject? subject = await _subjectsRepository.GetByIdAsync(studentScore.Subject.Id);
-                        if (subject != null)
-                        {
-                            studentScore.Subject = subject;
-                        }
+                        studentScore.Subject = subject;
                     }
                 }
                 foreach (SpecialityPriorityVM specialityPriority in model.SpecialitiesPriority.Where(p => p.Priority > 0))
@@ -158,11 +136,7 @@ namespace DistributionOfStudents.Controllers
 
             foreach (RecruitmentPlan plan in plans)
             {
-                SpecialityPriorityVM priority = new()
-                {
-                    PlanId = plan.Id,
-                    NameSpeciality = plan.Speciality.DirectionName ?? plan.Speciality.FullName
-                };
+                SpecialityPriorityVM priority = new(plan);
                 foreach (SpecialityPriority admissionPriority in admission.SpecialityPriorities)
                 {
                     if (plan.Id == admissionPriority.RecruitmentPlan.Id)
@@ -173,14 +147,7 @@ namespace DistributionOfStudents.Controllers
                 priorities.Add(priority);
             }
 
-            CreateChangeAdmissionVM model = new()
-            {
-                Id = id,
-                SpecialitiesPriority = priorities,
-                StudentScores = admission.StudentScores,
-                Student = admission.Student,
-                DateOfApplication = admission.DateOfApplication
-            };
+            CreateChangeAdmissionVM model = new(id, admission, priorities);
 
             return View(model);
         }

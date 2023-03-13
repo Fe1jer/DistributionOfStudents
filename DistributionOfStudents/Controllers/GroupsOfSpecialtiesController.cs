@@ -10,10 +10,10 @@ using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Specifications;
 using Microsoft.CodeAnalysis;
-using DistributionOfStudents.ViewModels;
 using NuGet.Protocol.Plugins;
 using System.Numerics;
 using DistributionOfStudents.Data.Services;
+using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -75,7 +75,7 @@ namespace DistributionOfStudents.Controllers
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
 
-            DetailsGroupOfSpecialitiesVM model = new() { GroupOfSpecialties = group, RecruitmentPlans = plans, Year = group.Year };
+            DetailsGroupOfSpecialitiesVM model = new(group, plans, group.Year);
 
             return View(model);
         }
@@ -109,15 +109,10 @@ namespace DistributionOfStudents.Controllers
         {
             List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
 
-            foreach (Speciality specialty in faculty.Specialities ?? new List<Speciality>())
+            foreach (Speciality speciality in faculty.Specialities ?? new List<Speciality>())
             {
-                Speciality? plan = (group.Specialities ?? new List<Speciality>()).Where(i => i.Equals(specialty)).SingleOrDefault();
-                IsSelectedSpecialityInGroupVM isSelectedSpecialty = new()
-                {
-                    SpecialityId = specialty.Id,
-                    SpecialityName = specialty.DirectionName ?? specialty.FullName,
-                    IsSelected = plan != null,
-                };
+                Speciality? plan = (group.Specialities ?? new List<Speciality>()).Where(i => i.Equals(speciality)).SingleOrDefault();
+                IsSelectedSpecialityInGroupVM isSelectedSpecialty = new(speciality, plan != null);
                 isSelectedSpecialties.Add(isSelectedSpecialty);
             }
 
@@ -131,12 +126,7 @@ namespace DistributionOfStudents.Controllers
             foreach (Subject subject in (await _subjectsRepository.GetAllAsync()) ?? new List<Subject>())
             {
                 Subject? isSubject = (group.Subjects ?? new List<Subject>()).Where(i => i.Equals(subject)).SingleOrDefault();
-                IsSelectedSubjectVM isSelectedSubject = new()
-                {
-                    SubjectId = subject.Id,
-                    Subject = subject.Name,
-                    IsSelected = isSubject != null,
-                };
+                IsSelectedSubjectVM isSelectedSubject = new(subject, isSubject != null);
                 isSelectedSubjects.Add(isSelectedSubject);
             }
 
@@ -279,7 +269,7 @@ namespace DistributionOfStudents.Controllers
                 await _groupsOfSpecialtiesRepository.DeleteAsync(id);
                 _logger.LogInformation("Группа - {GroupName} - {Year} года на факультете - {FacultyName} - была удалена", group.Name, group.Year, facultyName);
             }
-            
+
             return RedirectToAction("Details", "Faculties", new { name = facultyName, });
         }
 

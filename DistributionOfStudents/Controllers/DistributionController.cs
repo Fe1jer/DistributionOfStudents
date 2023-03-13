@@ -250,19 +250,13 @@ namespace DistributionOfStudents.Controllers
 
             foreach (RecruitmentPlan plan in plans.OrderByDescending(i => i.PassingScore))
             {
-                PlanForDistributionVM distributedPlan = new() { SpecialityName = plan.Speciality.FullName, PlanId = plan.Id, Count = plan.Count, PassingScore = plan.PassingScore };
+                PlanForDistributionVM distributedPlan = new(plan);
                 List<IsDistributedStudentVM> distributedStudents = new();
                 plan.EnrolledStudents ??= new();
                 foreach (EnrolledStudent student in plan.EnrolledStudents)
                 {
                     Admission studentAdmission = admissions.First(i => i.Student.Id == student.Student.Id);
-                    IsDistributedStudentVM distributedStudent = new()
-                    {
-                        StudentScores = studentAdmission.StudentScores,
-                        Student = studentAdmission.Student,
-                        IsDistributed = !(plan.Count < plan.EnrolledStudents.Count && studentAdmission.Score == plan.PassingScore)
-                    };
-                    distributedStudents.Add(distributedStudent);
+                    distributedStudents.Add(new(studentAdmission, plan));
                     isControversialPlan = plan.Count < plan.EnrolledStudents.Count;
                 }
                 distributedPlan.DistributedStudents = distributedStudents.OrderByDescending(i => i.Score).ToList();
@@ -279,18 +273,7 @@ namespace DistributionOfStudents.Controllers
 
             foreach (RecruitmentPlan plan in plans.OrderBy(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c))))))
             {
-                ConfirmDistributedPlanVM distributedPlan = new()
-                {
-                    SpecialityName = plan.Speciality.DirectionName ?? plan.Speciality.FullName,
-                    PlanId = plan.Id,
-                    PassingScore = plan.PassingScore,
-                    DistributedStudents = new((plan.EnrolledStudents ?? new()).Select(i => new ConfirmDistributedStudentVM()
-                    {
-                        FullName = i.Student.Surname + " " + i.Student.Name + " " + i.Student.Patronymic,
-                        StudentId = i.Student.Id,
-                    }))
-                };
-                distributedPlans.Add(distributedPlan);
+                distributedPlans.Add(new(plan));
             }
 
             return distributedPlans;

@@ -3,10 +3,26 @@ using DistributionOfStudents.Validations;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
-namespace DistributionOfStudents.ViewModels
+namespace DistributionOfStudents.ViewModels.Admissions
 {
     public class CreateChangeAdmissionVM
     {
+        public CreateChangeAdmissionVM() { }
+        public CreateChangeAdmissionVM(int id, Admission admission, List<SpecialityPriorityVM> priorities)
+        {
+            Id = id;
+            SpecialitiesPriority = priorities;
+            StudentScores = admission.StudentScores;
+            Student = admission.Student;
+            DateOfApplication = admission.DateOfApplication;
+        }
+
+        public CreateChangeAdmissionVM(List<StudentScore> scores, List<SpecialityPriorityVM> priorities)
+        {
+            SpecialitiesPriority = priorities;
+            StudentScores = scores;
+        }
+
         public int? Id { get; set; }
 
         public Student Student { get; set; } = new();

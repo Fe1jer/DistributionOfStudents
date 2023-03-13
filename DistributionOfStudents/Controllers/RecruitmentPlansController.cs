@@ -1,7 +1,7 @@
 ﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Specifications;
-using DistributionOfStudents.ViewModels;
+using DistributionOfStudents.ViewModels.RecruitmentPlans;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistributionOfStudents.Controllers
@@ -32,13 +32,7 @@ namespace DistributionOfStudents.Controllers
 
             foreach (Faculty faculty in faculties)
             {
-                DetailsFacultyRecruitmentPlans plans = new()
-                {
-                    FacultyFullName = faculty.FullName,
-                    PlansForSpecialities = GetFacultyPlans(faculty, year),
-                    FacultyShortName = faculty.ShortName,
-                    Year = year
-                };
+                DetailsFacultyRecruitmentPlans plans = new(faculty, GetFacultyPlans(faculty, year), year);
 
                 model.Add(plans);
             }
@@ -56,29 +50,7 @@ namespace DistributionOfStudents.Controllers
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == year).ToList();
-
-                    PlansForSpecialityVM plans = new()
-                    {
-                        SpecialityName = speciality.DirectionName ?? speciality.FullName,
-                        SpecialityId = speciality.Id,
-                        DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
-                        DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
-                        DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
-                        DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
-                        EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
-                        EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
-                        EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
-                        EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
-                    };
-
+                    PlansForSpecialityVM plans = new(speciality);
                     facultyPlans.Add(plans);
                 }
             }
@@ -169,13 +141,7 @@ namespace DistributionOfStudents.Controllers
             }
             int year = (faculty.Specialities ?? new()).Count != 0 ? (faculty.Specialities ?? new())
                 .Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) + 1 : DateTime.Now.Year).Max() : DateTime.Now.Year;
-            DetailsFacultyRecruitmentPlans model = new()
-            {
-                PlansForSpecialities = GetFacultyPlans(faculty, year),
-                FacultyFullName = faculty.FullName,
-                FacultyShortName = faculty.ShortName,
-                Year = year,
-            };
+            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
 
             return View(model);
         }
@@ -208,13 +174,7 @@ namespace DistributionOfStudents.Controllers
             {
                 return NotFound();
             }
-            DetailsFacultyRecruitmentPlans model = new()
-            {
-                PlansForSpecialities = GetFacultyPlans(faculty, year),
-                FacultyFullName = faculty.FullName,
-                FacultyShortName = faculty.ShortName,
-                Year = year
-            };
+            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
 
             return View(model);
         }

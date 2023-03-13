@@ -1,5 +1,5 @@
 ﻿using DistributionOfStudents.Data.Models;
-using DistributionOfStudents.ViewModels;
+using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

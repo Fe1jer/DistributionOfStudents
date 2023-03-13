@@ -3,7 +3,7 @@ using DistributionOfStudents.Validations;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
-namespace DistributionOfStudents.ViewModels
+namespace DistributionOfStudents.ViewModels.GroupsOfSpecialities
 {
     public class CreateChangeGroupOfSpecVM
     {

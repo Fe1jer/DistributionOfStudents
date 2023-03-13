@@ -1,4 +1,4 @@
-﻿using DistributionOfStudents.ViewModels;
+﻿using DistributionOfStudents.ViewModels.Admissions;
 using System.ComponentModel.DataAnnotations;
 
 namespace DistributionOfStudents.Validations

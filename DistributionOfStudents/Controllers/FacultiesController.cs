@@ -9,9 +9,11 @@ using DistributionOfStudents.Data;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Specifications;
-using DistributionOfStudents.ViewModels;
 using DistributionOfStudents.Data.Services;
 using System.Numerics;
+using DistributionOfStudents.ViewModels.Faculties;
+using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
+using DistributionOfStudents.ViewModels.RecruitmentPlans;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -40,10 +42,7 @@ namespace DistributionOfStudents.Controllers
             Faculty? faculty = await _facultyRepository.GetByShortNameAsync(name, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
             List<GroupOfSpecialties> groups = new();
             List<DetailsGroupOfSpecialitiesVM> groupsOfSpecialities = new();
-            DetailsFacultyRecruitmentPlans FacultyPlans = new()
-            {
-                PlansForSpecialities = new List<PlansForSpecialityVM>()
-            };
+            DetailsFacultyRecruitmentPlans FacultyPlans = new();
             if (faculty == null)
             {
                 return NotFound();
@@ -58,29 +57,7 @@ namespace DistributionOfStudents.Controllers
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == FacultyPlans.Year).ToList();
-
-                    PlansForSpecialityVM plans = new()
-                    {
-                        SpecialityName = speciality.DirectionName ?? speciality.FullName,
-                        SpecialityId = speciality.Id,
-                        DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
-                        DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
-                        DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
-                        DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
-                        EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
-                        EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
-                        EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
-                        EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
-                    };
-
+                    PlansForSpecialityVM plans = new(speciality);
                     FacultyPlans.PlansForSpecialities.Add(plans);
                 }
             }
@@ -90,21 +67,10 @@ namespace DistributionOfStudents.Controllers
             {
                 List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
                 DistributionService distributionService = new(plans, group.Admissions);
-                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM()
-                {
-                    GroupOfSpecialties = group,
-                    RecruitmentPlans = plans,
-                    Year = FacultyPlans.Year,
-                    Competition = (float)Math.Round(distributionService.Competition, 2)
-                });
+                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM(group, plans, FacultyPlans.Year, distributionService.Competition));
             }
 
-            DetailsFacultyVM model = new()
-            {
-                Faculty = faculty,
-                GroupsOfSpecialties = groupsOfSpecialities,
-                AllPlansForSpecialities = FacultyPlans
-            };
+            DetailsFacultyVM model = new(faculty, FacultyPlans, groupsOfSpecialities);
 
             return View(model);
         }
@@ -113,10 +79,7 @@ namespace DistributionOfStudents.Controllers
         [Route("[controller]/[action]")]
         public IActionResult Create()
         {
-            CreateChangeFacultyVM model = new()
-            {
-                Faculty = new Faculty() { Img = "\\img\\Faculties\\Default.jpg" }
-            };
+            CreateChangeFacultyVM model = new(new Faculty() { Img = "\\img\\Faculties\\Default.jpg" });
             return View(model);
         }
 
@@ -181,10 +144,7 @@ namespace DistributionOfStudents.Controllers
                 return NotFound();
             }
 
-            CreateChangeFacultyVM model = new()
-            {
-                Faculty = faculty,
-            };
+            CreateChangeFacultyVM model = new(faculty);
 
             return View(model);
         }
@@ -236,7 +196,7 @@ namespace DistributionOfStudents.Controllers
         public async Task<RedirectToActionResult> DeleteAsync(int id)
         {
             Faculty? faculty = await _facultyRepository.GetByIdAsync(id);
-            if(faculty != null)
+            if (faculty != null)
             {
                 await _facultyRepository.DeleteAsync(id);
                 _logger.LogInformation("Факультет - {FacultyName} - был удалён", faculty.FullName);
