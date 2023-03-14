@@ -1,6 +1,4 @@
 ﻿using DistributionOfStudents.Data.Models;
-using System.Drawing;
-using System.Numerics;
 
 namespace DistributionOfStudents.Data.Services
 {
@@ -47,11 +45,7 @@ namespace DistributionOfStudents.Data.Services
                 {
                     plan.PassingScore = freeAdmissions.Where(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id)).Min(i => i.Score);
                     freeAdmissions.RemoveAll(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id));
-                    foreach (Admission admission in freeAdmissions)
-                    {
-                        admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan.Id == plan.Id);
-                    }
-
+                    freeAdmissions.ForEach(admission => admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan.Id == plan.Id));
                     plans.Remove(plan);
                 }
             }
@@ -74,7 +68,7 @@ namespace DistributionOfStudents.Data.Services
 
         public bool AreControversialStudents()
         {
-            return _recruitmentPlans.Any(i => i.EnrolledStudents.Count > i.Count);
+            return _recruitmentPlans.Any(i => (i.EnrolledStudents ?? new()).Count > i.Count);
         }
 
         public List<RecruitmentPlan> GetPlansWithEnrolledStudents()
@@ -96,15 +90,7 @@ namespace DistributionOfStudents.Data.Services
             {
                 if (keyValuePair.Key.EnrolledStudents == null || keyValuePair.Key.Count == 0)
                 {
-                    if (keyValuePair.Key.Count > keyValuePair.Value.Count)
-                    {
-                        keyValuePair.Key.PassingScore = 0;
-                    }
-                    else
-                    {
-                        int? passingScore = keyValuePair.Value.Min(a => a.Score);
-                        keyValuePair.Key.PassingScore = passingScore ?? 0;
-                    }
+                    keyValuePair.Key.PassingScore = keyValuePair.Key.Count > keyValuePair.Value.Count ? 0 : keyValuePair.Value.Min(a => a.Score);
                 }
             }
 
@@ -140,15 +126,12 @@ namespace DistributionOfStudents.Data.Services
 
         private void AddPriorityAdmissonsToPlan(RecruitmentPlan plan, List<Admission> freeAdmissions)
         {
-            List<Admission> tempPlanAdmissions = new();
-
             foreach (Admission admission in freeAdmissions.Where(i => i.SpecialityPriorities.Any()).Where(i => i.SpecialityPriorities[0].RecruitmentPlan == plan))
             {
-                tempPlanAdmissions.Add(admission);
+                _distributedStudents[plan].Add(admission);
                 admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan == plan);
             }
-            freeAdmissions.RemoveAll(i => tempPlanAdmissions.Contains(i));
-            _distributedStudents[plan].AddRange(tempPlanAdmissions);
+            freeAdmissions.RemoveAll(i => _distributedStudents[plan].Contains(i));
         }
     }
 }

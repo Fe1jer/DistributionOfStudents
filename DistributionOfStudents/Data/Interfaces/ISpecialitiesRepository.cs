@@ -5,7 +5,7 @@ namespace DistributionOfStudents.Data.Interfaces
 {
     public interface ISpecialitiesRepository
     {
-        Task<Speciality> GetByIdAsync(int specialityId);
+        Task<Speciality?> GetByIdAsync(int specialityId);
         Task<List<Speciality>> GetAllAsync();
         Task<List<Speciality>> GetAllAsync(ISpecification<Speciality> specification);
         Task AddAsync(Speciality speciality);

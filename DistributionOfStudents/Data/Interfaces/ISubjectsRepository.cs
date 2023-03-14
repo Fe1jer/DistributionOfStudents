@@ -5,7 +5,7 @@ namespace DistributionOfStudents.Data.Interfaces
 {
     public interface ISubjectsRepository
     {
-        Task<Subject> GetByIdAsync(int subjectId);
+        Task<Subject?> GetByIdAsync(int subjectId);
         Task<List<Subject>> GetAllAsync();
         Task<List<Subject>> GetAllAsync(ISpecification<Subject> specification);
         Task AddAsync(Subject subject);

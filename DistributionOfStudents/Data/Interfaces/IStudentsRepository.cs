@@ -5,8 +5,8 @@ namespace DistributionOfStudents.Data.Interfaces
 {
     public interface IStudentsRepository
     {
-        Task<Student> GetByIdAsync(int studentId);
-        Task<Student> GetByFullNameAsync(string name, string surname, string patronymic);
+        Task<Student?> GetByIdAsync(int studentId);
+        Task<Student?> GetByFullNameAsync(string name, string surname, string patronymic);
         Task<List<Student>> GetAllAsync();
         Task<List<Student>> GetAllAsync(ISpecification<Student> specification);
         Task<List<Student>> SearchAsync(string searchText);

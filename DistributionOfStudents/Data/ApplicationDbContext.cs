@@ -6,8 +6,6 @@ namespace DistributionOfStudents.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Speciality> Specialities { get; set; }
         public DbSet<Student> Students { get; set; }
@@ -18,5 +16,21 @@ namespace DistributionOfStudents.Data
         public DbSet<Admission> Admissions { get; set; }
         public DbSet<SpecialityPriority> SpecialtyPriorities { get; set; }
         public DbSet<EnrolledStudent> EnrolledStudents { get; set; }
+        public DbSet<FormOfEducation> FormsOfEducation { get; set; }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+            Faculties = Set<Faculty>();
+            Specialities = Set<Speciality>();
+            Students = Set<Student>();
+            Subjects = Set<Subject>();
+            StudentScores = Set<StudentScore>();
+            GroupsOfSpecialties = Set<GroupOfSpecialties>();
+            RecruitmentPlans = Set<RecruitmentPlan>();
+            Admissions = Set<Admission>();
+            SpecialtyPriorities = Set<SpecialityPriority>();
+            EnrolledStudents = Set<EnrolledStudent>();
+            FormsOfEducation = Set<FormOfEducation>();
+        }
     }
 }

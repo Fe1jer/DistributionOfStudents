@@ -1,4 +1,4 @@
-﻿@model DistributionOfStudents.ViewModels.DetailsFacultyVM
+﻿@model DetailsFacultyVM
 
 @{
     ViewData["Title"] = @Model.Faculty.ShortName;
@@ -19,7 +19,7 @@
     <div class="card shadow">
         @await Html.PartialAsync("SpecialtiesPartial", Model.Faculty)
     </div>
-    @if (Model.Faculty.Specialities.Any())
+    @if (Model.Faculty.Specialities != null && Model.Faculty.Specialities.Any())
     {
         <hr class="mt-4" />
         <h4>
@@ -41,10 +41,13 @@
         <div class="card shadow">
             @await Html.PartialAsync("GroupsOfSpecialtiesPartial", Model)
         </div>
-        <hr class="mt-4" />
-        <h4>Зачисление</h4>
-        <div class="card shadow">
-            @await Html.PartialAsync("DistributedGroupsOfSpecialtiesPartial", Model)
-        </div>
+        if (Model.GroupsOfSpecialties.Where(i => i.GroupOfSpecialties.IsCompleted).Any())
+        {
+            <hr class="mt-4" />
+            <h4>Зачисление</h4>
+            <div class="card shadow">
+                @await Html.PartialAsync("DistributedGroupsOfSpecialtiesPartial", Model)
+            </div>
+        }
     }
 </div>

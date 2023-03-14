@@ -1,4 +1,4 @@
-﻿@model DistributionOfStudents.ViewModels.DetailsGroupOfSpecialitiesVM
+﻿@model DetailsGroupOfSpecialitiesVM
 
 @{
     ViewData["Title"] = Model.GroupOfSpecialties.Name;
@@ -6,7 +6,7 @@
 
 <h1 class="text-center">
     @Model.GroupOfSpecialties.Name
-    <a type="button" class="btn btn-success py-1" asp-action="Edit" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName">
+    <a type="button" class="btn btn-success py-1" asp-action="Edit" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
             <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
@@ -15,7 +15,13 @@
 </h1>
 <hr />
 <div id="content" class="ps-lg-4 pe-lg-4" style="position: relative">
-    <p class="text-center"><b>Сроки приёма документов: @Html.DisplayFor(model => model.GroupOfSpecialties.StartDate) - @Html.DisplayFor(model => model.GroupOfSpecialties.EnrollmentDate)</b></p>
+    <p class="text-center">
+        <b>Сроки приёма документов: @Html.DisplayFor(model => model.GroupOfSpecialties.StartDate) - @Html.DisplayFor(model => model.GroupOfSpecialties.EnrollmentDate)</b>
+        @if (Model.GroupOfSpecialties.EnrollmentDate < DateTime.Now.Date)
+        {
+            <b class="text-danger">Завершено</b>
+        }
+    </p>
     <p>@Html.DisplayFor(model => model.GroupOfSpecialties.Description)</p>
     <div class="card shadow">
         @await Html.PartialAsync("RecruitmentPlansPartial", Model.RecruitmentPlans)
@@ -28,11 +34,12 @@
                 string disabled = DateTime.Now.Date < Model.GroupOfSpecialties.EnrollmentDate ? "disabled" : String.Empty;
             }
             Заявки абитуриентов
-            <a type="button" class="btn btn-sm btn-outline-success @disabled ms-2" asp-controller="Distribution" asp-action="Create" asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName">
+            <a type="button" class="btn btn-sm btn-outline-success @disabled ms-2" asp-controller="Distribution" asp-action="Create"
+           asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]">
                 Распределить
             </a>
         </h4>
-        <form asp-action="Details" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName" method="get" class="input-group w-auto my-auto pb-2">
+        <form asp-action="Details" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" method="get" class="input-group w-auto my-auto pb-2">
             <input autocomplete="off" class="form-control" type="search" name="searchStudents" placeholder="Найти абитуриентов" aria-label="Search">
             <span class="input-group-text border-0">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
@@ -69,7 +76,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
                         <a type="button" class="btn btn-primary" asp-controller="Distribution" asp-action="Delete"
-                        asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@Model.FacultyShortName">
+                       asp-route-groupId="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]">
                             Подтвердить
                         </a>
                     </div>

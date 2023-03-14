@@ -11,8 +11,8 @@ namespace DistributionOfStudents.Data.Interfaces
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
-        Task<T> GetByIdAsync(int id);
-        Task<T> GetByIdAsync(int id, ISpecification<T> specification);
+        Task<T?> GetByIdAsync(int id);
+        Task<T?> GetByIdAsync(int id, ISpecification<T> specification);
         Task<int> CountAsync(Expression<Func<T, bool>> predicate);
     }
 }

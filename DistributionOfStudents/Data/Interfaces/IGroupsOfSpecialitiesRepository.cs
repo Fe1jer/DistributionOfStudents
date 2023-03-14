@@ -5,8 +5,8 @@ namespace DistributionOfStudents.Data.Interfaces
 {
     public interface IGroupsOfSpecialitiesRepository
     {
-        Task<GroupOfSpecialties> GetByIdAsync(int groupOfSpecialtiesId);
-        Task<GroupOfSpecialties> GetByIdAsync(int id, ISpecification<GroupOfSpecialties> specification);
+        Task<GroupOfSpecialties?> GetByIdAsync(int groupOfSpecialtiesId);
+        Task<GroupOfSpecialties?> GetByIdAsync(int id, ISpecification<GroupOfSpecialties> specification);
         Task<List<GroupOfSpecialties>> GetAllAsync();
         Task<List<GroupOfSpecialties>> GetAllAsync(ISpecification<GroupOfSpecialties> specification);
         Task AddAsync(GroupOfSpecialties groupOfSpecialties);

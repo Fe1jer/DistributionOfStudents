@@ -84,6 +84,7 @@ namespace DistributionOfStudents.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Img")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShortName")
@@ -93,6 +94,31 @@ namespace DistributionOfStudents.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Faculties");
+                });
+
+            modelBuilder.Entity("DistributionOfStudents.Data.Models.FormOfEducation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<bool>("IsBudget")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDailyForm")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFullTime")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FormsOfEducation");
                 });
 
             modelBuilder.Entity("DistributionOfStudents.Data.Models.GroupOfSpecialties", b =>
@@ -109,16 +135,10 @@ namespace DistributionOfStudents.Data.Migrations
                     b.Property<DateTime>("EnrollmentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsBudget")
-                        .HasColumnType("bit");
+                    b.Property<int>("FormOfEducationId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDailyForm")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFullTime")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -128,10 +148,9 @@ namespace DistributionOfStudents.Data.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("FormOfEducationId");
 
                     b.ToTable("GroupsOfSpecialties");
                 });
@@ -147,14 +166,8 @@ namespace DistributionOfStudents.Data.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsBudget")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDailyForm")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFullTime")
-                        .HasColumnType("bit");
+                    b.Property<int>("FormOfEducationId")
+                        .HasColumnType("int");
 
                     b.Property<int>("PassingScore")
                         .HasColumnType("int");
@@ -162,10 +175,9 @@ namespace DistributionOfStudents.Data.Migrations
                     b.Property<int>("SpecialityId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("FormOfEducationId");
 
                     b.HasIndex("SpecialityId");
 
@@ -204,7 +216,6 @@ namespace DistributionOfStudents.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShortName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SpecializationCode")
@@ -595,13 +606,32 @@ namespace DistributionOfStudents.Data.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("DistributionOfStudents.Data.Models.GroupOfSpecialties", b =>
+                {
+                    b.HasOne("DistributionOfStudents.Data.Models.FormOfEducation", "FormOfEducation")
+                        .WithMany()
+                        .HasForeignKey("FormOfEducationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FormOfEducation");
+                });
+
             modelBuilder.Entity("DistributionOfStudents.Data.Models.RecruitmentPlan", b =>
                 {
+                    b.HasOne("DistributionOfStudents.Data.Models.FormOfEducation", "FormOfEducation")
+                        .WithMany()
+                        .HasForeignKey("FormOfEducationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DistributionOfStudents.Data.Models.Speciality", "Speciality")
                         .WithMany("RecruitmentPlans")
                         .HasForeignKey("SpecialityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("FormOfEducation");
 
                     b.Navigation("Speciality");
                 });

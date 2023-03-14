@@ -1,4 +1,4 @@
-﻿@model DistributionOfStudents.ViewModels.CreateChangeAdmissionVM
+﻿@model CreateChangeAdmissionVM
 
 @{
     ViewData["Title"] = "Редактирование заявки";
@@ -12,22 +12,22 @@
         <div class="row mt-2">
             <div class="col-sm-3">
                 <div class="form-group">
-                    <label asp-for="Student.Surname" class="control-label"></label>
+                    <label asp-for="Student.Surname" class="control-label"></label><sup>*</sup>
                     <input asp-for="Student.Surname" class="form-control" />
                     <span asp-validation-for="Student.Surname" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Student.Name" class="control-label"></label>
+                <div class="form-group mt-2">
+                    <label asp-for="Student.Name" class="control-label"></label><sup>*</sup>
                     <input asp-for="Student.Name" class="form-control" />
                     <span asp-validation-for="Student.Name" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Student.Patronymic" class="control-label"></label>
+                <div class="form-group mt-2">
+                    <label asp-for="Student.Patronymic" class="control-label"></label><sup>*</sup>
                     <input asp-for="Student.Patronymic" class="form-control" />
                     <span asp-validation-for="Student.Patronymic" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="DateOfApplication" class="control-label"></label>
+                <div class="form-group mt-2">
+                    <label asp-for="DateOfApplication" class="control-label"></label><sup>*</sup>
                     <input asp-for="DateOfApplication" class="form-control datePickerWithTime" id="datePickerWithTime" />
                     <span asp-validation-for="DateOfApplication" class="text-danger"></span>
                 </div>
@@ -48,7 +48,7 @@
                 Удалить
             </button>
             <a type="button" class="btn btn-outline-secondary btn-lg" asp-controller="GroupsOfSpecialties" asp-action="Details"
-               asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.GroupId">Вернуться</a>
+               asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" asp-route-id="@ViewContext.RouteData.Values["groupId"]">Вернуться</a>
         </div>
         <div class="modal fade" id="ChangeAdmission" tabindex="-1" aria-labelledby="ChangeAdmission" style="display: none;" aria-hidden="true">
             <div class="modal-dialog">
@@ -84,7 +84,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
                         <a type="button" class="btn btn-outline-danger py-1" asp-controller="Admissions" asp-action="Delete"
-                           asp-route-groupId="@Model.GroupId" asp-route-facultyName="@Model.FacultyName" asp-route-id="@Model.Id">Удалить</a>
+                           asp-route-groupId="@ViewContext.RouteData.Values["groupId"]" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" asp-route-id="@Model.Id">Удалить</a>
                     </div>
                 </div>
             </div>

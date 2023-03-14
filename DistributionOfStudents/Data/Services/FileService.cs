@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
 
 namespace DistributionOfStudents.Data.Services
 {
@@ -13,7 +10,7 @@ namespace DistributionOfStudents.Data.Services
         public static string UploadFile(IFormFile file, string path)
         {
             // creates all directories and subdirectories, creates in path
-            Directory.CreateDirectory(Path.GetDirectoryName($"wwwroot{path}"));
+            Directory.CreateDirectory(Path.GetDirectoryName($"wwwroot{path}") ?? String.Empty);
             // save the file to the path folder in the wwwroot directory
             using (var fileStream = new FileStream($"wwwroot{path}", FileMode.Create))
             {
@@ -27,7 +24,7 @@ namespace DistributionOfStudents.Data.Services
 
         public static void SaveAsJpeg(string path)
         {
-            Bitmap bitmap = null;
+            Bitmap bitmap;
             using (var i = Image.FromFile($"wwwroot{path}"))
             {
                 bitmap = new Bitmap(i);
@@ -61,7 +58,7 @@ namespace DistributionOfStudents.Data.Services
 
         public static Image ResizeAndCrop(Image source, int width, int height)
         {
-            Image result = null;
+            Image result;
 
             if (source.Width != width || source.Height != height)
             {

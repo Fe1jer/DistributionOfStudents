@@ -1,7 +1,7 @@
 ﻿using DistributionOfStudents.Data.AbstractClasses;
 using DistributionOfStudents.Data.Interfaces;
-using DistributionOfStudents.Data.Specifications.Base;
 using DistributionOfStudents.Data.Specifications;
+using DistributionOfStudents.Data.Specifications.Base;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -39,12 +39,12 @@ namespace DistributionOfStudents.Data.Repositories.Base
             return await EntitySet.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id)
         {
             return await EntitySet.FindAsync(id);
         }
 
-        public async Task<T> GetByIdAsync(int id, ISpecification<T> specification)
+        public async Task<T?> GetByIdAsync(int id, ISpecification<T> specification)
         {
             var all = await GetAllAsync(specification);
 

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DistributionOfStudents.Data;
+﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
-using DistributionOfStudents.Data.Interfaces;
-using DistributionOfStudents.Data.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -35,7 +28,7 @@ namespace DistributionOfStudents.Controllers
                 return NotFound();
             }
 
-            var subject = await _subjectsRepository
+            Subject? subject = await _subjectsRepository
                 .GetByIdAsync(id);
             if (subject == null)
             {
@@ -74,7 +67,7 @@ namespace DistributionOfStudents.Controllers
             {
                 return NotFound();
             }
-            var subject = await _subjectsRepository.GetByIdAsync(id);
+            Subject? subject = await _subjectsRepository.GetByIdAsync(id);
             if (subject == null)
             {
                 return NotFound();
@@ -124,7 +117,7 @@ namespace DistributionOfStudents.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Subjects'  is null.");
             }
-            var subject = await _subjectsRepository.GetByIdAsync(id);
+            Subject? subject = await _subjectsRepository.GetByIdAsync(id);
             if (subject != null)
             {
                 await _subjectsRepository.DeleteAsync(id);

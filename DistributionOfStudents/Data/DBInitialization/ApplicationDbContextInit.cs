@@ -1,9 +1,10 @@
-﻿using DistributionOfStudents.Data.Models;
+﻿using DistributionOfStudents.Data.DBInitialization.Interface;
+using DistributionOfStudents.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
+using System.Xml.Linq;
 
-namespace DistributionOfStudents.Data
+namespace DistributionOfStudents.Data.DBInitialization
 {
     public class ApplicationDbContextInit
     {
@@ -23,108 +24,64 @@ namespace DistributionOfStudents.Data
             {
                 CreateSubjects(context);
             }
+            if (!await context.FormsOfEducation.AnyAsync())
+            {
+                CreateFormsOfEducation(context);
+            }
             if (!await context.Faculties.AnyAsync())
             {
                 CreateFacultiesWithSpecialties(context);
             }
-            if (!await context.RecruitmentPlans.AnyAsync())
-            {
-                CreateRecruitmentPlans(context);
-            }
-            if (!await context.GroupsOfSpecialties.AnyAsync())
-            {
-                CreateGroupOfSpecialties(context);
-            }
         }
 
-        private static void CreateRecruitmentPlans(ApplicationDbContext context)
+        private static void CreateFormsOfEducation(ApplicationDbContext context)
         {
-            RecruitmentPlan plan;
-
-            foreach (Speciality specialty in context.Specialities.ToList())
+            FormOfEducation form = new()
             {
-                plan = new RecruitmentPlan()
-                {
-                    Count = 20,
-                    PassingScore = 0,
-                    Speciality = specialty,
-                    IsBudget = true,
-                    IsDailyForm = true,
-                    IsFullTime = true,
-                    Year = DateTime.Today.Year
-                };
-
-                context.RecruitmentPlans.Add(plan);
-                context.SaveChanges();
-            };
-        }
-
-        private static void CreateGroupOfSpecialties(ApplicationDbContext context)
-        {
-            GroupOfSpecialties group = new()
-            {
-                Name = "Дневная форма получения образования за счет средств республиканского бюджета",
-                StartDate = DateTime.Today,
-                EnrollmentDate = DateTime.Today.AddDays(10),
-                IsCompleted = false,
                 IsBudget = true,
                 IsDailyForm = true,
                 IsFullTime = true,
-                Year = DateTime.Today.Year,
-                Specialities = context.Specialities.ToList()
+                Year = DateTime.Now.Year,
             };
 
-            context.GroupsOfSpecialties.Add(group);
+            context.FormsOfEducation.Add(form);
             context.SaveChanges();
-        }
-
-        private static List<Speciality> CreateSpecialties()
-        {
-            Speciality poit = new()
-            {
-                FullName = "Программное обеспечение информационных технологий",
-                ShortName = "ПОИТ",
-                Code = "1-40 01 01",
-                ShortCode = "01",
-                SpecializationName = "Управление качеством и тестирование программного обеспечения",
-                SpecializationCode = "1 40 01 01 05"
-            };
-            Speciality isitOPI = new()
-            {
-                FullName = "Информационные системы и технологии",
-                ShortName = "ИСИТ",
-                Code = "1-40 05 01",
-                ShortCode = "02",
-                SpecializationName = "Математическое обеспечение и системное программирование",
-                SpecializationCode = "1 40 05 01 04 01",
-                DirectionName = "Информационные системы и технологии в обработке и представлении информации",
-                DirectionCode = "1-40 05 01-04"
-            };
-            Speciality isitPP = new()
-            {
-                FullName = "Информационные системы и технологии",
-                ShortName = "ИСИТ",
-                Code = "1-40 05 01",
-                ShortCode = "03",
-                DirectionName = "Информационные системы и технологии в проектировании и производстве",
-                DirectionCode = "1-40 05 01-01"
-            };
-
-            return new List<Speciality>() { poit, isitOPI, isitPP };
         }
 
         private static void CreateFacultiesWithSpecialties(ApplicationDbContext context)
         {
-            List<Speciality> specialties = CreateSpecialties();
-            Faculty fitr = new()
+            List<Faculty> faculties = new();
+            List<IFacultyInit> facultiesInit = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
-                FullName = "Факультет информационных технологий и робототехники",
-                ShortName = "ФИТР",
-                Specialities = specialties
-            };
+                new ATFInit(), new FGDEInit(),new MSFInit(), new MTFInit(), new FMMP(), new EFInit(), new FITRInit(),
 
-            context.Faculties.Add(fitr);
+            };
+            foreach (var facultyInit in facultiesInit)
+            {
+                Faculty faculty = facultyInit.GetFaculty();
+                faculty.Specialities = facultyInit.GetSpecialties();
+                faculties.Add(faculty);
+                context.Faculties.Add(faculty);
+                context.SaveChanges();
+                faculty = context.Faculties.Include(f => f.Specialities).First(f => f.FullName == faculty.FullName);
+                if (faculty.Specialities != null && faculty.Specialities.Count != 0)
+                {
+                    FormOfEducation form = context.FormsOfEducation.First();
+                    List<RecruitmentPlan> plans = facultyInit.GetRecruitmentPlans(faculty.Specialities.Take(3).ToList(), form);
+                    if (plans.Count != 0)
+                    {
+                        context.RecruitmentPlans.AddRange(plans);
+                        context.SaveChanges();
+                    }
+                    List<GroupOfSpecialties> groups = facultyInit.GetGroupsOfSpecialties(faculty.Specialities.Take(3).ToList(), form);
+                    if (groups.Count != 0)
+                    {
+                        context.GroupsOfSpecialties.AddRange(groups);
+                        context.SaveChanges();
+                    }
+                }
+            }
+
             context.SaveChanges();
         }
 

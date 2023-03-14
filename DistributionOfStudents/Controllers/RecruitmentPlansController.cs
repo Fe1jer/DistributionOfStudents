@@ -1,11 +1,8 @@
 ﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Specifications;
-using DistributionOfStudents.ViewModels;
+using DistributionOfStudents.ViewModels.RecruitmentPlans;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Drawing;
-using System.Numerics;
 
 namespace DistributionOfStudents.Controllers
 {
@@ -16,13 +13,16 @@ namespace DistributionOfStudents.Controllers
         private readonly IRecruitmentPlansRepository _plansRepository;
         private readonly IFacultiesRepository _facultyRepository;
         private readonly ISpecialitiesRepository _specialityRepository;
+        private readonly IFormsOfEducationRepository _formsOfEducationRepository;
 
-        public RecruitmentPlansController(ILogger<RecruitmentPlansController> logger, IFacultiesRepository facultyRepository, IRecruitmentPlansRepository plansRepository, ISpecialitiesRepository specialityRepository)
+        public RecruitmentPlansController(ILogger<RecruitmentPlansController> logger, IFacultiesRepository facultyRepository, IRecruitmentPlansRepository plansRepository,
+            ISpecialitiesRepository specialityRepository, IFormsOfEducationRepository formsOfEducationRepository)
         {
             _logger = logger;
             _plansRepository = plansRepository;
             _facultyRepository = facultyRepository;
             _specialityRepository = specialityRepository;
+            _formsOfEducationRepository = formsOfEducationRepository;
         }
 
         [Route("~/[controller]")]
@@ -30,22 +30,108 @@ namespace DistributionOfStudents.Controllers
         {
             List<DetailsFacultyRecruitmentPlans> model = new();
             List<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
-            int year = faculties.Count != 0 ? faculties.Select(f => f.Specialities.Count != 0 ? f.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) : 0).Max() : 0).Max() : 0;
+            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification());
+            int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
 
             foreach (Faculty faculty in faculties)
             {
-                DetailsFacultyRecruitmentPlans plans = new()
-                {
-                    FacultyFullName = faculty.FullName,
-                    PlansForSpecialities = GetFacultyPlans(faculty, year),
-                    FacultyShortName = faculty.ShortName,
-                    Year = year
-                };
+                DetailsFacultyRecruitmentPlans plans = new(faculty, GetFacultyPlans(faculty, year), year);
 
                 model.Add(plans);
             }
 
             return View(model);
+        }
+
+        // GET: RecruitmentPlans/Create
+        public async Task<IActionResult> Create(string facultyName)
+        {
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            if (faculty == null)
+            {
+                return NotFound();
+            }
+
+            List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()).Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
+            int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) + 1 : DateTime.Now.Year;
+            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
+
+            return View(model);
+        }
+
+        // POST: RecruitmentPlans/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string facultyName, DetailsFacultyRecruitmentPlans model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<RecruitmentPlan> plans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
+                foreach (RecruitmentPlan plan in plans)
+                {
+                    await _plansRepository.AddAsync(plan);
+                }
+
+                return RedirectToAction("Details", "Faculties", new { name = facultyName });
+            }
+            return View(model);
+        }
+
+        // GET: RecruitmentPlans/Edit/5
+        public async Task<IActionResult> Edit(string facultyName, int year)
+        {
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
+            if (faculty == null)
+            {
+                return NotFound();
+            }
+            DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
+
+            return View(model);
+        }
+
+        // POST: RecruitmentPlans/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string facultyName, DetailsFacultyRecruitmentPlans model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(model.Year));
+                List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
+                List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
+
+                foreach (RecruitmentPlan plan in diff)
+                {
+                    await _plansRepository.DeleteAsync(plan.Id);
+                }
+                foreach (RecruitmentPlan plan in changedPlans)
+                {
+                    Task task = plan.Id > 0 ? _plansRepository.UpdateAsync(plan) : _plansRepository.AddAsync(plan);
+                    await task;
+                }
+
+                return RedirectToAction("Details", "Faculties", new { name = facultyName });
+            }
+            return View(model);
+        }
+
+        // GET: RecruitmentPlans/Delete/5
+        public async Task<IActionResult> Delete(string facultyName, int year)
+        {
+            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
+
+            foreach (RecruitmentPlan plan in allPlans)
+            {
+                await _plansRepository.DeleteAsync(plan.Id);
+            }
+            _logger.LogInformation("План приёма на - {FacultyName} -  за {Year} год был удалён", facultyName, year);
+
+            return RedirectToAction("Details", "Faculties", new { name = facultyName });
         }
 
         private static List<PlansForSpecialityVM> GetFacultyPlans(Faculty faculty, int year)
@@ -54,36 +140,11 @@ namespace DistributionOfStudents.Controllers
 
             if (faculty.Specialities != null)
             {
-                faculty.Specialities = faculty.Specialities.OrderBy(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c))))).ToList();
+                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = speciality.RecruitmentPlans.Where(p => p.Year == year).ToList();
-
-#pragma warning disable CS8602 // Разыменование вероятной пустой ссылки.
-                    PlansForSpecialityVM plans = new()
-                    {
-                        SpecialityName = speciality.FullName,
-                        SpecialityId = speciality.Id,
-                        DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
-                        DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
-                        DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
-                        DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0,
-                        EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0,
-                        EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0,
-                        EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0,
-                        EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-                        ? speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0
-                    };
-#pragma warning restore CS8602 // Разыменование вероятной пустой ссылки.
-
-                    facultyPlans.Add(plans);
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
+                    facultyPlans.Add(new(speciality));
                 }
             }
 
@@ -99,47 +160,49 @@ namespace DistributionOfStudents.Controllers
                 RecruitmentPlan plan;
                 foreach (PlansForSpecialityVM plans in facultyPlans)
                 {
-                    Task<Speciality> getSpeciality = _specialityRepository.GetByIdAsync(plans.SpecialityId);
-
-                    if (plans.DailyFullBudget > 0)
+                    Speciality? speciality = await _specialityRepository.GetByIdAsync(plans.SpecialityId);
+                    if (speciality != null)
                     {
-                        plan = await CreatePlan(plans.DailyFullBudget, true, true, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.DailyFullPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.DailyFullPaid, true, true, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.DailyAbbreviatedBudget > 0)
-                    {
-                        plan = await CreatePlan(plans.DailyAbbreviatedBudget, true, false, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.DailyAbbreviatedPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.DailyAbbreviatedPaid, true, false, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningFullBudget > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningFullBudget, false, true, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningFullPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningFullPaid, false, true, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningAbbreviatedBudget > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningAbbreviatedBudget, false, false, true, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
-                    }
-                    if (plans.EveningAbbreviatedPaid > 0)
-                    {
-                        plan = await CreatePlan(plans.EveningAbbreviatedPaid, false, false, false, year, await getSpeciality);
-                        recruitmentPlans.Add(plan);
+                        if (plans.DailyFullBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyFullBudget, true, true, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.DailyFullPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyFullPaid, true, true, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.DailyAbbreviatedBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyAbbreviatedBudget, true, false, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.DailyAbbreviatedPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.DailyAbbreviatedPaid, true, false, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningFullBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningFullBudget, false, true, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningFullPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningFullPaid, false, true, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningAbbreviatedBudget > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningAbbreviatedBudget, false, false, true, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
+                        if (plans.EveningAbbreviatedPaid > 0)
+                        {
+                            plan = await CreatePlan(plans.EveningAbbreviatedPaid, false, false, false, year, speciality);
+                            recruitmentPlans.Add(plan);
+                        }
                     }
                 }
             }
@@ -149,114 +212,32 @@ namespace DistributionOfStudents.Controllers
 
         public async Task<RecruitmentPlan> CreatePlan(int count, bool isDailyForm, bool isFullTime, bool isBudget, int year, Speciality speciality)
         {
-            RecruitmentPlan plan = (await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereForm(isDailyForm, isFullTime, isBudget, year, speciality.Id))).SingleOrDefault() ?? new();
-
+            FormOfEducation form = new()
+            {
+                IsDailyForm = isDailyForm,
+                IsBudget = isBudget,
+                IsFullTime = isFullTime,
+                Year = year,
+            };
+            RecruitmentPlan plan = (await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereForm(form).WhereSpeciality(speciality.Id))).SingleOrDefault() ?? new();
+            form = await GetOrCreateFormFromDB(form);
             plan.Count = count;
-            plan.IsDailyForm = isDailyForm;
-            plan.IsFullTime = isFullTime;
-            plan.IsBudget = isBudget;
-            plan.Year = year;
-            plan.Speciality = speciality;
+            plan.FormOfEducation = form;
+            plan.Speciality = speciality;            
 
             return plan;
         }
 
-        // GET: RecruitmentPlans/Create
-        public async Task<IActionResult> Create(string facultyName)
+        private async Task<FormOfEducation> GetOrCreateFormFromDB(FormOfEducation form)
         {
-            Faculty faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
-            if (faculty == null)
+            FormOfEducation formOfEducation = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
+
+            if(formOfEducation.Id == 0)
             {
-                return NotFound();
+                await _formsOfEducationRepository.AddAsync(form);
             }
-            int year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => s.RecruitmentPlans.Count != 0 ? s.RecruitmentPlans.Max(p => p.Year) + 1 : DateTime.Now.Year).Max() : DateTime.Now.Year;
-            DetailsFacultyRecruitmentPlans model = new()
-            {
-                PlansForSpecialities = GetFacultyPlans(faculty, year),
-                FacultyFullName = faculty.FullName,
-                FacultyShortName = faculty.ShortName,
-                Year = year,
-            };
 
-            return View(model);
-        }
-
-        // POST: RecruitmentPlans/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string facultyName, DetailsFacultyRecruitmentPlans model)
-        {
-            if (ModelState.IsValid)
-            {
-                List<RecruitmentPlan> plans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
-                plans.ForEach(async plan => await _plansRepository.AddAsync(plan));
-
-                return RedirectToAction("Details", "Faculties", new { name = facultyName });
-            }
-            return View(model);
-        }
-
-        // GET: RecruitmentPlans/Edit/5
-        public async Task<IActionResult> Edit(string facultyName, int year)
-        {
-            Faculty faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeRecruitmentPlans());
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            DetailsFacultyRecruitmentPlans model = new()
-            {
-                PlansForSpecialities = GetFacultyPlans(faculty, year),
-                FacultyFullName = faculty.FullName,
-                FacultyShortName = faculty.ShortName,
-                Year = year
-            };
-
-            return View(model);
-        }
-
-        // POST: RecruitmentPlans/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string facultyName, DetailsFacultyRecruitmentPlans model)
-        {
-            if (ModelState.IsValid)
-            {
-                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(model.FacultyShortName).WhereYear(model.Year));
-                List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(model.PlansForSpecialities, model.Year);
-                List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
-
-                diff.ForEach(async plan => await _plansRepository.DeleteAsync(plan.Id));
-                foreach (RecruitmentPlan plan in changedPlans)
-                {
-                    if (plan.Id > 0)
-                    {
-                        await _plansRepository.UpdateAsync(plan);
-                    }
-                    else
-                    {
-                        await _plansRepository.AddAsync(plan);
-                    }
-                }
-
-                return RedirectToAction("Details", "Faculties", new { name = facultyName });
-            }
-            return View(model);
-        }
-
-        // GET: RecruitmentPlans/Delete/5
-        public async Task<IActionResult> Delete(string facultyName, int year)
-        {
-            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
-
-            allPlans.ForEach(async plan => await _plansRepository.DeleteAsync(plan.Id));
-            _logger.LogInformation("План приёма на - {FacultyName} -  за {Year} год был удалён", facultyName, year);
-
-            return RedirectToAction("Details", "Faculties", new { name = facultyName });
+            return _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.Single();
         }
     }
 }

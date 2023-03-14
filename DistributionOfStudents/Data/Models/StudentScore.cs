@@ -5,7 +5,7 @@ namespace DistributionOfStudents.Data.Models
 {
     public class StudentScore : Entity
     {
-        public Subject Subject { get; set; }
+        public Subject Subject { get; set; } = new();
 
         [Display(Name = "Баллы")]
         public int Score { get; set; }

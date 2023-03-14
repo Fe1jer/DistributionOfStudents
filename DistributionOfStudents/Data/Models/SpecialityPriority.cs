@@ -4,7 +4,7 @@ namespace DistributionOfStudents.Data.Models
 {
     public class SpecialityPriority : Entity
     {
-        public RecruitmentPlan RecruitmentPlan { get; set; }
+        public RecruitmentPlan RecruitmentPlan { get; set; } = new();
         public int Priority { get; set; }
     }
 }

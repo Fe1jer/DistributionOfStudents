@@ -9,10 +9,14 @@ namespace DistributionOfStudents.Data.Specifications
 
         public RecruitmentPlansSpecification() : base()
         {
+            IncludeFormOfEducation();
+            SortBySpecialties();
         }
 
         public RecruitmentPlansSpecification(Expression<Func<RecruitmentPlan, bool>> expression) : base(expression)
         {
+            IncludeFormOfEducation();
+            SortBySpecialties();
         }
 
         public RecruitmentPlansSpecification IncludeSpecialty()
@@ -31,15 +35,26 @@ namespace DistributionOfStudents.Data.Specifications
 
         public RecruitmentPlansSpecification WhereGroup(GroupOfSpecialties group)
         {
-            AddWhere(i => i.IsBudget == group.IsBudget && i.IsDailyForm == group.IsDailyForm && i.IsFullTime == group.IsFullTime && i.Year == group.Year);
-            AddWhere(p => group.Specialities.Contains(p.Speciality));
+            AddWhere(i => i.FormOfEducation.Id == group.FormOfEducation.Id);
+
+            AddWhere(p => (group.Specialities ?? new()).Contains(p.Speciality));
 
             return this;
         }
 
-        public RecruitmentPlansSpecification WhereForm(bool isDailyForm, bool isFullTime, bool isBudget, int year, int specialityId)
+        public RecruitmentPlansSpecification WhereForm(FormOfEducation form)
         {
-            AddWhere(i => i.IsBudget == isBudget && i.IsDailyForm == isDailyForm && i.IsFullTime == isFullTime && i.Year == year && i.Speciality.Id == specialityId);
+            AddWhere(i => i.FormOfEducation.IsBudget == form.IsBudget &&
+            i.FormOfEducation.IsDailyForm == form.IsDailyForm &&
+            i.FormOfEducation.IsFullTime == form.IsFullTime &&
+            i.FormOfEducation.Year == form.Year);
+
+            return this;
+        }
+
+        public RecruitmentPlansSpecification WhereSpeciality(int specialityId)
+        {
+            AddWhere(i => i.Speciality.Id == specialityId);
 
             return this;
         }
@@ -53,14 +68,14 @@ namespace DistributionOfStudents.Data.Specifications
 
         public RecruitmentPlansSpecification WhereYear(int year)
         {
-            AddWhere(i => i.Year == year);
+            AddWhere(i => i.FormOfEducation.Year == year);
 
             return this;
         }
 
         public RecruitmentPlansSpecification SortBySpecialties()
         {
-            AddOrdering(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c)))));
+            AddOrdering(f => f.Speciality.DirectionCode ?? f.Speciality.Code);
             return this;
         }
 
@@ -73,6 +88,12 @@ namespace DistributionOfStudents.Data.Specifications
         public RecruitmentPlansSpecification WithTracking()
         {
             IsNoTracking = false;
+            return this;
+        }
+
+        private RecruitmentPlansSpecification IncludeFormOfEducation()
+        {
+            AddInclude(rp => rp.FormOfEducation);
             return this;
         }
     }

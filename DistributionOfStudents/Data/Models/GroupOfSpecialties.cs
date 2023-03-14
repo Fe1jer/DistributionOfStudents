@@ -7,7 +7,7 @@ namespace DistributionOfStudents.Data.Models
     {
         [Display(Name = "Название")]
         [DataType(DataType.Text)]
-        public string Name { get; set; }
+        public string Name { get; set; } = String.Empty;
 
         [Display(Name = "Описание")]
         [DataType(DataType.Text)]
@@ -21,14 +21,9 @@ namespace DistributionOfStudents.Data.Models
         [DataType(DataType.Date)]
         public DateTime EnrollmentDate { get; set; }
 
-        [Display(Name = "Год")]
-        public int Year { get; set; }
-
-        public bool IsDailyForm { get; set; }
-        public bool IsBudget { get; set; }
-        public bool IsFullTime { get; set; }
-
         public bool IsCompleted { get; set; }
+
+        public FormOfEducation FormOfEducation { get; set; } = new();
 
         public List<Subject>? Subjects { get; set; }
         public List<Admission>? Admissions { get; set; }
