@@ -43,13 +43,13 @@ namespace DistributionOfStudents.Controllers
             if (faculty.Specialities != null)
             {
                 faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
-                List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync().Result.Where(p => p.Speciality.Faculty.ShortName == name).ToList();
-                FacultyPlans.Year = allPlans.Count != 0 ? allPlans.Max(i => i.Year) : 0;
+                List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()).Result.Where(p => p.Speciality.Faculty.ShortName == name).ToList();
+                FacultyPlans.Year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
                 FacultyPlans.FacultyFullName = faculty.FullName;
                 FacultyPlans.FacultyShortName = faculty.ShortName;
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == FacultyPlans.Year).ToList();
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == FacultyPlans.Year).ToList();
                     FacultyPlans.PlansForSpecialities.Add(new(speciality));
                 }
             }

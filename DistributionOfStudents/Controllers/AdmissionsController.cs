@@ -94,7 +94,7 @@ namespace DistributionOfStudents.Controllers
                 {
                     GroupOfSpecialties = await _groupsRepository.GetByIdAsync(groupId) ?? new(),
                     StudentScores = model.StudentScores,
-                    Student = new() { Name = model.Student.Name, Surname = model.Student.Surname, Patronymic = model.Student.Patronymic, GPS = model.Student.GPS },
+                    Student = new() { Name = model.Student.Name.Trim(), Surname = model.Student.Surname.Trim(), Patronymic = model.Student.Patronymic.Trim(), GPS = model.Student.GPS },
                     DateOfApplication = model.DateOfApplication,
                     SpecialityPriorities = specialityPriorities
                 };
@@ -159,14 +159,14 @@ namespace DistributionOfStudents.Controllers
                 }
 
                 admission.SpecialityPriorities = specialityPriorities;
-                admission.Student.Surname = model.Student.Surname;
-                admission.Student.Name = model.Student.Name;
-                admission.Student.Patronymic = model.Student.Patronymic;
+                admission.Student.Surname = model.Student.Surname.Trim();
+                admission.Student.Name = model.Student.Name.Trim();
+                admission.Student.Patronymic = model.Student.Patronymic.Trim();
                 admission.Student.GPS = model.Student.GPS;
 
                 await _admissionsRepository.UpdateAsync(admission);
 
-                _logger.LogInformation("Заявка студента - {Surname} {Name} {Patronymic} - изменена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
+                _logger.LogInformation("Заявка абитуриента - {Surname} {Name} {Patronymic} - изменена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
                 try
                 {
                     await _admissionsRepository.UpdateAsync(admission);

@@ -13,13 +13,16 @@ namespace DistributionOfStudents.Controllers
         private readonly IRecruitmentPlansRepository _plansRepository;
         private readonly IFacultiesRepository _facultyRepository;
         private readonly ISpecialitiesRepository _specialityRepository;
+        private readonly IFormsOfEducationRepository _formsOfEducationRepository;
 
-        public RecruitmentPlansController(ILogger<RecruitmentPlansController> logger, IFacultiesRepository facultyRepository, IRecruitmentPlansRepository plansRepository, ISpecialitiesRepository specialityRepository)
+        public RecruitmentPlansController(ILogger<RecruitmentPlansController> logger, IFacultiesRepository facultyRepository, IRecruitmentPlansRepository plansRepository,
+            ISpecialitiesRepository specialityRepository, IFormsOfEducationRepository formsOfEducationRepository)
         {
             _logger = logger;
             _plansRepository = plansRepository;
             _facultyRepository = facultyRepository;
             _specialityRepository = specialityRepository;
+            _formsOfEducationRepository = formsOfEducationRepository;
         }
 
         [Route("~/[controller]")]
@@ -27,8 +30,8 @@ namespace DistributionOfStudents.Controllers
         {
             List<DetailsFacultyRecruitmentPlans> model = new();
             List<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
-            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync();
-            int year = allPlans.Count != 0 ? allPlans.Max(i => i.Year) : 0;
+            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification());
+            int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
 
             foreach (Faculty faculty in faculties)
             {
@@ -49,8 +52,8 @@ namespace DistributionOfStudents.Controllers
                 return NotFound();
             }
 
-            List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync().Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
-            int year = allPlans.Count != 0 ? allPlans.Max(i => i.Year) + 1 : DateTime.Now.Year;
+            List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()).Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
+            int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) + 1 : DateTime.Now.Year;
             DetailsFacultyRecruitmentPlans model = new(faculty, GetFacultyPlans(faculty, year), year);
 
             return View(model);
@@ -140,7 +143,7 @@ namespace DistributionOfStudents.Controllers
                 faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == year).ToList();
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
                     facultyPlans.Add(new(speciality));
                 }
             }
@@ -209,16 +212,32 @@ namespace DistributionOfStudents.Controllers
 
         public async Task<RecruitmentPlan> CreatePlan(int count, bool isDailyForm, bool isFullTime, bool isBudget, int year, Speciality speciality)
         {
-            RecruitmentPlan plan = (await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereForm(isDailyForm, isFullTime, isBudget, year, speciality.Id))).SingleOrDefault() ?? new();
-
+            FormOfEducation form = new()
+            {
+                IsDailyForm = isDailyForm,
+                IsBudget = isBudget,
+                IsFullTime = isFullTime,
+                Year = year,
+            };
+            RecruitmentPlan plan = (await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereForm(form).WhereSpeciality(speciality.Id))).SingleOrDefault() ?? new();
+            form = await GetOrCreateFormFromDB(form);
             plan.Count = count;
-            plan.IsDailyForm = isDailyForm;
-            plan.IsFullTime = isFullTime;
-            plan.IsBudget = isBudget;
-            plan.Year = year;
-            plan.Speciality = speciality;
+            plan.FormOfEducation = form;
+            plan.Speciality = speciality;            
 
             return plan;
+        }
+
+        private async Task<FormOfEducation> GetOrCreateFormFromDB(FormOfEducation form)
+        {
+            FormOfEducation formOfEducation = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
+
+            if(formOfEducation.Id == 0)
+            {
+                await _formsOfEducationRepository.AddAsync(form);
+            }
+
+            return _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.Single();
         }
     }
 }

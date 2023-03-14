@@ -14,13 +14,7 @@ namespace DistributionOfStudents.Data.Models
         [Display(Name = "Проходной балл")]
         public int PassingScore { get; set; }
 
-        [Display(Name = "Год")]
-        public int Year { get; set; }
-
-        public bool IsDailyForm { get; set; }
-        public bool IsBudget { get; set; }
-        public bool IsFullTime { get; set; }
-
         public List<EnrolledStudent>? EnrolledStudents { get; set; }
+        public FormOfEducation FormOfEducation { get; set; } = new();
     }
 }

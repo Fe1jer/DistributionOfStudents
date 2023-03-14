@@ -6,7 +6,7 @@ namespace DistributionOfStudents.Data.DBInitialization.Interface
     {
         public Faculty GetFaculty();
         public List<Speciality> GetSpecialties();
-        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities);
-        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities);
+        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities, FormOfEducation form);
+        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities, FormOfEducation form);
     }
 }

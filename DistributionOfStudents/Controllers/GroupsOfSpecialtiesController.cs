@@ -1,5 +1,6 @@
 ﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
+using DistributionOfStudents.Data.Repositories;
 using DistributionOfStudents.Data.Services;
 using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
@@ -18,10 +19,11 @@ namespace DistributionOfStudents.Controllers
         private readonly ISpecialitiesRepository _specialtiesRepository;
         private readonly IRecruitmentPlansRepository _plansRepository;
         private readonly ISubjectsRepository _subjectsRepository;
+        private readonly IFormsOfEducationRepository _formsOfEducationRepository;
 
         public GroupsOfSpecialtiesController(ILogger<GroupsOfSpecialtiesController> logger, IFacultiesRepository facultiesRepository,
             IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository, ISpecialitiesRepository specialtiesRepository,
-            IRecruitmentPlansRepository plansRepository, ISubjectsRepository subjectsRepository)
+            IRecruitmentPlansRepository plansRepository, ISubjectsRepository subjectsRepository, IFormsOfEducationRepository formsOfEducationRepository)
         {
             _logger = logger;
             _facultiesRepository = facultiesRepository;
@@ -29,6 +31,7 @@ namespace DistributionOfStudents.Controllers
             _specialtiesRepository = specialtiesRepository;
             _plansRepository = plansRepository;
             _subjectsRepository = subjectsRepository;
+            _formsOfEducationRepository = formsOfEducationRepository;
         }
 
         [Route("~/Faculties/{facultyName}/{id}")]
@@ -54,7 +57,7 @@ namespace DistributionOfStudents.Controllers
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
 
-            DetailsGroupOfSpecialitiesVM model = new(group, plans, group.Year);
+            DetailsGroupOfSpecialitiesVM model = new(group, plans, group.FormOfEducation.Year);
 
             return View(model);
         }
@@ -69,10 +72,13 @@ namespace DistributionOfStudents.Controllers
             }
             GroupOfSpecialties group = new()
             {
-                IsBudget = true,
-                IsDailyForm = true,
-                IsFullTime = true,
-                Year = year
+                FormOfEducation = new()
+                {
+                    IsBudget = true,
+                    IsDailyForm = true,
+                    IsFullTime = true,
+                    Year = year
+                }
             };
             model = new CreateChangeGroupOfSpecVM()
             {
@@ -90,11 +96,19 @@ namespace DistributionOfStudents.Controllers
         {
             if (ModelState.IsValid)
             {
-                model.Group.Year = model.Group.StartDate.Year;
+                FormOfEducation form = new()
+                {
+                    IsDailyForm = model.Group.FormOfEducation.IsDailyForm,
+                    IsBudget = model.Group.FormOfEducation.IsBudget,
+                    IsFullTime = model.Group.FormOfEducation.IsFullTime,
+                    Year = model.Group.FormOfEducation.Year,
+                };
+                form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
+                model.Group.FormOfEducation = form;
                 model.Group.Specialities = await GetSelectedSpecialitiesFromModelAsync(model.SelectedSpecialities);
                 model.Group.Subjects = await GetSelectedSubjectsFromModelAsync(model.SelectedSubjects);
                 await _groupsOfSpecialtiesRepository.AddAsync(model.Group);
-                _logger.LogInformation("Создана группа - {GroupName} - {Year} года на факультете - {FacultyName}", model.Group.Name, model.Group.Year, facultyName);
+                _logger.LogInformation("Создана группа - {GroupName} - {Year} года на факультете - {FacultyName}", model.Group.Name, model.Group.FormOfEducation.Year, facultyName);
 
                 return RedirectToAction("Details", "Faculties", new { name = facultyName });
             }
@@ -133,20 +147,26 @@ namespace DistributionOfStudents.Controllers
                     GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
                     if (group != null)
                     {
-                        group.Year = model.Group.StartDate.Year;
+                        FormOfEducation form = new()
+                        {
+                            IsDailyForm = model.Group.FormOfEducation.IsDailyForm,
+                            IsBudget = model.Group.FormOfEducation.IsBudget,
+                            IsFullTime = model.Group.FormOfEducation.IsFullTime,
+                            Year = model.Group.FormOfEducation.Year,
+                        };
+                        form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
+
                         group.Name = model.Group.Name;
-                        group.IsBudget = model.Group.IsBudget;
-                        group.IsDailyForm = model.Group.IsDailyForm;
-                        group.IsFullTime = model.Group.IsFullTime;
                         group.Description = model.Group.Description;
                         group.StartDate = model.Group.StartDate;
                         group.EnrollmentDate = model.Group.EnrollmentDate;
+                        group.FormOfEducation = form;                        
                         group.Specialities = await GetSelectedSpecialitiesFromModelAsync(model.SelectedSpecialities);
                         group.Subjects = await GetSelectedSubjectsFromModelAsync(model.SelectedSubjects);
 
                         await _groupsOfSpecialtiesRepository.UpdateAsync(group);
                     }
-                    _logger.LogInformation("Изменена группа - {GroupName} - {Year} года на факультете {FacultyName}", model.Group.Name, model.Group.Year, facultyName);
+                    _logger.LogInformation("Изменена группа - {GroupName} - {Year} года на факультете {FacultyName}", model.Group.Name, model.Group.FormOfEducation.Year, facultyName);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -166,11 +186,11 @@ namespace DistributionOfStudents.Controllers
 
         public async Task<RedirectToActionResult> Delete(string facultyName, int id)
         {
-            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id);
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification());
             if (group != null)
             {
                 await _groupsOfSpecialtiesRepository.DeleteAsync(id);
-                _logger.LogInformation("Группа - {GroupName} - {Year} года на факультете - {FacultyName} - была удалена", group.Name, group.Year, facultyName);
+                _logger.LogInformation("Группа - {GroupName} - {Year} года на факультете - {FacultyName} - была удалена", group.Name, group.FormOfEducation.Year, facultyName);
             }
 
             return RedirectToAction("Details", "Faculties", new { name = facultyName, });

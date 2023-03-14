@@ -102,12 +102,12 @@ namespace DistributionOfStudents.Data.DBInitialization
             return new List<Speciality>() { tlat, gmitm, dvs, am, ae, ts, eiat, tea, a, opiunaigt, odd, eitsnaigt, pd };
         }
 
-        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities)
+        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities, FormOfEducation form)
         {
             return new();
         }
 
-        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities)
+        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities, FormOfEducation form)
         {
             return new();
         }

@@ -11,22 +11,22 @@ namespace DistributionOfStudents.ViewModels.RecruitmentPlans
             speciality.RecruitmentPlans ??= new();
             SpecialityName = speciality.DirectionName ?? speciality.FullName;
             SpecialityId = speciality.Id;
-            DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0;
-            DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0;
-            DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0;
-            DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0;
-            EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && p.IsBudget).Count : 0;
-            EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && p.IsFullTime && !p.IsBudget).Count : 0;
-            EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && p.IsBudget).Count : 0;
-            EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget) != null
-            ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0;
+            DailyFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget).Count : 0;
+            DailyFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget).Count : 0;
+            DailyAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget).Count : 0;
+            DailyAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget).Count : 0;
+            EveningFullBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => !p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget).Count : 0;
+            EveningFullPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => !p.FormOfEducation.IsDailyForm && p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget).Count : 0;
+            EveningAbbreviatedBudget = speciality.RecruitmentPlans.FirstOrDefault(p => !p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => !p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && p.FormOfEducation.IsBudget).Count : 0;
+            EveningAbbreviatedPaid = speciality.RecruitmentPlans.FirstOrDefault(p => !p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget) != null
+            ? speciality.RecruitmentPlans.First(p => !p.FormOfEducation.IsDailyForm && !p.FormOfEducation.IsFullTime && !p.FormOfEducation.IsBudget).Count : 0;
         }
 
         [Display(Name = "Специальность (направление специальности)")]

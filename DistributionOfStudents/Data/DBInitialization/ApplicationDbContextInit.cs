@@ -2,6 +2,7 @@
 using DistributionOfStudents.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 
 namespace DistributionOfStudents.Data.DBInitialization
 {
@@ -23,10 +24,28 @@ namespace DistributionOfStudents.Data.DBInitialization
             {
                 CreateSubjects(context);
             }
+            if (!await context.FormsOfEducation.AnyAsync())
+            {
+                CreateFormsOfEducation(context);
+            }
             if (!await context.Faculties.AnyAsync())
             {
                 CreateFacultiesWithSpecialties(context);
             }
+        }
+
+        private static void CreateFormsOfEducation(ApplicationDbContext context)
+        {
+            FormOfEducation form = new()
+            {
+                IsBudget = true,
+                IsDailyForm = true,
+                IsFullTime = true,
+                Year = DateTime.Now.Year,
+            };
+
+            context.FormsOfEducation.Add(form);
+            context.SaveChanges();
         }
 
         private static void CreateFacultiesWithSpecialties(ApplicationDbContext context)
@@ -47,13 +66,14 @@ namespace DistributionOfStudents.Data.DBInitialization
                 faculty = context.Faculties.Include(f => f.Specialities).First(f => f.FullName == faculty.FullName);
                 if (faculty.Specialities != null && faculty.Specialities.Count != 0)
                 {
-                    List<RecruitmentPlan> plans = facultyInit.GetRecruitmentPlans(faculty.Specialities.Take(3).ToList());
+                    FormOfEducation form = context.FormsOfEducation.First();
+                    List<RecruitmentPlan> plans = facultyInit.GetRecruitmentPlans(faculty.Specialities.Take(3).ToList(), form);
                     if (plans.Count != 0)
                     {
                         context.RecruitmentPlans.AddRange(plans);
                         context.SaveChanges();
                     }
-                    List<GroupOfSpecialties> groups = facultyInit.GetGroupsOfSpecialties(faculty.Specialities.Take(3).ToList());
+                    List<GroupOfSpecialties> groups = facultyInit.GetGroupsOfSpecialties(faculty.Specialities.Take(3).ToList(), form);
                     if (groups.Count != 0)
                     {
                         context.GroupsOfSpecialties.AddRange(groups);

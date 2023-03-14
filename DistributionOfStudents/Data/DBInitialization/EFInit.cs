@@ -74,12 +74,12 @@ namespace DistributionOfStudents.Data.DBInitialization
             return new List<Speciality>() { eiope, es, esis, e, tes, pt, pieaes, rzia, aiutp};
         }
 
-        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities)
+        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities, FormOfEducation form)
         {
             return new();
         }
 
-        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities)
+        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities, FormOfEducation form)
         {
             return new();
         }

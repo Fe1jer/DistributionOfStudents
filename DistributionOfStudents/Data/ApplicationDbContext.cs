@@ -16,6 +16,7 @@ namespace DistributionOfStudents.Data
         public DbSet<Admission> Admissions { get; set; }
         public DbSet<SpecialityPriority> SpecialtyPriorities { get; set; }
         public DbSet<EnrolledStudent> EnrolledStudents { get; set; }
+        public DbSet<FormOfEducation> FormsOfEducation { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -29,6 +30,7 @@ namespace DistributionOfStudents.Data
             Admissions = Set<Admission>();
             SpecialtyPriorities = Set<SpecialityPriority>();
             EnrolledStudents = Set<EnrolledStudent>();
+            FormsOfEducation = Set<FormOfEducation>();
         }
     }
 }

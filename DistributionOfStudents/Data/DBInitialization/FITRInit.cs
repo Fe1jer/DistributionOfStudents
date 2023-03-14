@@ -73,7 +73,7 @@ namespace DistributionOfStudents.Data.DBInitialization
             return new List<Speciality>() { poit, isitOPI, isitPP, atpipvpir, ae, prirk };
         }
 
-        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities)
+        public List<GroupOfSpecialties> GetGroupsOfSpecialties(List<Speciality> specialities, FormOfEducation form)
         {
             GroupOfSpecialties group = new()
             {
@@ -81,17 +81,14 @@ namespace DistributionOfStudents.Data.DBInitialization
                 StartDate = DateTime.Today,
                 EnrollmentDate = DateTime.Today.AddDays(10),
                 IsCompleted = false,
-                IsBudget = true,
-                IsDailyForm = true,
-                IsFullTime = true,
-                Year = DateTime.Today.Year,
-                Specialities = specialities
+                Specialities = specialities,
+                FormOfEducation = form
             };
 
             return new() { group };
         }
 
-        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities)
+        public List<RecruitmentPlan> GetRecruitmentPlans(List<Speciality> specialities, FormOfEducation form)
         {
             List<RecruitmentPlan> plans = new();
 
@@ -102,10 +99,7 @@ namespace DistributionOfStudents.Data.DBInitialization
                     Count = 20,
                     PassingScore = 0,
                     Speciality = specialty,
-                    IsBudget = true,
-                    IsDailyForm = true,
-                    IsFullTime = true,
-                    Year = DateTime.Today.Year
+                    FormOfEducation = form
                 };
 
                 plans.Add(plan);

@@ -34,7 +34,7 @@ namespace DistributionOfStudents.Data.Specifications
 
         public FacultiesSpecification IncludeRecruitmentPlans()
         {
-            AddInclude("Specialities.RecruitmentPlans");
+            AddInclude("Specialities.RecruitmentPlans.FormOfEducation");
 
             return this;
         }

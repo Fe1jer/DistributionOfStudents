@@ -8,11 +8,18 @@ namespace DistributionOfStudents.Data.Specifications
     {
         public GroupsOfSpecialitiesSpecification(string facultyShortName) : base()
         {
+            IncludeFormOfEducation();
             WhereFaculty(facultyShortName);
         }
 
         public GroupsOfSpecialitiesSpecification(Expression<Func<GroupOfSpecialties, bool>> expression) : base(expression)
         {
+            IncludeFormOfEducation();
+        }
+
+        public GroupsOfSpecialitiesSpecification()
+        {
+            IncludeFormOfEducation();
         }
 
         public GroupsOfSpecialitiesSpecification IncludeRecruitmentPlans()
@@ -65,7 +72,7 @@ namespace DistributionOfStudents.Data.Specifications
 
         public GroupsOfSpecialitiesSpecification WhereYear(int year)
         {
-            AddWhere(p => p.Year == year);
+            AddWhere(p => p.FormOfEducation.Year == year);
             return this;
         }
 
@@ -84,6 +91,13 @@ namespace DistributionOfStudents.Data.Specifications
         public GroupsOfSpecialitiesSpecification WithTracking()
         {
             IsNoTracking = false;
+            return this;
+        }
+
+        private GroupsOfSpecialitiesSpecification IncludeFormOfEducation()
+        {
+            AddInclude(gr => gr.FormOfEducation);
+
             return this;
         }
     }
