@@ -14,14 +14,14 @@ namespace DistributionOfStudents.Controllers
         private readonly ILogger<FacultiesController> _logger;
         private readonly IFacultiesRepository _facultyRepository;
         private readonly IGroupsOfSpecialitiesRepository _groupRepository;
-        private readonly IRecruitmentPlansRepository _planRepository;
+        private readonly IRecruitmentPlansRepository _plansRepository;
 
         public FacultiesController(ILogger<FacultiesController> logger, IFacultiesRepository facultyRepository, IGroupsOfSpecialitiesRepository groupRepository, IRecruitmentPlansRepository planRepository)
         {
             _logger = logger;
             _facultyRepository = facultyRepository;
             _groupRepository = groupRepository;
-            _planRepository = planRepository;
+            _plansRepository = planRepository;
         }
 
         // GET: FacultiesController
@@ -42,8 +42,9 @@ namespace DistributionOfStudents.Controllers
 
             if (faculty.Specialities != null)
             {
-                faculty.Specialities = faculty.Specialities.OrderBy(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c))))).ToList();
-                FacultyPlans.Year = faculty.Specialities.Count != 0 ? faculty.Specialities.Select(s => (s.RecruitmentPlans ?? new()).Count != 0 ? (s.RecruitmentPlans ?? new()).Max(p => p.Year) : 0).Max() : 0;
+                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
+                List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync().Result.Where(p => p.Speciality.Faculty.ShortName == name).ToList();
+                FacultyPlans.Year = allPlans.Count != 0 ? allPlans.Max(i => i.Year) : 0;
                 FacultyPlans.FacultyFullName = faculty.FullName;
                 FacultyPlans.FacultyShortName = faculty.ShortName;
                 foreach (Speciality speciality in faculty.Specialities)
@@ -56,7 +57,7 @@ namespace DistributionOfStudents.Controllers
             groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).IncludeAdmissions().IncludeSpecialties().WhereYear(FacultyPlans.Year));
             foreach (GroupOfSpecialties group in groups)
             {
-                List<RecruitmentPlan> plans = await _planRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
+                List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
                 DistributionService distributionService = new(plans, group.Admissions);
                 groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM(group, plans, FacultyPlans.Year, distributionService.Competition));
             }

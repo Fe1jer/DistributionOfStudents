@@ -29,7 +29,7 @@ namespace DistributionOfStudents.ViewModels.RecruitmentPlans
             ? speciality.RecruitmentPlans.First(p => !p.IsDailyForm && !p.IsFullTime && !p.IsBudget).Count : 0;
         }
 
-        [Display(Name = "Специальность")]
+        [Display(Name = "Специальность (направление специальности)")]
         public string SpecialityName { get; set; } = string.Empty;
 
         public int SpecialityId { get; set; }

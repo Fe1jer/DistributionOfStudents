@@ -137,7 +137,7 @@ namespace DistributionOfStudents.Controllers
 
             if (faculty.Specialities != null)
             {
-                faculty.Specialities = faculty.Specialities.OrderBy(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c))))).ToList();
+                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.Year == year).ToList();

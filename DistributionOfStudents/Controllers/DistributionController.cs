@@ -66,7 +66,7 @@ namespace DistributionOfStudents.Controllers
                 }
                 try
                 {
-                    DistributionService distributionService = new(await GetPlansFromModel(model, facultyName, group), group.Admissions);
+                    DistributionService distributionService = new(await GetPlansFromModelAsync(model, facultyName, group), group.Admissions);
                     List<RecruitmentPlan> plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
                     if (!distributionService.AreControversialStudents())
                     {
@@ -147,7 +147,7 @@ namespace DistributionOfStudents.Controllers
                     ModelState.AddModelError(string.Empty, "Невозможно распределить студентов, так как уже существуют зачисленные студенты на этих специальностях");
                     return View(model);
                 }
-                plans = await GetPlansFromModel(model, facultyName, group);
+                plans = await GetPlansFromModelAsync(model, facultyName, group);
                 DistributionService distributionService = new(plans, group.Admissions);
                 plans = distributionService.GetPlansWithPassingScores();
                 group.IsCompleted = true;
@@ -187,7 +187,7 @@ namespace DistributionOfStudents.Controllers
             return RedirectToAction("Details", "GroupsOfSpecialties", new { facultyName, id = groupId });
         }
 
-        private async Task<List<RecruitmentPlan>> GetPlansFromModel(CreateDistributionVM model, string facultyName, GroupOfSpecialties group)
+        private async Task<List<RecruitmentPlan>> GetPlansFromModelAsync(CreateDistributionVM model, string facultyName, GroupOfSpecialties group)
         {
             List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
             foreach (PlanForDistributionVM distributedPlan in model.Plans)
@@ -212,7 +212,7 @@ namespace DistributionOfStudents.Controllers
             return plans;
         }
 
-        private async Task<List<RecruitmentPlan>> GetPlansFromModel(ConfirmDistributionVM model, string facultyName, GroupOfSpecialties group)
+        private async Task<List<RecruitmentPlan>> GetPlansFromModelAsync(ConfirmDistributionVM model, string facultyName, GroupOfSpecialties group)
         {
             List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
             foreach (ConfirmDistributedPlanVM distributedPlan in model.Plans)

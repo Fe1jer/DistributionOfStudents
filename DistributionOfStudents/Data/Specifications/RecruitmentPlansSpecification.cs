@@ -9,10 +9,12 @@ namespace DistributionOfStudents.Data.Specifications
 
         public RecruitmentPlansSpecification() : base()
         {
+            SortBySpecialties();
         }
 
         public RecruitmentPlansSpecification(Expression<Func<RecruitmentPlan, bool>> expression) : base(expression)
         {
+            SortBySpecialties();
         }
 
         public RecruitmentPlansSpecification IncludeSpecialty()
@@ -60,7 +62,7 @@ namespace DistributionOfStudents.Data.Specifications
 
         public RecruitmentPlansSpecification SortBySpecialties()
         {
-            AddOrdering(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c)))));
+            AddOrdering(f => f.Speciality.DirectionCode ?? f.Speciality.Code);
             return this;
         }
 

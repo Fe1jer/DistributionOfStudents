@@ -12,7 +12,7 @@
             <th colspan="4">
                 Заочная форма получения образования
             </th>
-            <th rowspan="2" width="85" style="text-align: center; vertical-align: middle;">
+            <th rowspan="2" width="60" style="text-align: center; vertical-align: middle;">
                 <a type="button" class="btn btn-outline-success py-1" asp-controller="RecruitmentPlans" asp-action="Edit"
                    asp-route-facultyName="@Model.FacultyShortName" asp-route-year="@Model.Year">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -57,7 +57,7 @@
     <tbody>
         @foreach (var item in Model.PlansForSpecialities)
         {
-            <tr>
+            <tr style="vertical-align: middle;">
                 <td>
                     @Html.DisplayFor(modelItem => item.SpecialityName)
                 </td>

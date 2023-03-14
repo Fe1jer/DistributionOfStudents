@@ -15,7 +15,13 @@
 </h1>
 <hr />
 <div id="content" class="ps-lg-4 pe-lg-4" style="position: relative">
-    <p class="text-center"><b>Сроки приёма документов: @Html.DisplayFor(model => model.GroupOfSpecialties.StartDate) - @Html.DisplayFor(model => model.GroupOfSpecialties.EnrollmentDate)</b></p>
+    <p class="text-center">
+        <b>Сроки приёма документов: @Html.DisplayFor(model => model.GroupOfSpecialties.StartDate) - @Html.DisplayFor(model => model.GroupOfSpecialties.EnrollmentDate)</b>
+        @if (Model.GroupOfSpecialties.EnrollmentDate < DateTime.Now.Date)
+        {
+            <b class="text-danger">Завершено</b>
+        }
+    </p>
     <p>@Html.DisplayFor(model => model.GroupOfSpecialties.Description)</p>
     <div class="card shadow">
         @await Html.PartialAsync("RecruitmentPlansPartial", Model.RecruitmentPlans)

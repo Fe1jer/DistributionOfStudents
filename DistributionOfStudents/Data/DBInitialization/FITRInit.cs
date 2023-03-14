@@ -66,8 +66,8 @@ namespace DistributionOfStudents.Data.DBInitialization
             {
                 FullName = "Промышленные роботы и робототехнические комплексы",
                 Code = "1-53 01 06",
-                SpecializationName = "Промышленные роботы и робототехнические комплексы в приборостроении",
-                SpecializationCode = "1-53 01 06 02",
+                SpecializationName = "Промышленные роботы и робототехнические комплексы (в приборостроении)",
+                SpecializationCode = "1-53 01 06-02",
             };
 
             return new List<Speciality>() { poit, isitOPI, isitPP, atpipvpir, ae, prirk };

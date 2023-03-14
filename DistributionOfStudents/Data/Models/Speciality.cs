@@ -5,7 +5,7 @@ namespace DistributionOfStudents.Data.Models
 {
     public class Speciality : Entity
     {
-        [Display(Name = "Название")]
+        [Display(Name = "Специальность")]
         [DataType(DataType.Text)]
         public string FullName { get; set; } = String.Empty;
 

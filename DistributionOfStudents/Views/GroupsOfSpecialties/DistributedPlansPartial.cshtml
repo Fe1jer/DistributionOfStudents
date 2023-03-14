@@ -21,7 +21,7 @@
                 }
                 @foreach (Student student in (plan.EnrolledStudents ?? new()).Select(i => i.Student))
                 {
-                    <tr>
+                    <tr style="vertical-align: middle;">
                         <td>
                             <label>@(i + 1)</label>
                         </td>

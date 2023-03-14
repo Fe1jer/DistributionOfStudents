@@ -77,8 +77,8 @@ namespace DistributionOfStudents.Controllers
             model = new CreateChangeGroupOfSpecVM()
             {
                 Group = group,
-                SelectedSpecialities = GetSelectedSpecialityAsync(faculty, group),
-                SelectedSubjects = await GetSelectedSpeciality(group)
+                SelectedSpecialities = GetSelectedSpecialities(faculty, group),
+                SelectedSubjects = await GetSelectedSubjectsAsync(group)
             };
 
             return View(model);
@@ -115,8 +115,8 @@ namespace DistributionOfStudents.Controllers
             model = new CreateChangeGroupOfSpecVM()
             {
                 Group = group,
-                SelectedSpecialities = GetSelectedSpecialityAsync(faculty, group),
-                SelectedSubjects = await GetSelectedSpeciality(group)
+                SelectedSpecialities = GetSelectedSpecialities(faculty, group),
+                SelectedSubjects = await GetSelectedSubjectsAsync(group)
             };
 
             return View(model);
@@ -182,11 +182,11 @@ namespace DistributionOfStudents.Controllers
             return group.Any(e => e.Id == id);
         }
 
-        private static List<IsSelectedSpecialityInGroupVM> GetSelectedSpecialityAsync(Faculty faculty, GroupOfSpecialties group)
+        private static List<IsSelectedSpecialityInGroupVM> GetSelectedSpecialities(Faculty faculty, GroupOfSpecialties group)
         {
             List<IsSelectedSpecialityInGroupVM> isSelectedSpecialties = new();
 
-            foreach (Speciality speciality in faculty.Specialities ?? new List<Speciality>())
+            foreach (Speciality speciality in (faculty.Specialities ?? new List<Speciality>()).OrderBy(s => int.Parse(string.Join("", s.Code.Where(c => char.IsDigit(c))))))
             {
                 Speciality? plan = (group.Specialities ?? new List<Speciality>()).Where(i => i.Equals(speciality)).SingleOrDefault();
                 isSelectedSpecialties.Add(new(speciality, plan != null));
@@ -195,7 +195,7 @@ namespace DistributionOfStudents.Controllers
             return isSelectedSpecialties;
         }
 
-        private async Task<List<IsSelectedSubjectVM>> GetSelectedSpeciality(GroupOfSpecialties group)
+        private async Task<List<IsSelectedSubjectVM>> GetSelectedSubjectsAsync(GroupOfSpecialties group)
         {
             List<IsSelectedSubjectVM> isSelectedSubjects = new();
 
