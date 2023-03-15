@@ -25,6 +25,13 @@ namespace DistributionOfStudents.Data.Specifications
             return this;
         }
 
+        public AdmissionsSpecification IncludeGroupWithSpecialities()
+        {
+            AddInclude("GroupOfSpecialties.Specialities.Faculty");
+
+            return this;
+        }
+
         private AdmissionsSpecification IncludeStudent()
         {
             AddInclude(f => f.Student);

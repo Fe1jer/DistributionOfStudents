@@ -28,18 +28,18 @@ namespace DistributionOfStudents.Data.DBInitialization
             {
                 FullName = "Горные машины и оборудование",
                 DirectionName = "Горные машины и оборудование (по направлениям)",
-                Code = "1-53 01 01",
+                Code = "1-36 10 01",
             };
             Speciality rmpi = new()
             {
                 FullName = "Разработка месторождений полезных ископаемых",
                 DirectionName = "Разработка месторождений полезных ископаемых (по направлениям)",
-                Code = "1-53 01 01",
+                Code = "1-51 02 01",
             };
             Speciality emiavp = new()
             {
                 FullName = "Экологический менеджмент и аудит в промышленности",
-                Code = "1-53 01 01",
+                Code = "1-57 01 02",
             };
 
             return new List<Speciality>() { gmio, rmpi, emiavp };
