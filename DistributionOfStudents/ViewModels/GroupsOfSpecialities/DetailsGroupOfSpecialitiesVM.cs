@@ -6,16 +6,18 @@ namespace DistributionOfStudents.ViewModels.GroupsOfSpecialities
     public class DetailsGroupOfSpecialitiesVM
     {
         public DetailsGroupOfSpecialitiesVM() { }
-        public DetailsGroupOfSpecialitiesVM(GroupOfSpecialties group, List<RecruitmentPlan> plans, int year, float competition = 0)
+        public DetailsGroupOfSpecialitiesVM(GroupOfSpecialties group, List<RecruitmentPlan> plans, float competition = 0)
         {
             GroupOfSpecialties = group;
             RecruitmentPlans = plans;
-            Year = year;
             Competition = (float)Math.Round(competition, 2);
         }
+        public DetailsGroupOfSpecialitiesVM(GroupOfSpecialties group, List<RecruitmentPlan> plans, string? searchValue, float competition = 0) : this(group, plans, competition)
+        {
+            SearchValue = searchValue;
+        }
 
-        [Display(Name = "год")]
-        public int? Year { get; set; }
+        public string? SearchValue { get; set; }
 
         [Display(Name = "Конкурс")]
         public float Competition { get; set; }

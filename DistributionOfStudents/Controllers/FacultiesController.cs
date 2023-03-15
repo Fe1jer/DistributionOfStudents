@@ -59,7 +59,7 @@ namespace DistributionOfStudents.Controllers
             {
                 List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
                 DistributionService distributionService = new(plans, group.Admissions);
-                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM(group, plans, FacultyPlans.Year, distributionService.Competition));
+                groupsOfSpecialities.Add(new DetailsGroupOfSpecialitiesVM(group, plans, distributionService.Competition));
             }
 
             DetailsFacultyVM model = new(faculty, FacultyPlans, groupsOfSpecialities);
@@ -157,6 +157,7 @@ namespace DistributionOfStudents.Controllers
                     if (model.Img != null && model.Faculty.Img != "\\img\\Faculties\\Default.jpg")
                     {
                         string[] deletePath = model.Faculty.Img.Split('.');
+                        FileService.DeleteFile(model.Faculty.Img);
                         model.Faculty.Img = deletePath[0] + "_300x170." + deletePath[1];
                         FileService.DeleteFile(model.Faculty.Img);
                         model.Faculty.Img = FileService.UploadFile(model.Img, path + model.Img.FileName);

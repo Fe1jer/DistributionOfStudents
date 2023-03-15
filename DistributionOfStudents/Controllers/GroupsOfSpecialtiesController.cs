@@ -1,6 +1,5 @@
 ﻿using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
-using DistributionOfStudents.Data.Repositories;
 using DistributionOfStudents.Data.Services;
 using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.ViewModels.GroupsOfSpecialities;
@@ -57,7 +56,7 @@ namespace DistributionOfStudents.Controllers
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
 
-            DetailsGroupOfSpecialitiesVM model = new(group, plans, group.FormOfEducation.Year);
+            DetailsGroupOfSpecialitiesVM model = new(group, plans, searchStudents);
 
             return View(model);
         }
