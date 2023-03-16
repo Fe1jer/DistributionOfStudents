@@ -13,14 +13,14 @@ namespace DistributionOfStudents.Controllers
     {
         private readonly ILogger<FacultiesController> _logger;
         private readonly IFacultiesRepository _facultyRepository;
-        private readonly IGroupsOfSpecialitiesRepository _groupRepository;
+        private readonly IGroupsOfSpecialitiesRepository _groupsRepository;
         private readonly IRecruitmentPlansRepository _plansRepository;
 
         public FacultiesController(ILogger<FacultiesController> logger, IFacultiesRepository facultyRepository, IGroupsOfSpecialitiesRepository groupRepository, IRecruitmentPlansRepository planRepository)
         {
             _logger = logger;
             _facultyRepository = facultyRepository;
-            _groupRepository = groupRepository;
+            _groupsRepository = groupRepository;
             _plansRepository = planRepository;
         }
 
@@ -54,7 +54,7 @@ namespace DistributionOfStudents.Controllers
                 }
             }
 
-            groups = await _groupRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).IncludeAdmissions().IncludeSpecialties().WhereYear(FacultyPlans.Year));
+            groups = await _groupsRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(faculty.ShortName).IncludeAdmissions().IncludeSpecialties().WhereYear(FacultyPlans.Year));
             foreach (GroupOfSpecialties group in groups)
             {
                 List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
