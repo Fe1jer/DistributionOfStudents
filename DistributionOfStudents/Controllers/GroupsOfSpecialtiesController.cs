@@ -95,14 +95,8 @@ namespace DistributionOfStudents.Controllers
         {
             if (ModelState.IsValid)
             {
-                FormOfEducation form = new()
-                {
-                    IsDailyForm = model.Group.FormOfEducation.IsDailyForm,
-                    IsBudget = model.Group.FormOfEducation.IsBudget,
-                    IsFullTime = model.Group.FormOfEducation.IsFullTime,
-                    Year = model.Group.FormOfEducation.Year,
-                };
-                form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
+                FormOfEducation form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(model.Group.FormOfEducation)).Result.SingleOrDefault() ?? model.Group.FormOfEducation;
+
                 model.Group.FormOfEducation = form;
                 model.Group.Specialities = await GetSelectedSpecialitiesFromModelAsync(model.SelectedSpecialities);
                 model.Group.Subjects = await GetSelectedSubjectsFromModelAsync(model.SelectedSubjects);
@@ -146,14 +140,7 @@ namespace DistributionOfStudents.Controllers
                     GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSubjects().IncludeSpecialties());
                     if (group != null)
                     {
-                        FormOfEducation form = new()
-                        {
-                            IsDailyForm = model.Group.FormOfEducation.IsDailyForm,
-                            IsBudget = model.Group.FormOfEducation.IsBudget,
-                            IsFullTime = model.Group.FormOfEducation.IsFullTime,
-                            Year = model.Group.FormOfEducation.Year,
-                        };
-                        form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
+                        FormOfEducation form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(model.Group.FormOfEducation)).Result.SingleOrDefault() ?? model.Group.FormOfEducation;
 
                         group.Name = model.Group.Name;
                         group.Description = model.Group.Description;
