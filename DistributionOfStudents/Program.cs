@@ -91,6 +91,8 @@ namespace DistributionOfStudents
             services.AddTransient<ISubjectsRepository, SubjectsRepository>();
             services.AddTransient<IRecruitmentPlansRepository, RecruitmentPlansRepository>();
             services.AddTransient<IFormsOfEducationRepository, FormsOfEducationRepository>();
+            services.AddTransient<IGroupsOfSpecialitiesStatisticRepository, GroupsOfSpecialitiesStatisticRepository>();
+            services.AddTransient<IRecruitmentPlansStatisticRepository, RecruitmentPlansStatisticRepository>();
         }
     }
 }
