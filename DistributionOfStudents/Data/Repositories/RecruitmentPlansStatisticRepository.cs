@@ -1,4 +1,5 @@
-﻿using DistributionOfStudents.Data.Interfaces;
+﻿using ChartJSCore.Models;
+using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Repositories.Base;
 using System.Text.RegularExpressions;
@@ -18,6 +19,11 @@ namespace DistributionOfStudents.Data.Repositories
             {
                 await DeleteAsync(statistic);
             }
+        }
+
+        public async Task<List<RecruitmentPlanStatistic>> GetAllAsync(int planId)
+        {
+            return (await GetAllAsync()).Where(i => i.RecruitmentPlan.Id == planId).OrderBy(i => i.Date).ToList();
         }
 
         public async Task<RecruitmentPlanStatistic?> GetByPlanAndDateAsync(int planId, DateTime date)

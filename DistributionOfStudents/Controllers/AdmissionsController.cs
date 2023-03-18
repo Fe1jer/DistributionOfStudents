@@ -174,6 +174,7 @@ namespace DistributionOfStudents.Controllers
                 admission.Student.GPS = model.Student.GPS;
 
                 await _admissionsRepository.UpdateAsync(admission);
+                await UpdateStatisticAsync(facultyName, groupId);
 
                 _logger.LogInformation("Заявка абитуриента - {Surname} {Name} {Patronymic} - изменена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
                 try

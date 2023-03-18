@@ -1,4 +1,5 @@
-﻿using DistributionOfStudents.Data.Interfaces;
+﻿using ChartJSCore.Models;
+using DistributionOfStudents.Data.Interfaces;
 using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Repositories.Base;
 using DistributionOfStudents.Data.Specifications.Base;
@@ -18,6 +19,11 @@ namespace DistributionOfStudents.Data.Repositories
             {
                 await DeleteAsync(statistic);
             }
+        }
+
+        public async Task<List<GroupOfSpecialitiesStatistic>> GetAllAsync(int groupId)
+        {
+            return (await GetAllAsync()).Where(i => i.GroupOfSpecialties.Id == groupId).OrderBy(i=>i.Date).ToList();
         }
 
         public async Task<GroupOfSpecialitiesStatistic?> GetByGroupAndDateAsync(int groupId, DateTime date)
