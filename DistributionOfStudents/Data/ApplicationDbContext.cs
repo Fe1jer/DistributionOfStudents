@@ -17,6 +17,8 @@ namespace DistributionOfStudents.Data
         public DbSet<SpecialityPriority> SpecialtyPriorities { get; set; }
         public DbSet<EnrolledStudent> EnrolledStudents { get; set; }
         public DbSet<FormOfEducation> FormsOfEducation { get; set; }
+        public DbSet<GroupOfSpecialitiesStatistic> GroupsOfSpecialitiesStatistic { get; set; }
+        public DbSet<RecruitmentPlanStatistic> RecruitmentPlandStatistic { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -31,6 +33,8 @@ namespace DistributionOfStudents.Data
             SpecialtyPriorities = Set<SpecialityPriority>();
             EnrolledStudents = Set<EnrolledStudent>();
             FormsOfEducation = Set<FormOfEducation>();
+            GroupsOfSpecialitiesStatistic = Set<GroupOfSpecialitiesStatistic>();
+            RecruitmentPlandStatistic = Set<RecruitmentPlanStatistic>();
         }
     }
 }
