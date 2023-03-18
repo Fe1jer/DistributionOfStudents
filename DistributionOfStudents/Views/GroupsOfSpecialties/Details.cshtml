@@ -44,7 +44,7 @@
             string value = Model.SearchValue;
         }
         <form asp-action="Details" asp-route-id="@Model.GroupOfSpecialties.Id" asp-route-facultyName="@ViewContext.RouteData.Values["facultyName"]" method="get" class="input-group w-auto my-auto pb-2">
-            <input asp-for ="@Model.SearchValue" autocomplete="off" class="form-control" type="search" name="searchStudents" placeholder="Найти абитуриентов" aria-label="Search">
+            <input asp-for="@Model.SearchValue" autocomplete="off" class="form-control" type="search" name="searchStudents" placeholder="Найти абитуриентов" aria-label="Search">
             <button class="input-group-text border-0" type="submit">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
@@ -53,6 +53,18 @@
         </form>
         <div class="card shadow" style="overflow: auto; max-height:600px;">
             @await Html.PartialAsync("AdmissionsPartial", Model)
+        </div>
+        <div class="row">
+            <div class="col-xl-6">
+                <hr class="mt-4" />
+                <h4>График проходных баллов</h4>
+                <div class="card shadow"><canvas id="passingScoresChart"></canvas></div>
+            </div>
+            <div class="col-xl-6">
+                <hr class="mt-4" />
+                <h4>График количества заявок по группе</h4>
+                <div class="card shadow"><canvas id="admissionsCountChart"></canvas></div>
+            </div>
         </div>
     }
     else
@@ -89,3 +101,14 @@
         </div>
     }
 </div>
+@section Scripts{
+    <script src="~/lib/Chart.js/Chart.bundle.min.js"></script>
+    <script type="module">
+        import { showPlansStatistic, showGroupStatistic } from "/js/showStatistic.js";
+        async function getStatistic() {
+            showPlansStatistic("passingScoresChart", @Html.Raw(ViewContext.RouteData.Values["id"]), "@Html.Raw(ViewContext.RouteData.Values["facultyName"])");
+            showGroupStatistic("admissionsCountChart", @Html.Raw(ViewContext.RouteData.Values["id"]));
+        }
+        getStatistic();
+    </script>
+    }
