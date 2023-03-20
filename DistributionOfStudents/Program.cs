@@ -5,6 +5,9 @@ using DistributionOfStudents.Data.Models;
 using DistributionOfStudents.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using React.AspNet;
+using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 
 namespace DistributionOfStudents
 {
@@ -43,6 +46,12 @@ namespace DistributionOfStudents
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+            builder.Services.AddMemoryCache();
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddReact();
+            builder.Services.AddCors();
+            builder.Services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
+
             AddTransients(builder.Services);
 
             builder.Services.AddControllersWithViews();
@@ -65,6 +74,7 @@ namespace DistributionOfStudents
                 app.UseHsts();
             }
 
+            app.UseReact(config => { });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
