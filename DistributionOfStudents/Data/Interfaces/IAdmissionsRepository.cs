@@ -1,4 +1,5 @@
 ﻿using DistributionOfStudents.Data.Models;
+using DistributionOfStudents.Data.Specifications;
 using DistributionOfStudents.Data.Specifications.Base;
 
 namespace DistributionOfStudents.Data.Interfaces
@@ -12,5 +13,6 @@ namespace DistributionOfStudents.Data.Interfaces
         Task AddAsync(Admission admission);
         Task UpdateAsync(Admission admission);
         Task DeleteAsync(int id);
+        Task<List<Admission>> SearchByStudentsAsync(string? searchText, ISpecification<Admission> specification);
     }
 }

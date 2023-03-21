@@ -56,7 +56,9 @@ namespace DistributionOfStudents.Data.Specifications
 
         public AdmissionsSpecification SortByStudent()
         {
-            AddOrdering(f => f.Student.Name);
+            AddOrdering(i => i.Student.Surname);
+            AddOrdering(i => i.Student.Name);
+            AddOrdering(i => i.Student.Patronymic);
             return this;
         }
 

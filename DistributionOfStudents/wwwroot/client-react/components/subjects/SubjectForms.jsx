@@ -51,7 +51,7 @@
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                            <input type="submit" className="btn btn-outline-danger py-1" value="Удалить" />
+                            <input type="submit" className="btn btn-outline-danger" value="Удалить" />
                         </div>
                     </div>
                 </div>

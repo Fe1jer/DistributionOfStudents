@@ -12,7 +12,7 @@
                 </thead>
                 <tbody>
                     {numbers.map((number) =>
-                        <tr key={number} className="align-middle">
+                        <tr key={"TableRowPreloader" + number} className="align-middle">
                             <td><p className="placeholder-glow"><span className="placeholder w-75"></span></p></td>
                             <td><p className="placeholder-glow"><span className="placeholder w-75"></span></p></td>
                             <td><p className="placeholder-glow"><span className="placeholder w-75"></span></p></td>

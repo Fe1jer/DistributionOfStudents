@@ -11,7 +11,8 @@ namespace DistributionOfStudents.ViewModels.Students
         {
             FullName = fullName;
             FacultyName = facultyName;
-            Group = group;
+            GroupName = group.Name;
+            GroupId = group.Id;
         }
 
         [Display(Name = "ФИО")]
@@ -21,6 +22,8 @@ namespace DistributionOfStudents.ViewModels.Students
         public string FacultyName { get; set; } = string.Empty;
 
         [Display(Name = "Форма образования")]
-        public GroupOfSpecialties Group { get; set; } = new();
+        public string GroupName { get; set; } = string.Empty;
+
+        public int GroupId { get; set; }
     }
 }
