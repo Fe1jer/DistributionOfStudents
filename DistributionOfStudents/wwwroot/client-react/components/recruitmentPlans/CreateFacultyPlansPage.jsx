@@ -1,7 +1,7 @@
 ﻿import UpdateSpecialityPlansList from "./UpdateSpecialityPlansList.jsx";
-import ModalWindowCreate from "./ModalWindowCreate.jsx";
+import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
-function StudentsPage({ apiUrl, facultyShortName, lastYear }) {
+function CreateFacultyPlansPage({ apiUrl, facultyShortName, lastYear }) {
     const [plans, setPlans] = React.useState([]);
     const [year, setYear] = React.useState(lastYear + 1);
     const [facultyName, setFacultyName] = React.useState("");
@@ -76,4 +76,4 @@ const facultyShortName = window.location.pathname.split('/')[2];
 
 const container = document.getElementById('content');
 const root = ReactDOM.createRoot(container);
-root.render(<StudentsPage apiUrl="/api/RecruitmentPlansApi" facultyShortName={facultyShortName} lastYear={0} />);
+root.render(<CreateFacultyPlansPage apiUrl="/api/RecruitmentPlansApi" facultyShortName={facultyShortName} lastYear={0} />);

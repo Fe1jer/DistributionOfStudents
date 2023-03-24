@@ -25,7 +25,7 @@ namespace DistributionOfStudents.Controllers
         }
 
         // GET: FacultiesController
-        public async Task<IActionResult> Index() => View(await _facultyRepository.GetAllAsync());
+        public IActionResult Index() => View();
 
         // GET: FacultiesController/Details/5
         [Route("[controller]/{name}")]
@@ -71,131 +71,13 @@ namespace DistributionOfStudents.Controllers
         [Route("[controller]/[action]")]
         public IActionResult Create()
         {
-            CreateChangeFacultyVM model = new(new Faculty() { Img = "\\img\\Faculties\\Default.jpg" });
-            return View(model);
+            return View();
         }
 
-        // POST: FacultiesController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         [Route("[controller]/[action]")]
-        public async Task<IActionResult> Create(CreateChangeFacultyVM model)
+        public IActionResult Edit(string shortName)
         {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    Faculty? sameFaculty = await _facultyRepository.GetByShortNameAsync(model.Faculty.ShortName, new FacultiesSpecification());
-                    if (sameFaculty == null)
-                    {
-                        string path = "\\img\\Faculties\\";
-                        path += model.Img != null ? model.Faculty.ShortName.Replace(" ", "_") + "\\" : "Default.jpg";
-
-                        Faculty faculty = new()
-                        {
-                            FullName = model.Faculty.FullName,
-                            ShortName = model.Faculty.ShortName,
-                            Img = model.Img != null ? FileService.UploadFile(model.Img, path + model.Img.FileName) : path
-                        };
-
-                        Task addFaculty = _facultyRepository.AddAsync(faculty);
-                        if (model.Img != null)
-                        {
-                            FileService.ResizeAndCrop(faculty.Img, 300, 170);
-                        }
-
-                        await addFaculty;
-                        _logger.LogInformation("Создан факультет - {FacultyName}", faculty.FullName);
-
-                        return RedirectToAction(nameof(Index));
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, "Такой факультет уже существует");
-                        return View(model);
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                _logger.LogError("Произошла ошибка при создании факультета");
-
-                return View(model);
-            }
-        }
-
-        // GET: FacultiesController/Edit/5
-        [Route("[controller]/[action]")]
-        public async Task<IActionResult> Edit(int id)
-        {
-            Faculty? faculty = await _facultyRepository.GetByIdAsync(id, new FacultiesSpecification());
-
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            CreateChangeFacultyVM model = new(faculty);
-
-            return View(model);
-        }
-
-        // POST: FacultiesController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("[controller]/[action]")]
-        public async Task<IActionResult> Edit(CreateChangeFacultyVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    string path = "\\img\\Faculties\\";
-                    path += model.Img != null ? model.Faculty.ShortName.Replace(" ", "_") + "\\" : "Default.jpg";
-
-                    if (model.Img != null && model.Faculty.Img != "\\img\\Faculties\\Default.jpg")
-                    {
-                        string[] deletePath = model.Faculty.Img.Split('.');
-                        FileService.DeleteFile(model.Faculty.Img);
-                        model.Faculty.Img = deletePath[0] + "_300x170." + deletePath[1];
-                        FileService.DeleteFile(model.Faculty.Img);
-                        model.Faculty.Img = FileService.UploadFile(model.Img, path + model.Img.FileName);
-                        FileService.ResizeAndCrop(model.Faculty.Img, 300, 170);
-                    }
-                    else if (model.Img != null)
-                    {
-                        model.Faculty.Img = FileService.UploadFile(model.Img, path + model.Img.FileName);
-                        FileService.ResizeAndCrop(model.Faculty.Img, 300, 170);
-                    }
-
-                    await _facultyRepository.UpdateAsync(model.Faculty);
-                    _logger.LogInformation("Изменён факультет - {FacultyName}", model.Faculty.FullName);
-
-                    return RedirectToAction("Index");
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                _logger.LogError("Произошла ошибка при изменении факультета - {FacultyName}", model.Faculty.ShortName);
-
-                return View(model);
-            }
-        }
-
-        // GET: FacultiesController/Delete/5
-        [Route("[controller]/[action]")]
-        public async Task<RedirectToActionResult> DeleteAsync(int id)
-        {
-            Faculty? faculty = await _facultyRepository.GetByIdAsync(id);
-            if (faculty != null)
-            {
-                await _facultyRepository.DeleteAsync(id);
-                _logger.LogInformation("Факультет - {FacultyName} - был удалён", faculty.FullName);
-            }
-
-            return RedirectToAction(nameof(Index));
+            return View();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿import UpdateSpecialityPlansList from "./UpdateSpecialityPlansList.jsx";
-import ModalWindowEdit from "./ModalWindowEdit.jsx";
+import ModalWindowEdit from "./ModalWindows/ModalWindowEdit.jsx";
 
-function StudentsPage({ apiUrl, facultyShortName, year }) {
+function EditFacultyPlansPage({ apiUrl, facultyShortName, year }) {
     const [plans, setPlans] = React.useState([]);
     const [facultyName, setFacultyName] = React.useState("");
     const [errors, setErrors] = React.useState({});
@@ -20,7 +20,7 @@ function StudentsPage({ apiUrl, facultyShortName, year }) {
         setPlans(changedPlans);
     }
 
-    const onEditFacultyPlans = (e) => {
+    const onEditFacultyPlans = () => {
         if (year != 1) {
             var xhr = new XMLHttpRequest();
             xhr.open("put", apiUrl + '/' + facultyShortName + "?year=" + year, true);
@@ -29,12 +29,10 @@ function StudentsPage({ apiUrl, facultyShortName, year }) {
                 if (xhr.status === 200) {
                     $('#facultyPlansEditModalWindow').modal('hide');
                     document.location.pathname = "/Faculties/" + facultyShortName;
-                    e.preventDefault();
                 }
                 else if (xhr.status === 400) {
                     var a = eval('({obj:[' + xhr.response + ']})');
                     setErrors(a.obj[0].errors);
-                    console.log(xhr.response);
                 }
             }.bind(this);
             xhr.send(JSON.stringify(plans));
@@ -70,4 +68,4 @@ const facultyShortName = window.location.pathname.split('/')[2];
 
 const container = document.getElementById('content');
 const root = ReactDOM.createRoot(container);
-root.render(<StudentsPage apiUrl="/api/RecruitmentPlansApi" facultyShortName={facultyShortName} year={2023} />);
+root.render(<EditFacultyPlansPage apiUrl="/api/RecruitmentPlansApi" facultyShortName={facultyShortName} year={2023} />);

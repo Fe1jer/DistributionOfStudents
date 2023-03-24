@@ -1,26 +1,10 @@
-﻿export default function DeleteModalWindow({ apiUrl, onLoadData }) {
+﻿export default function DeleteModalWindow({ apiUrl, onDelete }) {
     const [facultyShortName, setFacultyShortName] = React.useState("");
     const [year, setYear] = React.useState("");
 
     const onSubmit = (e) => {
-        if (year != "0") {
-            e.preventDefault();
-            var xhr = new XMLHttpRequest();
-            xhr.open("delete", apiUrl + '/' + facultyShortName + "?year=" + year, true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    $('#facultyPlansDeleteModalWindow').modal('hide');
-                    onLoadData();
-                    setFacultyShortName("");
-                    setYear("");
-                }
-            }.bind(this);
-            xhr.send();
-        }
-        else {
-            $('#facultyPlansDeleteModalWindow').modal('hide');
-        }
+        e.preventDefault();
+        onDelete(facultyShortName);
     }
     React.useEffect(() => {
         var exampleModal = document.getElementById('facultyPlansDeleteModalWindow')

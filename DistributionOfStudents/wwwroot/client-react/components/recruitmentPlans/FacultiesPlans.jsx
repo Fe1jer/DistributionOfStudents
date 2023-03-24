@@ -1,6 +1,6 @@
 ﻿import FacultyPlans from './FacultyPlans.jsx';
 import FacultiesPlansPreloader from "./FacultiesPlansPreloader.jsx";
-import ModalWindowDelete from "./ModalWindowDelete.jsx";
+import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";
 
 function FacultiesPlans({ apiUrl }) {
     const [facultiesPlans, setFacultiesPlans] = React.useState([]);
@@ -19,6 +19,21 @@ function FacultiesPlans({ apiUrl }) {
             setYear(year);
         }.bind(this);
         xhr.send();
+    }
+
+    const onDeleteFaculty = (facultyShortName) => {
+        if (year != "0") {
+            var xhr = new XMLHttpRequest();
+            xhr.open("delete", apiUrl + '/' + facultyShortName + "?year=" + year, true);
+            xhr.setRequestHeader("Content-Type", "application/json")
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    loadData();
+                }
+            }.bind(this);
+            xhr.send();
+        }
+        $('#facultyPlansDeleteModalWindow').modal('hide');
     }
 
     React.useEffect(() => {
@@ -42,7 +57,7 @@ function FacultiesPlans({ apiUrl }) {
             <React.Suspense>
                 <h1 className="text-center"> План приёма на {year} год</h1>
                 <div id="content" className="ps-lg-4 pe-lg-4 position-relative">
-                    <ModalWindowDelete apiUrl={apiUrl} onLoadData={loadData} />{
+                    <ModalWindowDelete apiUrl={apiUrl} onDelete={onDeleteFaculty} />{
                         facultiesPlans.map((item) =>
                             <FacultyPlans key={item.facultyShortName} facultyFullName={item.facultyFullName} facultyShortName={item.facultyShortName} year={item.year} plansForSpecialities={item.plansForSpecialities} />
                         )}

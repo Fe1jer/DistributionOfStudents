@@ -12,18 +12,17 @@ namespace DistributionOfStudents.Controllers.Api
     {
         private readonly IAdmissionsRepository _admissionsRepository;
         private readonly IRecruitmentPlansRepository _plansRepository;
-
+        
         public StudentsApiController(IAdmissionsRepository admissionsRepository, IRecruitmentPlansRepository plansRepository)
         {
             _admissionsRepository = admissionsRepository;
             _plansRepository = plansRepository;
         }
 
-        // GET: api/ApiSubjects
         [HttpGet]
         public async Task<ActionResult<List<DetailsStudentVM>>> GetStudents(string? searchStudents, int page, int pageLimit)
         {
-            DetailsStudentsVM model = new(new(), searchStudents);
+            List<DetailsStudentVM> models = new();
             List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification());
             int lastYear = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
             List<Admission> allAdmissions = await _admissionsRepository.SearchByStudentsAsync(searchStudents,
@@ -39,11 +38,11 @@ namespace DistributionOfStudents.Controllers.Api
                     string studentFullName = admission.Student.Surname + " " + admission.Student.Name + " " + admission.Student.Patronymic;
                     string facultyName = group.Specialities.First().Faculty.ShortName;
                     detailsStudent = new(studentFullName, facultyName, group);
-                    model.Students.Add(detailsStudent);
+                    models.Add(detailsStudent);
                 }
             }
 
-            return model.Students;
+            return models;
         }
 
         [HttpGet("CountOfSearchStudents")]

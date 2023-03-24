@@ -22,12 +22,12 @@ namespace DistributionOfStudents.Data.Repositories
 
         public async Task<Faculty?> GetByShortNameAsync(string name)
         {
-            return (await GetAllAsync()).FirstOrDefault(i => i.ShortName == name);
+            return (await GetAllAsync()).FirstOrDefault(i => i.ShortName.ToLower() == name.ToLower());
         }
 
         public async Task<Faculty?> GetByShortNameAsync(string name, ISpecification<Faculty> specification)
         {
-            Faculty? faculty = (await GetAllAsync()).FirstOrDefault(i => i.ShortName == name);
+            Faculty? faculty = await GetByShortNameAsync(name);
             if (faculty != null)
             {
                 return await GetByIdAsync(faculty.Id, specification);
