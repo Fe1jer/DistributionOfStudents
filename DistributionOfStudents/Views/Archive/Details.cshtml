@@ -1,18 +1,8 @@
-﻿@model List<DetailsFacultyArchive>
-
+﻿
 @{
     ViewData["Title"] = "Архив за " + @ViewContext.RouteData.Values["year"] + " год";
 }
 
-<h1 class="text-center">@ViewContext.RouteData.Values["form"] за @ViewContext.RouteData.Values["year"] год</h1>
+<div id="content"></div>
 
-<div id="content" class="ps-lg-4 pe-lg-4" style="position: relative">
-    @foreach (DetailsFacultyArchive facultyArchive in Model)
-    {
-        <hr class="mt-4 mx-0" />
-        <h4>@facultyArchive.FacultyFullName</h4>
-        <div class="card shadow">
-            @await Html.PartialAsync("FacultyArchivePartial", facultyArchive)
-        </div>
-    }
-</div>
+<script type="module" src="~/client-react/components/archive/FacultiesArchivePage.jsx"></script>

@@ -6,7 +6,7 @@ function FacultiesPlans({ apiUrl }) {
     const [facultiesPlans, setFacultiesPlans] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [year, setYear] = React.useState(0);
-    var numbers = [1, 2, 3, 4]
+    var numbers = [1, 2]
 
     const loadData = () => {
         var xhr = new XMLHttpRequest();
@@ -56,7 +56,7 @@ function FacultiesPlans({ apiUrl }) {
         return (
             <React.Suspense>
                 <h1 className="text-center"> План приёма на {year} год</h1>
-                <div id="content" className="ps-lg-4 pe-lg-4 position-relative">
+                <div className="ps-lg-4 pe-lg-4 position-relative">
                     <ModalWindowDelete apiUrl={apiUrl} onDelete={onDeleteFaculty} />{
                         facultiesPlans.map((item) =>
                             <FacultyPlans key={item.facultyShortName} facultyFullName={item.facultyFullName} facultyShortName={item.facultyShortName} year={item.year} plansForSpecialities={item.plansForSpecialities} />

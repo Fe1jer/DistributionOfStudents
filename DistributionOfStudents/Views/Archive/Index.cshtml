@@ -1,15 +1,8 @@
-﻿@model List<int>
-
-@{
+﻿@{
     ViewData["Title"] = "Архив";
 }
 
-<h1 class="text-center">Архив</h1>
+<div id="content"></div>
 
-<hr class="mt-3 mx-0" />
-<div id="content" class="ps-lg-4 pe-lg-4" style="position: relative">
-    @foreach (int year in Model)
-    {
-        <a class="nav-link text-success p-0 mb-3" asp-action="SelectFormOfEducation" asp-route-year="@year"><h4>Проходные баллы в БНТУ в @year году</h4></a>
-    }
-</div>
+
+<script type="module" src="~/client-react/components/archive/ArchiveYearsPage.jsx"></script>

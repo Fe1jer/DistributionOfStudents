@@ -1,7 +1,7 @@
 ﻿import SpecialityPlan from './SpecialityPlan.jsx';
 
 export default function SpecialityPlansList({ facultyShortName, year, plans }) {
-    return <div className="card shadow">
+    return <div className="shadow">
         <table className="table table-bordered mb-0">
             <thead>
                 <tr>
