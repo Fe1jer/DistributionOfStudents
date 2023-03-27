@@ -31,7 +31,7 @@ namespace webapi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GroupOfSpecialties>> GetGroup(int id)
         {
-            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id);
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification());
 
             if (group == null)
             {
