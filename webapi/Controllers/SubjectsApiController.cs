@@ -1,9 +1,8 @@
-﻿using webapi.Data.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
 using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Models;
+using webapi.Data.Specifications;
 
 namespace webapi.Controllers.Api
 {
@@ -12,10 +11,12 @@ namespace webapi.Controllers.Api
     public class SubjectsApiController : ControllerBase
     {
         private readonly ISubjectsRepository _subjectsRepository;
+        private readonly IGroupsOfSpecialitiesRepository _groupsOfSpecialtiesRepository;
 
-        public SubjectsApiController(ISubjectsRepository subjectsRepository)
+        public SubjectsApiController(ISubjectsRepository subjectsRepository, IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository)
         {
             _subjectsRepository = subjectsRepository;
+            _groupsOfSpecialtiesRepository = groupsOfSpecialtiesRepository;
         }
 
         // GET: api/ApiSubjects
@@ -27,6 +28,22 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
             return await _subjectsRepository.GetAllAsync();
+        }
+
+        [HttpGet("GroupSubjects/{groupId}")]
+        public async Task<ActionResult<IEnumerable<Subject>>> GetGroupSubjects(int groupId)
+        {
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSubjects());
+            if (group == null)
+            {
+                return NotFound();
+            }
+            if (group.Subjects == null)
+            {
+                return NotFound();
+            }
+
+            return group.Subjects;
         }
 
         // GET: api/ApiSubjects/5
