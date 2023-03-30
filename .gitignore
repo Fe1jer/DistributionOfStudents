@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /DistributionOfStudents/wwwroot/img/Users
 /DistributionOfStudents/wwwroot/img/Faculties
+/webapi/wwwroot/img/Users
+/webapi/wwwroot/img/Faculties

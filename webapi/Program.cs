@@ -41,8 +41,8 @@ namespace webapi
             builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddSwaggerGen();
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -59,17 +59,18 @@ namespace webapi
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseSwagger();
+                app.UseSwaggerUI();
                 app.UseMigrationsEndPoint();
                 app.UseDeveloperExceptionPage();
             }
             else
             {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseDefaultFiles();
                 app.UseHsts();
             }
 
             app.UseStaticFiles();
-
             app.UseRouting();
             app.UseHttpsRedirection();
             app.UseAuthentication();
