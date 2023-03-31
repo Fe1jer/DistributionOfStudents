@@ -64,7 +64,8 @@ namespace webapi.Controllers.Api
                         .Select(i => new RecruitmentPlan()
                         {
                             PassingScore = i.PassingScore,
-                            Speciality = new Speciality() { Code = i.Speciality.Code, DirectionCode = i.Speciality.DirectionCode, FullName = i.Speciality.FullName, DirectionName = i.Speciality.DirectionName }
+                            Speciality = new Speciality() { Code = i.Speciality.Code, DirectionCode = i.Speciality.DirectionCode, FullName = i.Speciality.FullName, DirectionName = i.Speciality.DirectionName },
+                            Count = i.Count
 
                         }).ToList(), distributionService.Competition);
                     groupsOfSpecialities.Add(a);

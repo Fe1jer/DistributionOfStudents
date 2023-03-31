@@ -17,15 +17,20 @@ namespace webapi.Controllers
         private readonly ISubjectsRepository _subjectsRepository;
         private readonly IFormsOfEducationRepository _formsOfEducationRepository;
 
-        public GroupsOfSpecialtiesApiController(ILogger<GroupsOfSpecialtiesApiController> logger,
-            IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository, ISpecialitiesRepository specialtiesRepository,
-            ISubjectsRepository subjectsRepository, IFormsOfEducationRepository formsOfEducationRepository)
+        public GroupsOfSpecialtiesApiController(ILogger<GroupsOfSpecialtiesApiController> logger, IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository,
+            ISpecialitiesRepository specialtiesRepository, ISubjectsRepository subjectsRepository, IFormsOfEducationRepository formsOfEducationRepository)
         {
             _logger = logger;
             _groupsOfSpecialtiesRepository = groupsOfSpecialtiesRepository;
             _specialtiesRepository = specialtiesRepository;
             _subjectsRepository = subjectsRepository;
             _formsOfEducationRepository = formsOfEducationRepository;
+        }
+
+        [HttpGet("FacultyGroups/{facultyName}")]
+        public async Task<ActionResult<IEnumerable<GroupOfSpecialties>>> GetFacultyGroups(string facultyName)
+        {
+            return await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(facultyName));
         }
 
         [HttpGet("{id}")]
@@ -42,7 +47,7 @@ namespace webapi.Controllers
         }
 
         [HttpPost("{facultyName}")]
-        public async Task<IActionResult> Create(string facultyName, CreateChangeGroupOfSpecVM model)
+        public async Task<IActionResult> CreateGroup(string facultyName, CreateChangeGroupOfSpecVM model)
         {
             if (ModelState.IsValid)
             {
@@ -62,7 +67,7 @@ namespace webapi.Controllers
 
         [HttpPut("{facultyName}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string facultyName, CreateChangeGroupOfSpecVM model)
+        public async Task<IActionResult> EditGroup(string facultyName, CreateChangeGroupOfSpecVM model)
         {
             if (ModelState.IsValid)
             {
@@ -102,7 +107,7 @@ namespace webapi.Controllers
         }
 
         [HttpDelete("{facultyName}/{id}")]
-        public async Task<IActionResult> Delete(string facultyName, int id)
+        public async Task<IActionResult> DeleteGroup(string facultyName, int id)
         {
             GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification());
             if (group != null)
@@ -120,7 +125,7 @@ namespace webapi.Controllers
             return group.Any(e => e.Id == id);
         }
 
-        private async Task<List<Speciality>> GetSelectedSpecialitiesFromModelAsync(List<IsSelectedSpecialityInGroupVM>? selectedSpecialities)
+        private async Task<List<Speciality>> GetSelectedSpecialitiesFromModelAsync(IEnumerable<IsSelectedSpecialityInGroupVM>? selectedSpecialities)
         {
             List<Speciality> specialities = new();
 
@@ -139,7 +144,7 @@ namespace webapi.Controllers
             return specialities;
         }
 
-        private async Task<List<Subject>> GetSelectedSubjectsFromModelAsync(List<IsSelectedSubjectVM>? selectedSubjects)
+        private async Task<List<Subject>> GetSelectedSubjectsFromModelAsync(IEnumerable<IsSelectedSubjectVM>? selectedSubjects)
         {
             List<Subject> subjects = new();
 

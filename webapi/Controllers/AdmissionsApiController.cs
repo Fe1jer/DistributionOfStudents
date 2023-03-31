@@ -48,7 +48,7 @@ namespace webapi.Controllers
 
             if (searchStudents != null)
             {
-                List<string> searchWords = searchStudents.Split(" ").ToList();
+                IEnumerable<string> searchWords = searchStudents.Split(" ");
                 foreach (string word in searchWords)
                 {
                     admissions = admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()

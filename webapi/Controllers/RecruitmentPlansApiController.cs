@@ -33,7 +33,7 @@ namespace webapi.Controllers.Api
         public async Task<ActionResult<IEnumerable<DetailsFacultyRecruitmentPlans>>> GetFacultiesRecruitmentPlans()
         {
             List<DetailsFacultyRecruitmentPlans> model = new();
-            List<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
+            IEnumerable<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
             List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification());
             int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
 
@@ -48,10 +48,33 @@ namespace webapi.Controllers.Api
         }
 
         [HttpGet("{facultyName}/{year}")]
-        public async Task<ActionResult<DetailsFacultyRecruitmentPlans>> GetFacultyRecruitmentPlans(string facultyName, int year)
+        public async Task<ActionResult<IEnumerable<PlansForSpecialityVM>>> GetFacultyRecruitmentPlans(string facultyName, int year)
         {
             Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
-            DetailsFacultyRecruitmentPlans facultyPlans = new();
+            List<PlansForSpecialityVM> plansForSpecialities = new();
+            if (faculty == null)
+            {
+                return NotFound();
+            }
+
+            if (faculty.Specialities != null)
+            {
+                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
+                foreach (Speciality speciality in faculty.Specialities)
+                {
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
+                    plansForSpecialities.Add(new(speciality));
+                }
+            }
+
+            return plansForSpecialities;
+        }
+
+        [HttpGet("{facultyName}/lastYear")]
+        public async Task<ActionResult<IEnumerable<PlansForSpecialityVM>>> GetFacultyLastYearRecruitmentPlans(string facultyName)
+        {
+            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
+            List<PlansForSpecialityVM> plansForSpecialities = new();
             if (faculty == null)
             {
                 return NotFound();
@@ -61,21 +84,19 @@ namespace webapi.Controllers.Api
             {
                 faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
                 List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()).Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
-                facultyPlans.Year = year == 0 ? (allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0) : year;
-                facultyPlans.FacultyFullName = faculty.FullName;
-                facultyPlans.FacultyShortName = faculty.ShortName;
+                int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
                 foreach (Speciality speciality in faculty.Specialities)
                 {
-                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == facultyPlans.Year).ToList();
-                    facultyPlans.PlansForSpecialities.Add(new(speciality));
+                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
+                    plansForSpecialities.Add(new(speciality));
                 }
             }
 
-            return facultyPlans;
+            return plansForSpecialities;
         }
 
         [HttpGet("{facultyName}/{groupId}/GroupRecruitmentPlans")]
-        public async Task<ActionResult<List<RecruitmentPlan>>> GetGroupRecruitmentPlans(string facultyName, int groupId)
+        public async Task<ActionResult<IEnumerable<RecruitmentPlan>>> GetGroupRecruitmentPlans(string facultyName, int groupId)
         {
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
 
@@ -84,17 +105,17 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
 
-            return new ActionResult<List<RecruitmentPlan>>(await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group)));
+            return new ActionResult<IEnumerable<RecruitmentPlan>>(await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group)));
         }
 
         [HttpPut("{facultyName}/{year}")]
-        public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyName, int year, List<PlansForSpecialityVM> plansForSpecialities)
+        public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<PlansForSpecialityVM> plansForSpecialities)
         {
             if (ModelState.IsValid)
             {
-                List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
-                List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(plansForSpecialities, year);
-                List<RecruitmentPlan> diff = allPlans.Except(changedPlans).ToList();
+                IEnumerable<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
+                IEnumerable<RecruitmentPlan> changedPlans = await CreateFacultyPlans(plansForSpecialities, year);
+                IEnumerable<RecruitmentPlan> diff = allPlans.Except(changedPlans);
 
                 foreach (RecruitmentPlan plan in diff)
                 {
@@ -113,11 +134,11 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPost("{facultyName}/{year}")]
-        public async Task<ActionResult<RecruitmentPlan>> PostFacultyRecruitmentPlans(string facultyName, int year, List<PlansForSpecialityVM> plansForSpecialities)
+        public async Task<ActionResult<RecruitmentPlan>> PostFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<PlansForSpecialityVM> plansForSpecialities)
         {
             if (ModelState.IsValid)
             {
-                List<RecruitmentPlan> plans = await CreateFacultyPlans(plansForSpecialities, year);
+                IEnumerable<RecruitmentPlan> plans = await CreateFacultyPlans(plansForSpecialities, year);
                 foreach (RecruitmentPlan plan in plans)
                 {
                     await _plansRepository.AddAsync(plan);
@@ -132,7 +153,7 @@ namespace webapi.Controllers.Api
         [HttpDelete("{facultyName}/{year}")]
         public async Task<IActionResult> DeleteRecruitmentPlan(string facultyName, int year)
         {
-            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
+            IEnumerable<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
 
             foreach (RecruitmentPlan plan in allPlans)
             {
@@ -160,7 +181,7 @@ namespace webapi.Controllers.Api
             return facultyPlans;
         }
 
-        private async Task<List<RecruitmentPlan>> CreateFacultyPlans(List<PlansForSpecialityVM> facultyPlans, int year)
+        private async Task<IEnumerable<RecruitmentPlan>> CreateFacultyPlans(IEnumerable<PlansForSpecialityVM> facultyPlans, int year)
         {
             List<RecruitmentPlan> recruitmentPlans = new();
 

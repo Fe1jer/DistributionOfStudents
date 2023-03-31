@@ -29,7 +29,7 @@ namespace webapi.Controllers.Api
         public async Task<ActionResult<string>> GetPlansStatistic(int groupId, string facultyName)
         {
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSpecialties());
-            List<RecruitmentPlan> plans;
+            IEnumerable<RecruitmentPlan> plans;
             List<Dataset> Datasets = new();
 
             if (group == null)
