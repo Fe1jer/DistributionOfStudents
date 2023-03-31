@@ -67,7 +67,6 @@ export default function EditFacultyPage() {
                 if (a.obj[0].modelErrors) {
                     setModelErrors(a.obj[0].modelErrors);
                 }
-                console.log(xhr);
             }
         }.bind(form);
         xhr.send(form);

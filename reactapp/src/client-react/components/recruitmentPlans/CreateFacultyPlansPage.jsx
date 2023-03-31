@@ -2,6 +2,7 @@
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
 import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
+import FacultiesApi from "../../api/FacultiesApi.js";
 
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React from 'react';
@@ -24,11 +25,18 @@ export default function CreateFacultyPlansPage() {
             setYear(now.getFullYear());
         }
         var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getRecruitmentPlanUrl(facultyShortName, year), true);
+        xhr.open("get", RecruitmentPlansApi.getFacultyRecruitmentPlansUrl(facultyShortName, year), true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
-            setPlans(data.plansForSpecialities);
-            setFacultyName(data.facultyFullName);
+            setPlans(data);
+        }.bind(this);
+        xhr.send();
+
+        xhr = new XMLHttpRequest();
+        xhr.open("get", FacultiesApi.getFacultyUrl(facultyShortName), true);
+        xhr.onload = function () {
+            var data = JSON.parse(xhr.responseText);
+            setFacultyName(data.fullName);
         }.bind(this);
         xhr.send();
     }

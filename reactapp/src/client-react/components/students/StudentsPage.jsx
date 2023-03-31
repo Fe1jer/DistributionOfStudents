@@ -18,7 +18,6 @@ export default function StudentsPage() {
 
     const loadData = () => {
         var xhr = new XMLHttpRequest();
-        console.log(StudentsApi.getStudents(searhText, currentPage, pageLimit));
         xhr.open("get", StudentsApi.getStudents(searhText, currentPage, pageLimit), true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);

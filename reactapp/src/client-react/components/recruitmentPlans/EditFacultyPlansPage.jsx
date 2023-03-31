@@ -2,6 +2,7 @@
 import ModalWindowEdit from "./ModalWindows/ModalWindowEdit.jsx";
 
 import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
+import FacultiesApi from "../../api/FacultiesApi.js";
 
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React from 'react';
@@ -18,14 +19,21 @@ export default function EditFacultyPlansPage() {
     const navigate = useNavigate();
 
     const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getRecruitmentPlanUrl(facultyShortName, year), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlans(data.plansForSpecialities);
-            setFacultyName(data.facultyFullName);
+        var xhr1 = new XMLHttpRequest();
+        xhr1.open("get", RecruitmentPlansApi.getFacultyRecruitmentPlansUrl(facultyShortName, year), true);
+        xhr1.onload = function () {
+            var data = JSON.parse(xhr1.responseText);
+            setPlans(data);
         }.bind(this);
-        xhr.send();
+        xhr1.send();
+
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open("get", FacultiesApi.getFacultyUrl(facultyShortName), true);
+        xhr2.onload = function () {
+            var data = JSON.parse(xhr2.responseText);
+            setFacultyName(data.fullName);
+        }.bind(this);
+        xhr2.send();
     }
     const onChangePlans = (changedPlans) => {
         setPlans(changedPlans);
