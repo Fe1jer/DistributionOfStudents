@@ -7,23 +7,26 @@ using webapi.Data.Interfaces.Repositories;
 
 namespace webapi.Controllers.Api
 {
-    [Route("api/{facultyName}/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class SpecialitiesApiController : ControllerBase
     {
         private readonly ILogger<SpecialitiesApiController> _logger;
         private readonly IFacultiesRepository _facultiesRepository;
         private readonly ISpecialitiesRepository _specialtiesRepository;
+        private readonly IGroupsOfSpecialitiesRepository _groupsOfSpecialtiesRepository;
 
-        public SpecialitiesApiController(ILogger<SpecialitiesApiController> logger, IFacultiesRepository facultiesRepository, ISpecialitiesRepository specialtiesRepository)
+        public SpecialitiesApiController(ILogger<SpecialitiesApiController> logger, IFacultiesRepository facultiesRepository,
+            ISpecialitiesRepository specialtiesRepository, IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository)
         {
             _logger = logger;
             _facultiesRepository = facultiesRepository;
             _specialtiesRepository = specialtiesRepository;
+            _groupsOfSpecialtiesRepository = groupsOfSpecialtiesRepository;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Speciality>>> GetSpecialities(string facultyName)
+        [HttpGet("FacultySpecialities/{facultyName}")]
+        public async Task<ActionResult<IEnumerable<Speciality>>> GetFacultySpecialities(string facultyName)
         {
             Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
             if (faculty == null)
@@ -37,12 +40,27 @@ namespace webapi.Controllers.Api
             return faculty.Specialities;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Speciality>> GetSpeciality(string facultyName, int id)
+        [HttpGet("GroupSpecialities/{groupId}")]
+        public async Task<ActionResult<IEnumerable<Speciality>>> GetGroupSpecialities(int groupId)
         {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName);
+            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties());
+            if (group == null)
+            {
+                return NotFound();
+            }
+            if (group.Specialities == null)
+            {
+                return NotFound();
+            }
+
+            return group.Specialities;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Speciality>> GetSpeciality(int id)
+        {
             Speciality? speciality = await _specialtiesRepository.GetByIdAsync(id);
-            if (faculty == null || speciality == null)
+            if (speciality == null)
             {
                 return NotFound();
             }
@@ -51,16 +69,11 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSpeciality(string facultyName, int id, Speciality speciality)
+        public async Task<IActionResult> PutSpeciality(int id, Speciality speciality)
         {
             if (id != speciality.Id)
             {
                 return BadRequest();
-            }
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName);
-            if (faculty == null)
-            {
-                return NotFound();
             }
             if (ModelState.IsValid)
             {
@@ -87,7 +100,7 @@ namespace webapi.Controllers.Api
             return BadRequest(ModelState);
         }
 
-        [HttpPost]
+        [HttpPost("{facultyName}")]
         public async Task<ActionResult<Speciality>> PostSpeciality(string facultyName, Speciality speciality)
         {
             Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName);
@@ -109,11 +122,10 @@ namespace webapi.Controllers.Api
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSpeciality(string facultyName, int id)
+        public async Task<IActionResult> DeleteSpeciality(int id)
         {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName);
             Speciality? specialty = await _specialtiesRepository.GetByIdAsync(id);
-            if (faculty != null && specialty != null)
+            if (specialty != null)
             {
                 await _specialtiesRepository.DeleteAsync(id);
                 _logger.LogInformation("Специальность - {SpecialityName} - была удалена", specialty.FullName);

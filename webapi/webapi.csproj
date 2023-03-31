@@ -20,4 +20,10 @@
         <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\reactapp\reactapp.esproj" >
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
+    </ItemGroup>
+
 </Project>

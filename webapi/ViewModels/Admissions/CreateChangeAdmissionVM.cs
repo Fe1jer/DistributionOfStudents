@@ -7,9 +7,8 @@ namespace webapi.ViewModels.Admissions
     public class CreateChangeAdmissionVM
     {
         public CreateChangeAdmissionVM() { }
-        public CreateChangeAdmissionVM(int id, Admission admission, List<SpecialityPriorityVM> priorities)
+        public CreateChangeAdmissionVM(Admission admission, List<SpecialityPriorityVM> priorities)
         {
-            Id = id;
             SpecialitiesPriority = priorities;
             StudentScores = admission.StudentScores;
             Student = admission.Student;
@@ -21,8 +20,6 @@ namespace webapi.ViewModels.Admissions
             SpecialitiesPriority = priorities;
             StudentScores = scores;
         }
-
-        public int? Id { get; set; }
 
         public Student Student { get; set; } = new();
 

@@ -3,6 +3,7 @@ using webapi.Data.Models;
 using webapi.Data.Specifications;
 using Microsoft.AspNetCore.Mvc;
 using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Services;
 
 namespace webapi.Controllers.Api
 {
@@ -28,7 +29,7 @@ namespace webapi.Controllers.Api
         public async Task<ActionResult<string>> GetPlansStatistic(int groupId, string facultyName)
         {
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeSpecialties());
-            List<RecruitmentPlan> plans;
+            IEnumerable<RecruitmentPlan> plans;
             List<Dataset> Datasets = new();
 
             if (group == null)
@@ -96,6 +97,40 @@ namespace webapi.Controllers.Api
             };
 
             return new ActionResult<string>(chart.SerializeBody());
+        }
+
+        [HttpPut("{facultyName}/{groupId}")]
+        public async Task<ActionResult> PostGroupStatistic(string facultyName, int groupId)
+        {
+            GroupOfSpecialties group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties().IncludeAdmissions()) ?? new();
+            await UpdateGroupStatisticAsync(group);
+            await UpdatePlansStatisticAsync(facultyName, group);
+
+            return Ok();
+        }
+
+        private async Task UpdateGroupStatisticAsync(GroupOfSpecialties group)
+        {
+            GroupOfSpecialitiesStatistic groupStatistic = await _groupsStatisticRepository.GetByGroupAndDateAsync(group.Id, DateTime.Today)
+                ?? new() { Date = DateTime.Today, GroupOfSpecialties = group };
+            groupStatistic.CountOfAdmissions = (group.Admissions ?? new()).Count;
+            Task task = groupStatistic.Id != 0 ? _groupsStatisticRepository.UpdateAsync(groupStatistic) : _groupsStatisticRepository.AddAsync(groupStatistic);
+            await task;
+        }
+
+        private async Task UpdatePlansStatisticAsync(string facultyName, GroupOfSpecialties group)
+        {
+            List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
+            DistributionService distributionService = new(plans, group.Admissions);
+            plans = distributionService.GetPlansWithEnrolledStudents();
+            foreach (var plan in plans)
+            {
+                RecruitmentPlanStatistic planStatistic = await _plansStatisticRepository.GetByPlanAndDateAsync(plan.Id, DateTime.Today)
+                    ?? new() { Date = DateTime.Today, RecruitmentPlan = await _plansRepository.GetByIdAsync(plan.Id) ?? new() };
+                planStatistic.Score = plan.PassingScore;
+                Task task = planStatistic.Id != 0 ? _plansStatisticRepository.UpdateAsync(planStatistic) : _plansStatisticRepository.AddAsync(planStatistic);
+                await task;
+            }
         }
 
         private static List<DateTime> GetRangeDates(DateTime start, DateTime finish)
