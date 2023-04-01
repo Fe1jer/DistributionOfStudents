@@ -1,5 +1,6 @@
 ﻿import FacultyArchive from './FacultyArchive.jsx';
-import FacultiesArchivePreloader from "./FacultiesArchivePreloader.jsx";
+
+import TablePreloader from "../TablePreloader.jsx";
 
 import ArchiveApi from "../../api/ArchiveApi.js";
 
@@ -33,10 +34,14 @@ export default function FacultiesArchivePlans() {
     if (loading) {
         return (
             <React.Suspense>
-                <h1 className="text-center"><span className="placeholder w-100"></span></h1>
+                <h1 className="text-center placeholder-glow"><span className="placeholder w-100"></span></h1>
                 <div id="content" className="ps-lg-4 pe-lg-4 position-relative">{
                     numbers.map((item) =>
-                        <FacultiesArchivePreloader key={"FacultiesPlansPreloader" + item} />
+                        <React.Suspense key={"FacultiesArchivePreloader" + item} >
+                            <hr className="mt-4 mx-0" />
+                            <p className="placeholder-glow"><span className="placeholder w-25"></span></p>
+                            <TablePreloader />
+                        </React.Suspense>
                     )}
                 </div>
             </React.Suspense>

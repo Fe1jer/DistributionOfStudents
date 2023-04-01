@@ -71,10 +71,12 @@ namespace webapi.Controllers.Api
         }
 
         [HttpGet("{facultyName}/lastYear")]
-        public async Task<ActionResult<IEnumerable<PlansForSpecialityVM>>> GetFacultyLastYearRecruitmentPlans(string facultyName)
+        public async Task<ActionResult<object>> GetFacultyLastYearRecruitmentPlans(string facultyName)
         {
             Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
             List<PlansForSpecialityVM> plansForSpecialities = new();
+            int year = 0;
+
             if (faculty == null)
             {
                 return NotFound();
@@ -84,7 +86,7 @@ namespace webapi.Controllers.Api
             {
                 faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
                 List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()).Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
-                int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
+                year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
                 foreach (Speciality speciality in faculty.Specialities)
                 {
                     speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
@@ -92,7 +94,7 @@ namespace webapi.Controllers.Api
                 }
             }
 
-            return plansForSpecialities;
+            return new { year, plansForSpecialities };
         }
 
         [HttpGet("{facultyName}/{groupId}/GroupRecruitmentPlans")]
@@ -105,7 +107,7 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
 
-            return new ActionResult<IEnumerable<RecruitmentPlan>>(await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group)));
+            return await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
         }
 
         [HttpPut("{facultyName}/{year}")]

@@ -7,6 +7,7 @@ namespace webapi.Data.Models
     {
         [Display(Name = "Специальность")]
         [DataType(DataType.Text)]
+        [Required]
         public string FullName { get; set; } = String.Empty;
 
         [Display(Name = "Аббревиатура")]
@@ -14,6 +15,7 @@ namespace webapi.Data.Models
         public string? ShortName { get; set; }
 
         [Display(Name = "Код специальности")]
+        [Required]
         public string Code { get; set; } = String.Empty;
 
         [Display(Name = "Сокращённый код специальности")]

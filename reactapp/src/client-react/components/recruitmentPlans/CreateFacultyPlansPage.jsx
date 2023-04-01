@@ -13,7 +13,7 @@ export default function CreateFacultyPlansPage() {
     const lastYear = params.lastYear;
 
     const [plans, setPlans] = React.useState([]);
-    const [year, setYear] = React.useState(lastYear + 1);
+    const [year, setYear] = React.useState(parseInt(lastYear) + 1);
     const [facultyName, setFacultyName] = React.useState("");
     const [errors, setErrors] = React.useState({});
 
@@ -24,21 +24,23 @@ export default function CreateFacultyPlansPage() {
             var now = new Date();
             setYear(now.getFullYear());
         }
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getFacultyRecruitmentPlansUrl(facultyShortName, year), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlans(data);
-        }.bind(this);
-        xhr.send();
+        else {
+            var xhr1 = new XMLHttpRequest();
+            xhr1.open("get", RecruitmentPlansApi.getFacultyRecruitmentPlansUrl(facultyShortName, year), true);
+            xhr1.onload = function () {
+                var data = JSON.parse(xhr1.responseText);
+                setPlans(data);
+            }.bind(this);
+            xhr1.send();
 
-        xhr = new XMLHttpRequest();
-        xhr.open("get", FacultiesApi.getFacultyUrl(facultyShortName), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setFacultyName(data.fullName);
-        }.bind(this);
-        xhr.send();
+            var xhr = new XMLHttpRequest();
+            xhr.open("get", FacultiesApi.getFacultyUrl(facultyShortName), true);
+            xhr.onload = function () {
+                var data = JSON.parse(xhr.responseText);
+                setFacultyName(data.fullName);
+            }.bind(this);
+            xhr.send();
+        }
     }
     const onCangeYear = (e) => {
         setYear(e.target.value);

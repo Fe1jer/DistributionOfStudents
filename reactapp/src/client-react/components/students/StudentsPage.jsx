@@ -40,7 +40,7 @@ export default function StudentsPage() {
 
     if (loading) {
         return <React.Suspense>
-            <h1 className="text-center"><span className="placeholder w-25"></span></h1>
+            <h1 className="text-center placeholder-glow"><span className="placeholder w-25"></span></h1>
             <hr />
             <TablePreloader />
         </React.Suspense>

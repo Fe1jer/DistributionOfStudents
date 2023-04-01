@@ -1,6 +1,7 @@
 ﻿import FacultyPlans from './FacultyPlans.jsx';
-import FacultiesPlansPreloader from "./FacultiesPlansPreloader.jsx";
 import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";
+
+import TablePreloader from "../TablePreloader.jsx";
 
 import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
 
@@ -25,7 +26,7 @@ export default function FacultiesPlans() {
         xhr.send();
     }
 
-    const onDeleteFaculty = (facultyShortName) => {
+    const onDeleteFacultyPlans = (facultyShortName) => {
         if (year != "0") {
             var xhr = new XMLHttpRequest();
             xhr.open("delete", RecruitmentPlansApi.getDeleteUrl(facultyShortName, year), true);
@@ -47,10 +48,14 @@ export default function FacultiesPlans() {
     if (loading) {
         return (
             <React.Suspense>
-                <h1 className="text-center"><span className="placeholder w-25"></span></h1>
+                <h1 className="text-center placeholder-glow"><span className="placeholder w-25"></span></h1>
                 <div id="content" className="ps-lg-4 pe-lg-4 position-relative">{
                     numbers.map((item) =>
-                        <FacultiesPlansPreloader key={"FacultiesPlansPreloader" + item} />
+                        <React.Suspense key={"FacultiesPlansPreloader" + item}>
+                            <hr className="mt-4 mx-0" />
+                            <p className="placeholder-glow"><span className="placeholder w-25"></span></p>
+                            <TablePreloader />
+                        </React.Suspense>
                     )}
                 </div>
             </React.Suspense>
@@ -59,9 +64,9 @@ export default function FacultiesPlans() {
     else {
         return (
             <React.Suspense>
-                <h1 className="text-center"> План приёма на {year} год</h1>
+                <h1 className="text-center"> План приёма на {year} год</h1> 
                 <div className="ps-lg-4 pe-lg-4 position-relative">
-                    <ModalWindowDelete onDelete={onDeleteFaculty} />{
+                    <ModalWindowDelete onDelete={onDeleteFacultyPlans} />{
                         facultiesPlans.map((item) =>
                             <FacultyPlans key={item.facultyShortName} facultyFullName={item.facultyFullName} facultyShortName={item.facultyShortName} year={item.year} plansForSpecialities={item.plansForSpecialities} />
                         )}
