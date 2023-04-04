@@ -36,9 +36,9 @@ export default function Header() {
                     <ul className="navbar-nav ms-auto d-flex flex-row">
                         {/*Avatar*/}
                         <li className="dropdown mt-2-dropdown">
-                            <a href="#" className="d-block link-light text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="/img/Users/bntu.jpg" alt="avatar" style={{ objectFit: 'cover', width: 40, height: 40, borderRadius: '50%' }} />
-                            </a>
+                            <button className="btn p-0 d-block link-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="/img/Users/bntu.jpg" alt="avatar" width="40" height="40" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                            </button>
                             <ul className="dropdown-menu text-small" aria-labelledby="dropdownUser1">
                                 <li><p className="dropdown-item-text text-nowrap my-0">Приветствуем <b>{/*@User.FindFirst("Name").Value.ToString()*/}</b></p></li>
                                 <li><hr className="dropdown-divider" /></li>

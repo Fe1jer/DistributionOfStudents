@@ -37,7 +37,19 @@ namespace webapi.Controllers.Api
             {
                 return NotFound();
             }
-            return faculty.Specialities;
+            return faculty.Specialities.Select(i => new Speciality()
+            {
+                Code = i.Code,
+                Description = i.Description,
+                DirectionCode = i.DirectionCode,
+                DirectionName = i.DirectionName,
+                FullName = i.FullName,
+                Id = i.Id,
+                ShortCode = i.ShortCode,
+                ShortName = i.ShortName,
+                SpecializationCode = i.SpecializationCode,
+                SpecializationName = i.SpecializationName
+            }).OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
         }
 
         [HttpGet("GroupSpecialities/{groupId}")]
@@ -53,7 +65,19 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
 
-            return group.Specialities;
+            return group.Specialities.Select(i => new Speciality()
+            {
+                Code = i.Code,
+                Description = i.Description,
+                DirectionCode = i.DirectionCode,
+                DirectionName = i.DirectionName,
+                FullName = i.FullName,
+                Id = i.Id,
+                ShortCode = i.ShortCode,
+                ShortName = i.ShortName,
+                SpecializationCode = i.SpecializationCode,
+                SpecializationName = i.SpecializationName
+            }).OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
         }
 
         [HttpGet("{id}")]
@@ -75,10 +99,16 @@ namespace webapi.Controllers.Api
             {
                 return BadRequest();
             }
+            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(speciality.Faculty.ShortName);
+            if (faculty == null)
+            {
+                return NotFound();
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
+                    speciality.Faculty = faculty;
                     await _specialtiesRepository.UpdateAsync(speciality);
                     _logger.LogInformation("Изменена специальность - {SpecialityName}", speciality.FullName);
                 }
@@ -94,7 +124,7 @@ namespace webapi.Controllers.Api
                     }
                 }
 
-                return NoContent();
+                return Ok();
             }
 
             return BadRequest(ModelState);
@@ -115,7 +145,7 @@ namespace webapi.Controllers.Api
                 await _specialtiesRepository.AddAsync(speciality);
                 _logger.LogInformation("Создана специальность - {SpecialityName}", speciality.FullName);
 
-                return CreatedAtAction("GetSpeciality", new { id = speciality.Id }, speciality);
+                return Ok();
             }
 
             return BadRequest(ModelState);
@@ -131,7 +161,7 @@ namespace webapi.Controllers.Api
                 _logger.LogInformation("Специальность - {SpecialityName} - была удалена", specialty.FullName);
             }
 
-            return NoContent();
+            return Ok();
         }
 
         private async Task<bool> SpecialtyExists(int id)

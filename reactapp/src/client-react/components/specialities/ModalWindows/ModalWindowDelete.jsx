@@ -2,34 +2,58 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import FacultiesApi from "../../../api/FacultiesApi.js";
+import SubjectsApi from "../../../api/SpecialitiesApi.js";
 
 import React, { useState } from 'react';
 
-export default function ModalWindowDelete({ show, handleClose, shortName, fullName, onLoadFaculties }) {
+export default function ModalWindowDelete({ show, handleClose, specialityId, onLoadSpecialities }) {
+    const [speciality, setSpeciality] = useState(null);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        onDeleteFaculty(shortName);
+        onDeleteSpeciality();
     }
 
-    const onDeleteFaculty = (facultyShortName) => {
+    const onDeleteSpeciality = () => {
+        if (specialityId !== null) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("delete", SubjectsApi.getDeleteUrl(specialityId), true);
+            xhr.setRequestHeader("Content-Type", "application/json")
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    handleClose();
+                    onLoadSpecialities();
+                }
+            }.bind(this);
+            xhr.send();
+        }
+    }
+    const getSpetyalityById = () => {
         var xhr = new XMLHttpRequest();
-        xhr.open("delete", FacultiesApi.getDeleteUrl(facultyShortName), true);
+        xhr.open("get", SubjectsApi.getSpecialityUrl(specialityId), true);
         xhr.setRequestHeader("Content-Type", "application/json")
         xhr.onload = function () {
             if (xhr.status === 200) {
-                onLoadFaculties();
+                setSpeciality(JSON.parse(xhr.responseText));
             }
         }.bind(this);
         xhr.send();
-        handleClose();
     }
 
-    if (!shortName || !fullName) {
+    React.useEffect(() => {
+        if (specialityId) {
+            getSpetyalityById();
+        }
+        else {
+            setSpeciality(null);
+        }
+    }, [specialityId]);
+
+    if (!speciality) {
         return (
             <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Удалить факультет</Modal.Title>
+                    <Modal.Title>Удалить специальность</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="text-center">
                     Загрузка...
@@ -46,14 +70,12 @@ export default function ModalWindowDelete({ show, handleClose, shortName, fullNa
             <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
                 <Form onSubmit={handleSubmit}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Удалить <b className="text-success">{shortName}</b></Modal.Title>
+                        <Modal.Title>Удалить специальность</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <p>
-                            Вы уверенны, что хотите удалить факультет?
-                            <br />
-                            <b className="text-success">{fullName}</b> будет удалён без возможности восстановления.
-                        </p>
+                        Вы уверенны, что хотите удалить специальность?
+                        <br />
+                        Специальность <b className="text-success">"{speciality.fullName}"</b> будет удалена без возможности восстановления.
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>Закрыть</Button>

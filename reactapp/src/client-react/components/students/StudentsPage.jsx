@@ -18,7 +18,6 @@ export default function StudentsPage() {
 
     const loadData = () => {
         var xhr = new XMLHttpRequest();
-        console.log(StudentsApi.getStudents(searhText, currentPage, pageLimit));
         xhr.open("get", StudentsApi.getStudents(searhText, currentPage, pageLimit), true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
@@ -41,7 +40,7 @@ export default function StudentsPage() {
 
     if (loading) {
         return <React.Suspense>
-            <h1 className="text-center"><span className="placeholder w-25"></span></h1>
+            <h1 className="text-center placeholder-glow"><span className="placeholder w-25"></span></h1>
             <hr />
             <TablePreloader />
         </React.Suspense>

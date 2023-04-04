@@ -1,8 +1,7 @@
 ﻿import HomePage from "./home/HomePage.jsx"
 
 import FacultiesPage from "./faculties/FacultiesPage.jsx"
-import CreateFacultyPage from "./faculties/CreateFacultyPage.jsx"
-import EditFacultyPage from "./faculties/EditFacultyPage.jsx"
+import FacultyPage from "./faculties/FacultyPage.jsx"
 
 import FacultiesPlans from "./recruitmentPlans/FacultiesPlans.jsx"
 import CreateFacultyPlansPage from "./recruitmentPlans/CreateFacultyPlansPage.jsx"
@@ -23,19 +22,16 @@ export default function Content() {
             <Route path="/" element={<HomePage />} />
             <Route path="/Faculties" element={<Null />} >
                 <Route index element={<FacultiesPage />} />
-                {/*<Route path=":shortName" element={<Faculty />} />*/}
-                <Route path="Create" element={<CreateFacultyPage />} />
-                <Route path=":shortName/Edit" element={<EditFacultyPage />} />
+                <Route path=":shortName" element={<Null />} >
+                    <Route index element={<FacultyPage />} />
+                </Route>
                 <Route path=":facultyShortName/RecruitmentPlans" element={<Null />} >
                     <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
                     <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
                 </Route>
             </Route>
-            <Route path="/RecruitmentPlans" element={<Null />}>
-                <Route index element={<FacultiesPlans />} />
-            </Route>
-            <Route path="/Students" element={<StudentsPage />} >
-            </Route>
+            <Route path="/RecruitmentPlans" element={<FacultiesPlans />} />
+            <Route path="/Students" element={<StudentsPage />} />
             <Route path="/Subjects" element={<SubjectsPage />} />
             <Route path="/Archive" element={<Null />} >
                 <Route index element={<ArchiveYearsPage />} />

@@ -27,7 +27,7 @@ export default function ArchiveFormsPage() {
 
     if (loading) {
         return <React.Suspense>
-            <h1 className="text-center"><span className="placeholder w-25"></span></h1>
+            <h1 className="text-center placeholder-glow"><span className="placeholder w-25"></span></h1>
             <hr className="mt-3 mx-0" />
             <div className="ps-lg-4 pe-lg-4 position-relative">
                 {numbers.map((number) =>
@@ -39,7 +39,7 @@ export default function ArchiveFormsPage() {
     else {
         return (
             <React.Suspense>
-                <h1 className="text-center">Архив</h1>
+                <h1 className="text-center">Архив за {year} год</h1>
                 <hr className="mt-3 mx-0" />
                 <div className="ps-lg-4 pe-lg-4 position-relative">
                     {forms.map((form) =>

@@ -2,34 +2,58 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import FacultiesApi from "../../../api/FacultiesApi.js";
+import SubjectsApi from "../../../api/SubjectsApi.js";
 
 import React, { useState } from 'react';
 
-export default function ModalWindowDelete({ show, handleClose, shortName, fullName, onLoadFaculties }) {
+export default function ModalWindowDelete({ show, handleClose, subjectId, onLoadSubjects }) {
+    const [subject, setSubject] = useState(null);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        onDeleteFaculty(shortName);
+        onDeleteSubject();
     }
 
-    const onDeleteFaculty = (facultyShortName) => {
+    const onDeleteSubject = () => {
+        if (subjectId !== null) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("delete", SubjectsApi.getDeleteUrl(subjectId), true);
+            xhr.setRequestHeader("Content-Type", "application/json")
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                   handleClose();
+                    onLoadSubjects();
+                }
+            }.bind(this);
+            xhr.send();
+        }
+    }
+    const getSubjectById = () => {
         var xhr = new XMLHttpRequest();
-        xhr.open("delete", FacultiesApi.getDeleteUrl(facultyShortName), true);
+        xhr.open("get", SubjectsApi.getSubjectUrl(subjectId), true);
         xhr.setRequestHeader("Content-Type", "application/json")
         xhr.onload = function () {
             if (xhr.status === 200) {
-                onLoadFaculties();
+                setSubject(JSON.parse(xhr.responseText));
             }
         }.bind(this);
         xhr.send();
-        handleClose();
     }
 
-    if (!shortName || !fullName) {
+    React.useEffect(() => {
+        if (subjectId) {
+            getSubjectById();
+        }
+        else {
+            setSubject(null);
+        }
+    }, [subjectId]);
+
+    if (!subject) {
         return (
             <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Удалить факультет</Modal.Title>
+                    <Modal.Title as="h5">Удалить предмет</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="text-center">
                     Загрузка...
@@ -46,14 +70,12 @@ export default function ModalWindowDelete({ show, handleClose, shortName, fullNa
             <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
                 <Form onSubmit={handleSubmit}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Удалить <b className="text-success">{shortName}</b></Modal.Title>
+                        <Modal.Title as="h5">Удалить предмет</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <p>
-                            Вы уверенны, что хотите удалить факультет?
-                            <br />
-                            <b className="text-success">{fullName}</b> будет удалён без возможности восстановления.
-                        </p>
+                        Вы уверенны, что хотите удалить этот предмет?
+                        <br />
+                        Предмет <b className="text-success" id="deleteName">"{subject.name}"</b> будет удалён без возможности восстановления.
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>Закрыть</Button>

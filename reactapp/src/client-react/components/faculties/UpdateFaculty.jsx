@@ -1,14 +1,17 @@
 ﻿import React from 'react';
+import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image'
 
 export default function UpdateFaculty({ faculty, modelErrors, errors, onChangeModel }) {
     const [updatedFaculty, setUpdatedFaculty] = React.useState({
+        id: faculty.id,
         shortName: faculty.shortName,
         fullName: faculty.fullName,
         img: faculty.img
     });
-    const { shortName, fullName, img } = updatedFaculty;
+    const { id, shortName, fullName, img } = updatedFaculty;
     const [uploadImg, setUploadImg] = React.useState(null);
-    const [preview, setPreview] = React.useState(faculty.img);
+    const [preview, setPreview] = React.useState(img);
     const onChangeFaculty = (event) => {
         const { name, value } = event.target;
         setUpdatedFaculty((prevState) => {
@@ -31,44 +34,41 @@ export default function UpdateFaculty({ faculty, modelErrors, errors, onChangeMo
     }, [updatedFaculty, uploadImg])
 
     const _formGroupErrors = (errors) => {
-        return (
-            <span className="text-danger">{
+        if (errors) {
+            return (<React.Suspense>{
                 errors.map((error) =>
-                    <React.Suspense>
-                        <span>{error}</span>
-                        <br></br>
-                    </React.Suspense>
+                    <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>
                 )}
-            </span>
-        );
-    }
-    const onSubmit = (e) => {
-        e.preventDefault();
+            </React.Suspense>);
+        }
     }
     return (
-        <form id="formFaculty" onSubmit={onSubmit}>
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className=" text-center">
-                        {modelErrors ? _formGroupErrors(modelErrors) : ""}
-                    </div>
-                    <div className="form-group pt-2" style={{ textAlign: "-webkit-center" }}>
-                        <img className="scale card-image" src={preview} style={{ objectFit: "cover", width: 290 }} ></img>
-                        <input className="form-control" style={{ width: 290 }} type="file" name="Img" accept=".jpg, .jpeg, .png" style={{ width: 290 }} onChange={showPreview} />
-                        <span className="text-danger">{errors ? _formGroupErrors(errors.Img) : ""}</span>
-                    </div>
-                    <div className="form-group pt-3">
-                        <label className="control-label">Полное название</label><sup>*</sup>
-                        <input className="form-control" name="fullName" onChange={onChangeFaculty} value={fullName} />
-                        <span className="text-danger">{errors ? _formGroupErrors(errors["Faculty.FullName"]) : ""}</span>
-                    </div >
-                    <div className="form-group pt-3">
-                        <label className="control-label"></label>Сокращённое название<sup>*</sup>
-                        <input className="form-control" name="shortName" onChange={onChangeFaculty} value={shortName} />
-                        <span className="text-danger">{errors ? _formGroupErrors(errors["Faculty.ShortName"]) : ""}</span>
-                    </div >
-                </div>
-            </div >
-        </form >
+        <React.Suspense>
+            <Form.Group style={{ textAlign: "-webkit-center" }}>
+                <Form.Control className="p-0 d-none" plaintext readOnly isInvalid={modelErrors ? !!modelErrors : false} />
+                <Form.Control.Feedback type="invalid">{modelErrors ? _formGroupErrors(modelErrors) : ""}</Form.Control.Feedback>               
+            </Form.Group>
+            <Form.Group style={{ textAlign: "-webkit-center" }}>
+                <Image className="scale card-image m-0 text-center" src={preview} style={{ objectFit: "cover", width: 290 }}></Image>
+                <Form.Control type="file" accept=".jpg, .jpeg, .png" style={{ width: 290 }}
+                    name="Img" onChange={showPreview}
+                    isInvalid={errors ? !!errors.Img : false} />
+                <Form.Control.Feedback className="m-0" type="invalid">{errors ? _formGroupErrors(errors.Img) : ""}</Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="pt-3">
+                <Form.Label className="mb-0">Полное название</Form.Label><sup>*</sup>
+                <Form.Control type="text"
+                    required name="fullName" value={fullName ?? ""} onChange={onChangeFaculty}
+                    isInvalid={errors ? !!errors["Faculty.FullName"] : false} />
+                <Form.Control.Feedback type="invalid">{errors ? _formGroupErrors(errors["Faculty.FullName"]) : ""}</Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="pt-3">
+                <Form.Label className="mb-0">Полное название</Form.Label><sup>*</sup>
+                <Form.Control type="text"
+                    required name="shortName" value={shortName ?? ""} onChange={onChangeFaculty}
+                    isInvalid={errors ? !!errors["Faculty.ShortName"] : false} />
+                <Form.Control.Feedback type="invalid">{errors ? _formGroupErrors(errors["Faculty.ShortName"]) : ""}</Form.Control.Feedback>
+            </Form.Group>
+        </React.Suspense>
     );
 }
