@@ -5,16 +5,17 @@ import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
 import FacultiesApi from "../../api/FacultiesApi.js";
 
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function EditFacultyPlansPage() {
     const params = useParams();
     const facultyShortName = params.facultyShortName;
     const year = params.year;
 
-    const [plans, setPlans] = React.useState([]);
-    const [facultyName, setFacultyName] = React.useState("");
-    const [errors, setErrors] = React.useState({});
+    const [plans, setPlans] = useState([]);
+    const [facultyName, setFacultyName] = useState("");
+    const [errors, setErrors] = useState({});
+    const [editShow, setEditShow] = useState(false);
 
     const navigate = useNavigate();
 
@@ -46,7 +47,7 @@ export default function EditFacultyPlansPage() {
             xhr.setRequestHeader("Content-Type", "application/json")
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    $('#facultyPlansEditModalWindow').modal('hide');
+                    handleEditClose();
                     navigate("/Faculties/" + facultyShortName);
                 }
                 else if (xhr.status === 400) {
@@ -57,9 +58,16 @@ export default function EditFacultyPlansPage() {
             xhr.send(JSON.stringify(plans));
         }
         else {
-            $('#facultyPlansEditModalWindow').modal('hide');
+            handleEditClose();
         }
     }
+    const handleEditClose = () => {
+        setEditShow(false);
+    };
+    const onClickEditPlans = () => {
+        setEditShow(true);
+    }
+
     React.useEffect(() => {
         loadData();
     }, [])
@@ -68,13 +76,13 @@ export default function EditFacultyPlansPage() {
         <React.Suspense>
             <h1 className="input-group-lg text-center">План приёма на {year} год</h1>
             <hr />
-            <ModalWindowEdit onEdit={onEditFacultyPlans} />
+            <ModalWindowEdit show={editShow} handleClose={handleEditClose} onEditPlans={onEditFacultyPlans} facultyShortName={facultyShortName} year={year} />
             <div className="ps-lg-4 pe-lg-4 position-relative">
                 <h4>{facultyName}</h4>
                 <UpdateSpecialityPlansList year={year} plans={plans} errors={errors} onChange={onChangePlans} />
             </div>
             <div className="col text-center pt-4">
-                <button type="button" className="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#facultyPlansEditModalWindow" data-bs-year={year} data-bs-facultyshortname={facultyShortName}>
+                <button type="button" className="btn btn-outline-success btn-lg" onClick={() => onClickEditPlans()}>
                     Сохранить
                 </button>
                 <Link type="button" className="btn btn-outline-secondary btn-lg" to={"/Faculties/" + facultyShortName}>В факультет</Link>

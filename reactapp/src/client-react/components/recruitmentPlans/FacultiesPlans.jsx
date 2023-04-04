@@ -5,12 +5,15 @@ import TablePreloader from "../TablePreloader.jsx";
 
 import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
 
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function FacultiesPlans() {
-    const [facultiesPlans, setFacultiesPlans] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-    const [year, setYear] = React.useState(0);
+    const [deleteFacultyShortName, setDeleteFacultyShortName] = useState(null);
+    const [deleteYear, setDeleteYear] = useState(null);
+    const [facultiesPlans, setFacultiesPlans] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [year, setYear] = useState(0);
+    const [deleteShow, setDeleteShow] = useState(false);
     var numbers = [1, 2]
 
     const loadData = () => {
@@ -20,14 +23,14 @@ export default function FacultiesPlans() {
             var data = JSON.parse(xhr.responseText);
             setFacultiesPlans(data);
             setLoading(false);
-            const year = data.lenght != 0 ? Math.max(...data.map(o => o.year)) : 0;
+            const year = data.lenght !== 0 ? Math.max(...data.map(o => o.year)) : 0;
             setYear(year);
         }.bind(this);
         xhr.send();
     }
 
-    const onDeleteFacultyPlans = (facultyShortName) => {
-        if (year != "0") {
+    const onDeleteFacultyPlans = (facultyShortName, year) => {
+        if (year != null) {
             var xhr = new XMLHttpRequest();
             xhr.open("delete", RecruitmentPlansApi.getDeleteUrl(facultyShortName, year), true);
             xhr.setRequestHeader("Content-Type", "application/json")
@@ -38,7 +41,18 @@ export default function FacultiesPlans() {
             }.bind(this);
             xhr.send();
         }
-        $('#facultyPlansDeleteModalWindow').modal('hide');
+        handleDeleteClose();
+    }
+
+    const handleDeleteClose = () => {
+        setDeleteShow(false);
+        setDeleteYear(null);
+        setDeleteFacultyShortName(null);
+    };
+    const onClickDeleteFacultyPlans = (facultyShortName, year) => {
+        setDeleteYear(year);
+        setDeleteFacultyShortName(facultyShortName);
+        setDeleteShow(true);
     }
 
     React.useEffect(() => {
@@ -64,11 +78,11 @@ export default function FacultiesPlans() {
     else {
         return (
             <React.Suspense>
-                <h1 className="text-center"> План приёма на {year} год</h1> 
+                <h1 className="text-center"> План приёма на {year} год</h1>
                 <div className="ps-lg-4 pe-lg-4 position-relative">
-                    <ModalWindowDelete onDelete={onDeleteFacultyPlans} />{
+                    <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} onDeletePlans={onDeleteFacultyPlans} facultyShortName={deleteFacultyShortName} year={deleteYear} /> {
                         facultiesPlans.map((item) =>
-                            <FacultyPlans key={item.facultyShortName} facultyFullName={item.facultyFullName} facultyShortName={item.facultyShortName} year={item.year} plansForSpecialities={item.plansForSpecialities} />
+                            <FacultyPlans key={item.facultyShortName} facultyFullName={item.facultyFullName} facultyShortName={item.facultyShortName} year={item.year} plansForSpecialities={item.plansForSpecialities} onClickDelete={onClickDeleteFacultyPlans} />
                         )}
                 </div>
             </React.Suspense>

@@ -1,40 +1,80 @@
-﻿import React from 'react';
+﻿import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
-export default function ModalWindowCreate({ onCreate }) {
-    const [shortName, setShortName] = React.useState("");
+import UpdateFaculty from "../UpdateFaculty.jsx";
 
-    const onSubmit = (e) => {
-        e.preventDefault();
-        onCreate();
+import FacultiesApi from "../../../api/FacultiesApi.js";
+
+import React, { useState } from 'react';
+
+export default function ModalWindowCreate({ show, handleClose, onLoadFaculties }) {
+    const defaultFaculty = {
+        id: 0,
+        fullName: "",
+        shortName: "",
+        img: "\\img\\Faculties\\Default.jpg"
     }
-    React.useEffect(() => {
-        var exampleModal = document.getElementById('facultyCreateModalWindow')
-        exampleModal.addEventListener('show.bs.modal', function (event) {
-            // Button that triggered the modal
-            var button = event.relatedTarget;
-            // Extract info from data-bs-* attributes
-            setShortName(button.getAttribute('data-bs-shortname'));
-        })
-    }, [])
+    const [updatedFaculty, setUpdatedFaculty] = useState(defaultFaculty);
+    const [updatedImg, setUpdatedImg] = useState(null);
+    const [validated, setValidated] = useState(false);
+    const [errors, setErrors] = useState(null);
+    const [modelErrors, setModelErrors] = useState(null);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onCreateFaculty();
+        setValidated(true);
+    }
+    const onChangeModel = (faculty, img) => {
+        setUpdatedFaculty(faculty);
+        setUpdatedImg(img);
+    }
+
+    const onCreateFaculty = () => {
+        const form = new FormData();
+        form.append("Faculty.FullName", updatedFaculty.fullName);
+        form.append("Faculty.ShortName", updatedFaculty.shortName);
+        form.append("Faculty.Img", updatedFaculty.img);
+        form.append("Img", updatedImg);
+        var xhr = new XMLHttpRequest();
+        xhr.open("post", FacultiesApi.getPostUrl(), true);
+        xhr.onload = function () {
+            setModelErrors(null);
+            setErrors(null);
+            if (xhr.status === 200) {
+                setUpdatedFaculty(defaultFaculty);
+                onLoadFaculties();
+                handleClose();
+                setValidated(false);
+            }
+            else if (xhr.status === 400) {
+                var a = eval('({obj:[' + xhr.response + ']})');
+                if (a.obj[0].errors) {
+                    setErrors(a.obj[0].errors);
+                }
+                if (a.obj[0].modelErrors) {
+                    setModelErrors(a.obj[0].modelErrors);
+                }
+            }
+        }.bind(this);
+        xhr.send(form);
+    }
+
     return (
-        <form onSubmit={onSubmit}>
-            <div className="modal fade" id="facultyCreateModalWindow" tabIndex="-1" role="dialog" aria-modal="true" aria-hidden="true">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Создать факультет</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <p>Перед тем как создать новый факультет, проверьте заполнение всех ячеек описания факультета.</p>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                            <input type="submit" className="btn btn-primary" value="Сохранить" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
+        <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
+            <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Создать факультет</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <UpdateFaculty faculty={updatedFaculty} errors={errors} onChangeModel={onChangeModel} modelErrors={modelErrors} />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
+                    <Button type="submit" variant="primary">Сохранить</Button>
+                </Modal.Footer>
+            </Form >
+        </Modal>
     );
 }

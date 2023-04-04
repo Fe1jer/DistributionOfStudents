@@ -5,17 +5,18 @@ import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
 import FacultiesApi from "../../api/FacultiesApi.js";
 
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function CreateFacultyPlansPage() {
     const params = useParams();
     const facultyShortName = params.facultyShortName;
     const lastYear = params.lastYear;
 
-    const [plans, setPlans] = React.useState([]);
-    const [year, setYear] = React.useState(parseInt(lastYear) + 1);
-    const [facultyName, setFacultyName] = React.useState("");
-    const [errors, setErrors] = React.useState({});
+    const [plans, setPlans] = useState([]);
+    const [year, setYear] = useState(parseInt(lastYear) + 1);
+    const [facultyName, setFacultyName] = useState("");
+    const [errors, setErrors] = useState({});
+    const [createShow, setCreateShow] = useState(false);
 
     const navigate = useNavigate();
 
@@ -56,7 +57,7 @@ export default function CreateFacultyPlansPage() {
             xhr.setRequestHeader("Content-Type", "application/json")
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    $('#facultyPlansCreateModalWindow').modal('hide');
+                    handleCreateClose();
                     navigate("/Faculties/" + facultyShortName);
                 }
                 else if (xhr.status === 400) {
@@ -67,9 +68,16 @@ export default function CreateFacultyPlansPage() {
             xhr.send(JSON.stringify(plans));
         }
         else {
-            $('#facultyPlansCreateModalWindow').modal('hide');
+            handleCreateClose();
         }
     }
+    const handleCreateClose = () => {
+        setCreateShow(false);
+    };
+    const onClickCreatePlans = () => {
+        setCreateShow(true);
+    }
+
     React.useEffect(() => {
         loadData();
     }, [year])
@@ -78,13 +86,13 @@ export default function CreateFacultyPlansPage() {
         <React.Suspense>
             <h1 className="input-group-lg text-center">План приёма на <input min="0" type="number" onChange={onCangeYear} className="form-control d-inline" value={year} style={{ width: 100 }} /> год</h1>
             <hr />
-            <ModalWindowCreate onCreate={onCreateFacultyPlans} />
+            <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onCreatePlans={onCreateFacultyPlans} facultyShortName={facultyShortName} year={year} />
             <div className="ps-lg-4 pe-lg-4 position-relative">
                 <h4>{facultyName}</h4>
                 <UpdateSpecialityPlansList year={year} plans={plans} errors={errors} onChange={onChangePlans} />
             </div>
             <div className="col text-center pt-4">
-                <button type="button" className="btn btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#facultyPlansCreateModalWindow" data-bs-year={year} data-bs-facultyshortname={facultyShortName}>
+                <button type="button" className="btn btn-outline-success btn-lg" onClick={() => onClickCreatePlans()}>
                     Создать
                 </button>
                 <Link type="button" className="btn btn-outline-secondary btn-lg" to={"/Faculties/" + facultyShortName}>В факультет</Link>
