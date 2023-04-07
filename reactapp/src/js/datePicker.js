@@ -1,4 +1,4 @@
-﻿export async function getToday() {
+﻿export function getToday() {
     var now = new Date();
     var month = (now.getMonth() + 1);
     var day = now.getDate();
@@ -11,7 +11,20 @@
     return today;
 };
 
-export async function getNow() {
+export function getTodayTimeNull() {
+    var now = new Date();
+    var month = (now.getMonth() + 1);
+    var day = now.getDate();
+    if (month < 10)
+        month = "0" + month;
+    if (day < 10)
+        day = "0" + day;
+    var today = now.getFullYear() + '-' + month + '-' + day + 'T' + "00" + ':' + "00" + ':' + "00";
+
+    return today;
+};
+
+export function getNow() {
     var now = new Date();
 
     var hours = now.getHours();
@@ -24,7 +37,7 @@ export async function getNow() {
     if (seconds < 10)
         seconds = "0" + seconds;
 
-    var dateWithTime = getToday() + ' ' + hours + ':' + minutes + ':' + seconds;
+    var dateWithTime = getToday() + 'T' + hours + ':' + minutes + ':' + seconds;
 
     return dateWithTime;
 };

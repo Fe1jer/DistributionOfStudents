@@ -1,5 +1,6 @@
 ﻿import SpecialitiesList from '../specialities/SpecialitiesList.jsx';
 import SpecialityPlansList from '../recruitmentPlans/SpecialityPlansList.jsx';
+import GroupsOfSpecialities from '../groupsOfSpecialities/GroupsOfSpecialities.jsx';
 
 import ModalWindowPlansDelete from "../recruitmentPlans/ModalWindows/ModalWindowDelete.jsx";
 
@@ -8,6 +9,8 @@ import TablePreloader from "../TablePreloader.jsx";
 import FacultiesApi from "../../api/FacultiesApi.js";
 import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
 import SpecialitiesApi from '../../api/SpecialitiesApi.js';
+
+import Placeholder from 'react-bootstrap/Placeholder';
 
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom'
@@ -19,9 +22,10 @@ export default function FacultyPage() {
     const [faculty, setFaculty] = useState();
     const [loading, setLoading] = useState(true);
     const [facultyPlans, setFacultyPlans] = useState([]);
-    const [facultyPlansYear, setFacultyPlansYear] = useState();
+    const [facultyPlansYear, setFacultyPlansYear] = useState(null);
     const [specialities, setSpecialities] = useState([]);
     const [deletePlansShow, setDeletePlansShow] = useState(false);
+
     var numbers = [1, 2]
 
     const loadData = () => {
@@ -70,7 +74,7 @@ export default function FacultyPage() {
             xhr.setRequestHeader("Content-Type", "application/json")
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    loadData();
+                    loadFacultyPlans();
                 }
             }.bind(this);
             xhr.send();
@@ -101,7 +105,6 @@ export default function FacultyPage() {
                     </Link>
                 </h4>
             </React.Suspense>;
-
             if (facultyPlansYear) {
                 tableFacultyPlans = <React.Suspense >
                     <SpecialityPlansList facultyShortName={shortName} year={facultyPlansYear} plans={facultyPlans} onClickDelete={onClickPlansDelete} />
@@ -109,7 +112,6 @@ export default function FacultyPage() {
                 </React.Suspense>;
             }
         }
-
         return (
             <React.Suspense>
                 {title}
@@ -122,15 +124,15 @@ export default function FacultyPage() {
         loadData();
     }, [])
 
-    if (loading) {
+    if (loading || facultyPlansYear === null) {
         return (
             <React.Suspense>
-                <h1 className="text-center placeholder-glow"><span className="placeholder w-25"></span></h1>
+                <Placeholder as="h1" animation="glow" className="text-center"><Placeholder className="w-50"/></Placeholder>
                 <hr />
                 <div id="content" className="ps-lg-4 pe-lg-4 position-relative">{
                     numbers.map((item) =>
                         <React.Suspense key={"FacultyPreloader" + item} >
-                            <p className="placeholder-glow"><span className="placeholder w-25"></span></p>
+                            <Placeholder as="p" animation="glow"><Placeholder className="w-25" /></Placeholder>
                             <TablePreloader />
                             <hr className="mt-4 mx-0" />
                         </React.Suspense>
@@ -143,11 +145,12 @@ export default function FacultyPage() {
         return (
             <React.Suspense>
                 <h1 className="text-center">{faculty.fullName}</h1>
-                <hr className="mt-4" />
+                <hr />
                 <div className="ps-lg-4 pe-lg-4 pt-2 position-relative">
                     <h4>Специальности</h4>
                     <SpecialitiesList onLoadSpecialities={updateSpecialities} specialities={specialities} />
                     {_showRecruitmenPlans()}
+                    <GroupsOfSpecialities year={facultyPlansYear} />
                 </div>
             </React.Suspense>
         );

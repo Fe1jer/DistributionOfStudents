@@ -27,10 +27,10 @@ namespace webapi.Controllers
             _formsOfEducationRepository = formsOfEducationRepository;
         }
 
-        [HttpGet("FacultyGroups/{facultyName}")]
-        public async Task<ActionResult<IEnumerable<GroupOfSpecialties>>> GetFacultyGroups(string facultyName)
+        [HttpGet("FacultyGroups/{facultyName}/{year}")]
+        public async Task<ActionResult<IEnumerable<GroupOfSpecialties>>> GetFacultyGroups(string facultyName, int year)
         {
-            return await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(facultyName));
+            return await _groupsOfSpecialtiesRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(facultyName).WhereYear(year));
         }
 
         [HttpGet("{id}")]
@@ -51,6 +51,7 @@ namespace webapi.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.Group.FormOfEducation.Year = model.Group.StartDate.Year;
                 FormOfEducation form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(model.Group.FormOfEducation)).Result.SingleOrDefault() ?? model.Group.FormOfEducation;
 
                 model.Group.FormOfEducation = form;
@@ -66,7 +67,6 @@ namespace webapi.Controllers
         }
 
         [HttpPut("{facultyName}")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditGroup(string facultyName, CreateChangeGroupOfSpecVM model)
         {
             if (ModelState.IsValid)
@@ -76,8 +76,8 @@ namespace webapi.Controllers
                     GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(model.Group.Id, new GroupsOfSpecialitiesSpecification().IncludeSubjects().IncludeSpecialties());
                     if (group != null)
                     {
+                        model.Group.FormOfEducation.Year = model.Group.StartDate.Year;
                         FormOfEducation form = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(model.Group.FormOfEducation)).Result.SingleOrDefault() ?? model.Group.FormOfEducation;
-
                         group.Name = model.Group.Name;
                         group.Description = model.Group.Description;
                         group.StartDate = model.Group.StartDate;

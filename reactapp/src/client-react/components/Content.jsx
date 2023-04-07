@@ -7,6 +7,8 @@ import FacultiesPlans from "./recruitmentPlans/FacultiesPlans.jsx"
 import CreateFacultyPlansPage from "./recruitmentPlans/CreateFacultyPlansPage.jsx"
 import EditFacultyPlansPage from "./recruitmentPlans/EditFacultyPlansPage.jsx"
 
+import GroupOfSpecialityPage from "./groupsOfSpecialities/GroupOfSpecialityPage.jsx"
+
 import ArchiveYearsPage from "./archive/ArchiveYearsPage.jsx"
 import ArchiveFormsPage from "./archive/ArchiveFormsPage.jsx"
 import FacultiesArchivePage from "./archive/FacultiesArchivePage.jsx"
@@ -24,10 +26,11 @@ export default function Content() {
                 <Route index element={<FacultiesPage />} />
                 <Route path=":shortName" element={<Null />} >
                     <Route index element={<FacultyPage />} />
-                </Route>
-                <Route path=":facultyShortName/RecruitmentPlans" element={<Null />} >
-                    <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
-                    <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
+                    <Route path="RecruitmentPlans" element={<Null />} >
+                        <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
+                        <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
+                    </Route>
+                    <Route path=":groupId" element={<GroupOfSpecialityPage />} />
                 </Route>
             </Route>
             <Route path="/RecruitmentPlans" element={<FacultiesPlans />} />

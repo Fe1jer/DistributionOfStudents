@@ -25,6 +25,22 @@ namespace webapi.Controllers
             _studentRepository = studentRepository;
         }
 
+        [HttpGet("{facultyName}/{groupId}/Competition")]
+        public async Task<ActionResult<float>> GetCompetition(string facultyName, int groupId)
+        {
+            List<RecruitmentPlan> plans;
+            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+            plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
+            DistributionService distributionService = new(plans, group.Admissions);
+
+            return (float)Math.Round(distributionService.Competition, 2);
+        }
+
         [HttpGet("{facultyName}/{groupId}")]
         public async Task<ActionResult<IEnumerable<object>>> GetDistribution(string facultyName, int groupId)
         {

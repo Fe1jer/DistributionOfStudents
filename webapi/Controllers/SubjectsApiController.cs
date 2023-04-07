@@ -43,7 +43,11 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
 
-            return group.Subjects;
+            return group.Subjects.Select(i => new Subject()
+            {
+                Id = i.Id,
+                Name = i.Name
+            }).ToArray();
         }
 
         // GET: api/ApiSubjects/5
@@ -99,7 +103,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPost]
-        public async Task<ActionResult<Subject>> PostSubject([FromBody]Subject subject)
+        public async Task<ActionResult<Subject>> PostSubject([FromBody] Subject subject)
         {
             if (await _subjectsRepository.GetAllAsync() == null)
             {
