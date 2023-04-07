@@ -1,6 +1,8 @@
 ﻿import UpdateSpecialityPlan from "./UpdateSpecialityPlan.jsx";
 
+import Table from 'react-bootstrap/Table';
 import React from 'react';
+
 
 export default function UpdateSpecialityPlansList({ plans, errors, onChange }) {
     const [changedPlans, setChangedPlans] = React.useState(plans);
@@ -10,7 +12,7 @@ export default function UpdateSpecialityPlansList({ plans, errors, onChange }) {
         setChangedPlans(changedPlansTemp);
         onChange(changedPlans);
     }
-    return <table className="table table-bordered mb-0">
+    return <Table responsive bordered className="mb-0">
         <thead>
             <tr>
                 <th rowSpan="2">Специальность (направление специальности)</th>
@@ -33,5 +35,5 @@ export default function UpdateSpecialityPlansList({ plans, errors, onChange }) {
                 <UpdateSpecialityPlan key={JSON.stringify(item)} index={index} specialityPlan={item} errors={errors} onChange={onChangePlan} />
             )}
         </tbody>
-    </table>;
+    </Table>;
 }

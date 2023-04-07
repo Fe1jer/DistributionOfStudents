@@ -1,8 +1,10 @@
 ﻿import Student from './Student.jsx';
 
+import Table from 'react-bootstrap/Table';
+
 export default function StudentsList({ students }) {
     return <div className="card shadow">
-        <table className="table mb-0">
+        <Table responsive className="table mb-0">
             <thead>
                 <tr>
                     <th>ФИО</th>
@@ -15,6 +17,6 @@ export default function StudentsList({ students }) {
                     <Student key={item.fullName} student={item} />
                 )}
             </tbody>
-        </table>
+        </Table>
     </div>;
 }

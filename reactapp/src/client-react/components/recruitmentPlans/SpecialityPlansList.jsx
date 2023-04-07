@@ -1,10 +1,12 @@
 ﻿import SpecialityPlan from './SpecialityPlan.jsx';
 
+import Table from 'react-bootstrap/Table';
+
 import { Link } from 'react-router-dom'
 
 export default function SpecialityPlansList({ facultyShortName, year, plans, onClickDelete }) {
     return <div className="shadow">
-        <table className="table table-bordered mb-0">
+        <Table responsive bordered className="mb-0">
             <thead>
                 <tr>
                     <th rowSpan="2">Специальность (направление специальности)</th>
@@ -40,6 +42,6 @@ export default function SpecialityPlansList({ facultyShortName, year, plans, onC
                     <SpecialityPlan key={item.specialityName} specialityPlan={item} />
                 )}
             </tbody>
-        </table>
+        </Table>
     </div>;
 }

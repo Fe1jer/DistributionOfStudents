@@ -48,7 +48,6 @@ export default function UpdateSpeciality({ errors, speciality, onChangeModel }) 
         }
         onChangeModel(updatedSpeciality);
     }, [updatedSpeciality]);
-    console.log(errors ? !!errors.Code : false);
     return (
         <React.Suspense>
             <Form.Group>
@@ -114,7 +113,7 @@ export default function UpdateSpeciality({ errors, speciality, onChangeModel }) 
                 </Form.Group>
             </Row>
             <Form.Group className="pt-2">
-                <Form.Label className="mb-0">Код специальности</Form.Label>
+                <Form.Label className="mb-0">Описание</Form.Label>
                 <Form.Control ref={textRef} type="text"
                     name="description" as="textarea" value={description ?? ""} onChange={handleChange}
                     isInvalid={errors ? !!errors.Description : false} />
