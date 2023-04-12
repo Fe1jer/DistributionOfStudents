@@ -1,5 +1,5 @@
-import ModalWindowEdit from "./ModalWindows/ModalWindowEdit.jsx";
 import DistribitedRecruitmentPlansList from "../recruitmentPlans/DistribitedRecruitmentPlansList.jsx";
+import Admissions from "../admissions/Admissions.jsx";
 
 import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
 import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
@@ -15,17 +15,18 @@ import { Line } from 'react-chartjs-2';
 import getData from '../../../js/showStatistic';
 
 import { getTodayTimeNull } from "../../../../src/js/datePicker.js"
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import React, { useState } from 'react';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function GroupOfSpecialityPage() {
     const params = useParams();
-    const navigate = useNavigate();
     const facultyShortName = params.shortName;
     const groupId = params.groupId;
 
     const [loading, setLoading] = useState(true);
+    const [loadedGroupStatistic, setLoadedGroupStatistic] = useState(false);
+    const [loadedPlansStatistic, setLoadedPlansStatistic] = useState(false);
     const [group, setGroup] = useState(null);
     const [plans, setPlans] = useState([]);
     const [plansStatistic, setPlansStatistic] = useState(null);
@@ -37,9 +38,9 @@ export default function GroupOfSpecialityPage() {
         xhr.open("get", GroupsOfSpecialitiesApi.getGroupUrl(groupId), true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
+            setLoading(false);
             setGroup(data);
             setCanDistribution(new Date(getTodayTimeNull()) < new Date(data.enrollmentDate) ? 'disabled' : '');
-            setLoading(false);
         }.bind(this);
         xhr.send();
     }
@@ -71,15 +72,25 @@ export default function GroupOfSpecialityPage() {
         xhr.send();
     }
     const loadData = () => {
+        setLoadedPlansStatistic(false);
+        setLoadedGroupStatistic(false);
         loadGroup();
         loadPlans();
-        loadPlansStatistic();
-        loadGroupStatistic();
     }
 
     React.useEffect(() => {
-        loadData();
-    }, [])
+        if (loading) {
+            loadData();
+        }
+        if (group && !loadedGroupStatistic) {
+            setLoadedGroupStatistic(true);
+            loadGroupStatistic();
+        }
+        if (plans && !loadedPlansStatistic) {
+            setLoadedPlansStatistic(true);
+            loadPlansStatistic();
+        }
+    }, [group, plans])
 
     const _showPlansStatistic = () => {
         if (plansStatistic) {
@@ -111,7 +122,7 @@ export default function GroupOfSpecialityPage() {
         </Row>;
     }
     const _showContent = () => {
-        if (!group.isCompleted) {
+        if (!group.isCompleted && plans.length > 0) {
             return <React.Suspense>
                 <h4 className="d-flex">
                     Заявки абитуриентов
@@ -119,10 +130,11 @@ export default function GroupOfSpecialityPage() {
                         Распределить
                     </Link>
                 </h4>
+                <Admissions groupId={groupId} plans={plans} onLoadGroup={loadData} />
                 {_showStatistics()}
             </React.Suspense>;
         }
-        else {
+        else if (group.isCompleted) {
             return <React.Suspense>
                 <h4 className="d-flex">
                     Зачисленные студенты
@@ -148,7 +160,7 @@ export default function GroupOfSpecialityPage() {
                         {_showIsCompleted()}
                     </p>
                     <DistribitedRecruitmentPlansList plans={plans} />
-                    <hr className="mt-4" />
+                    <hr />
                     {_showContent()}
                 </div>
             </React.Suspense>

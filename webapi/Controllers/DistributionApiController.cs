@@ -140,6 +140,7 @@ namespace webapi.Controllers
             await _groupsRepository.UpdateAsync(group);
             foreach (RecruitmentPlan plan in plans)
             {
+                plan.PassingScore = 0;
                 plan.EnrolledStudents = null;
                 await _plansRepository.UpdateAsync(plan);
             }

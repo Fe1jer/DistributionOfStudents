@@ -1,4 +1,4 @@
-export default class SubjectsApi {
+export default class SpecialitiesApi {
     static baseUrl = "/api/SpecialitiesApi/";
 
     static getFacultySpecialitiesUrl(facultyName) { return this.baseUrl + "FacultySpecialities/" + facultyName }

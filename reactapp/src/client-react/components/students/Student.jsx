@@ -7,7 +7,7 @@ export default function Student({ student }) {
                 {student.fullName}
             </Link>
         </td>
-        <td>{student.groupName}</td>
         <td>{student.facultyName}</td>
+        <td>{student.groupName}</td>
     </tr>;
 }

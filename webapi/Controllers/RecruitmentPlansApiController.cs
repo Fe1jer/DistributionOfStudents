@@ -109,12 +109,17 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
 
-            var plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
+            List<RecruitmentPlan> plans;
             if (!group.IsCompleted)
             {
+                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
                 group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions());
                 IDistributionService distributionService = new DistributionService(plans, group.Admissions);
                 plans = distributionService.GetPlansWithEnrolledStudents();
+            }
+            else
+            {
+                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
             return plans.Select(i => new RecruitmentPlan()
             {

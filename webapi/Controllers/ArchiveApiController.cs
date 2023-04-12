@@ -3,7 +3,6 @@ using webapi.Data.Services;
 using webapi.Data.Specifications;
 using webapi.ViewModels.Archive;
 using webapi.ViewModels.GroupsOfSpecialities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Interfaces.Services;
@@ -29,7 +28,7 @@ namespace webapi.Controllers.Api
         public async Task<ActionResult<IEnumerable<int>>> GetArchive()
         {
             int maxYear = DateTime.Now.Year - 1;
-            List<GroupOfSpecialties> groups = await _groupsRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(i => i.FormOfEducation.Year <= maxYear));
+            List<GroupOfSpecialties> groups = await _groupsRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification(i => i.FormOfEducation.Year <= maxYear).WhereCompleted());
             List<int> allYears = groups.Count != 0 ? groups.Select(i => i.FormOfEducation.Year).Distinct().OrderBy(i => i).ToList() : new();
 
             return allYears;
@@ -38,7 +37,7 @@ namespace webapi.Controllers.Api
         [HttpGet("GetArchveFormsByYear/{year}")]
         public async Task<ActionResult<IEnumerable<string>>> GetArchveFormsByYear(int year)
         {
-            List<GroupOfSpecialties> groups = await _groupsRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification().WhereYear(year));
+            List<GroupOfSpecialties> groups = await _groupsRepository.GetAllAsync(new GroupsOfSpecialitiesSpecification().WhereCompleted().WhereYear(year));
             List<string> allforms = groups.Select(i => i.Name).Distinct().ToList();
 
             return allforms;

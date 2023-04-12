@@ -42,10 +42,10 @@ export default function Header() {
                             <ul className="dropdown-menu text-small" aria-labelledby="dropdownUser1">
                                 <li><p className="dropdown-item-text text-nowrap my-0">Приветствуем <b>{/*@User.FindFirst("Name").Value.ToString()*/}</b></p></li>
                                 <li><hr className="dropdown-divider" /></li>
-                                <li><a className="dropdown-item" asp-controller="Account" asp-action="Profile">Профиль</a></li>
+                                <li><Link className="dropdown-item" to="#">Профиль</Link></li>
                                 <li><a className="dropdown-item disabled" asp-controller="Account" asp-action="Settings" target="_blank">Настройки</a></li>
                                 <li><hr className="dropdown-divider" /></li>
-                                <li><a className="dropdown-item" asp-controller="Account" asp-action="Logout">Выйти</a></li>
+                                <li><Link className="dropdown-item" to="#">Выйти</Link></li>
                             </ul>
                         </li>
                     </ul>
