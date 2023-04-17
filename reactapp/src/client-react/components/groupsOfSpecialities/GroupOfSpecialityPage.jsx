@@ -1,5 +1,8 @@
-import DistribitedRecruitmentPlansList from "../recruitmentPlans/DistribitedRecruitmentPlansList.jsx";
+import DistributedRecruitmentPlansList from "../distribution/DistributedRecruitmentPlansList.jsx";
+import DistributedPlan from "../distribution/DistributedPlan.jsx";
 import Admissions from "../admissions/Admissions.jsx";
+
+import ModalWindowDeleteDitribution from "../distribution/ModalWindows/ModalWindowDelete.jsx";
 
 import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
 import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
@@ -9,6 +12,9 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import Placeholder from 'react-bootstrap/Placeholder';
+
+import TablePreloader from "../TablePreloader.jsx";
 
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -28,9 +34,10 @@ export default function GroupOfSpecialityPage() {
     const [loadedGroupStatistic, setLoadedGroupStatistic] = useState(false);
     const [loadedPlansStatistic, setLoadedPlansStatistic] = useState(false);
     const [group, setGroup] = useState(null);
-    const [plans, setPlans] = useState([]);
+    const [plans, setPlans] = useState(null);
     const [plansStatistic, setPlansStatistic] = useState(null);
     const [groupStatistic, setGroupStatistic] = useState(null);
+    const [deleteDistributionShow, setDeleteDistributionShow] = useState(false);
     const [canDistribution, setCanDistribution] = useState('disabled');
 
     const loadGroup = () => {
@@ -76,6 +83,13 @@ export default function GroupOfSpecialityPage() {
         setLoadedGroupStatistic(false);
         loadGroup();
         loadPlans();
+    }
+
+    const handleDeleteDistributionClose = () => {
+        setDeleteDistributionShow(false);
+    };
+    const onClickDeleteDistribution = () => {
+        setDeleteDistributionShow(true);
     }
 
     React.useEffect(() => {
@@ -126,7 +140,7 @@ export default function GroupOfSpecialityPage() {
             return <React.Suspense>
                 <h4 className="d-flex">
                     Заявки абитуриентов
-                    <Link type="button" to="#" className={'btn btn-sm btn-outline-success ' + canDistribution + ' ms-2'}>
+                    <Link type="button" to="./Distribution/Create" className={'btn btn-sm btn-outline-success ' + canDistribution + ' ms-2'}>
                         Распределить
                     </Link>
                 </h4>
@@ -138,16 +152,31 @@ export default function GroupOfSpecialityPage() {
             return <React.Suspense>
                 <h4 className="d-flex">
                     Зачисленные студенты
-                    <Button variant="outline-danger" size="sm" className="ms-2">
-                        Перераспределить
+                    <ModalWindowDeleteDitribution show={deleteDistributionShow} handleClose={handleDeleteDistributionClose} onLoadGroup={loadData} groupId={groupId} facultyShortName={facultyShortName} />
+                    <Button variant="outline-danger" size="sm" className="ms-2" onClick={() => onClickDeleteDistribution()}>
+                        Расформировать
                     </Button>
-                </h4>
+                </h4>{
+                    plans.map((plan, index) =>
+                        <React.Suspense key={plan.speciality.directionName ?? plan.speciality.fullName}>
+                            <DistributedPlan plan={plan} />
+                            {index !== plans.length - 1 ? <hr /> : null}
+                        </React.Suspense>
+                    )}
             </React.Suspense>;
         }
     }
 
-    if (loading) {
-
+    if (!group || !plans) {
+        return <React.Suspense>
+            <Placeholder as="h1" animation="glow" className="text-center"><Placeholder xs={12} /></Placeholder>
+            <hr />
+            <div className="ps-lg-4 pe-lg-4 position-relative">
+                <Placeholder as="p" animation="glow" className="text-center"><Placeholder xs={4} /></Placeholder>
+                <TablePreloader />
+                <hr />
+            </div>
+        </React.Suspense>
     }
     else {
         return (
@@ -159,7 +188,7 @@ export default function GroupOfSpecialityPage() {
                         <b>Сроки приёма документов: {new Date(group.startDate).toLocaleDateString("ru-ru")} - {new Date(group.enrollmentDate).toLocaleDateString("ru-ru")}</b>
                         {_showIsCompleted()}
                     </p>
-                    <DistribitedRecruitmentPlansList plans={plans} />
+                    <DistributedRecruitmentPlansList plans={plans} />
                     <hr />
                     {_showContent()}
                 </div>

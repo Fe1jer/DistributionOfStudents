@@ -1,11 +1,11 @@
-import DistributedRecruitmentPlan from "./DistributedRecruitmentPlan.jsx";
+import DistributedRecruitmentPlan from "../recruitmentPlans/DistributedRecruitmentPlan.jsx";
 
 import Table from 'react-bootstrap/Table';
 import Card from 'react-bootstrap/Card';
 import React from 'react';
 
 
-export default function DistribitedRecruitmentPlansList({ plans }) {
+export default function DistributedRecruitmentPlansList({ plans }) {
     return <Card className="shadow">
         <Table responsive className="mb-0">
             <thead>

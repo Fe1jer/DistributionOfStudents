@@ -1,5 +1,7 @@
 ﻿import HomePage from "./home/HomePage.jsx"
 
+import CreateDistributionPage from "./distribution/CreateDistributionPage.jsx"
+
 import FacultiesPage from "./faculties/FacultiesPage.jsx"
 import FacultyPage from "./faculties/FacultyPage.jsx"
 
@@ -30,7 +32,10 @@ export default function Content() {
                         <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
                         <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
                     </Route>
-                    <Route path=":groupId" element={<GroupOfSpecialityPage />} />
+                    <Route path=":groupId" element={<Null />} >
+                        <Route index element={<GroupOfSpecialityPage />} />
+                        <Route path="Distribution/Create" element={<CreateDistributionPage />} />
+                    </Route>
                 </Route>
             </Route>
             <Route path="/RecruitmentPlans" element={<FacultiesPlans />} />
