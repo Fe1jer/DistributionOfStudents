@@ -34,31 +34,35 @@ namespace webapi.Controllers
             return await _admissionsRepository.GetAllAsync();
         }
 
-        [HttpGet("GetGroupAdmissions/{groupId}")]
+        [HttpGet("GroupAdmissions/{groupId}")]
         public async Task<ActionResult<object>> GetGroupAdmissions(int groupId, string? searchStudents, int page, int pageLimit)
         {
-            GroupOfSpecialties group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions()) ?? new();
+            GroupOfSpecialties group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeRecruitmentPlans().IncludeAdmissions()) ?? new();
 
             if (group == null)
             {
                 return NotFound();
             }
-            List<Admission> admissions = group.Admissions ?? new();
-            int countOfSearchStudents = admissions.Count;
 
-            if (searchStudents != null)
+            List<Admission> admissions = SearchAdmissions(searchStudents, group.Admissions)
+                .OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
+
+            foreach (Admission admission in admissions)
             {
-                IEnumerable<string> searchWords = searchStudents.Split(" ");
-                foreach (string word in searchWords)
+                admission.GroupOfSpecialties = new();
+                admission.Student.Admissions = null;
+                foreach (SpecialityPriority priority in admission.SpecialityPriorities)
                 {
-                    admissions = admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
-                        .Union(admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
-                        .Union(admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
-                        .ToList();
+                    priority.RecruitmentPlan.EnrolledStudents = null;
+                    priority.RecruitmentPlan.Speciality = new();
                 }
             }
 
-            return new { admissions = admissions.Skip((page - 1) * pageLimit).Take(pageLimit), countOfSearchStudents };
+            return new
+            {
+                admissions = admissions.Skip((page - 1) * pageLimit).Take(pageLimit).ToList(),
+                countOfSearchStudents = admissions.Count
+            };
         }
 
         // GET: api/AdmissionsApi/5
@@ -70,6 +74,13 @@ namespace webapi.Controllers
             if (admission == null)
             {
                 return NotFound();
+            }
+            admission.GroupOfSpecialties = new();
+            admission.Student.Admissions = null;
+            foreach (SpecialityPriority priority in admission.SpecialityPriorities)
+            {
+                priority.RecruitmentPlan.EnrolledStudents = null;
+                priority.RecruitmentPlan.Speciality = new();
             }
             admission.SpecialityPriorities = admission.SpecialityPriorities.OrderBy(i => i.Priority).ToList();
 
@@ -198,6 +209,25 @@ namespace webapi.Controllers
         {
             var admissions = await _admissionsRepository.GetAllAsync();
             return admissions.Any(e => e.Id == id);
+        }
+
+        private static List<Admission> SearchAdmissions(string? searchStudents, List<Admission>? admissions)
+        {
+            admissions ??= new();
+
+            if (searchStudents != null)
+            {
+                List<string> searchWords = searchStudents.Split(" ").ToList();
+                foreach (string word in searchWords)
+                {
+                    admissions = admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
+                        .Union(admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
+                        .Union(admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
+                        .ToList();
+                }
+            }
+
+            return admissions;
         }
     }
 }

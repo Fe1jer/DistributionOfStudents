@@ -75,7 +75,7 @@ export default function ModalWindowDelete({ show, handleClose, specialityId, onL
                     <Modal.Body>
                         Вы уверенны, что хотите удалить специальность?
                         <br />
-                        Специальность <b className="text-success">"{speciality.fullName}"</b> будет удалена без возможности восстановления.
+                        Специальность <b className="text-success">"{speciality.directionName ?? speciality.fullName}"</b> будет удалена без возможности восстановления.
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>Закрыть</Button>

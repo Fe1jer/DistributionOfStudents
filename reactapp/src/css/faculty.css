@@ -18,7 +18,7 @@
 
 .box {
     overflow: hidden;
-    height: 86px;
+    height: 97px;
     line-height: 20px;
 }
 
@@ -31,7 +31,7 @@
         content: "";
         float: left;
         width: 5px;
-        height: 110px;
+        height: 113px;
     }
 
     .box > *:first-child {

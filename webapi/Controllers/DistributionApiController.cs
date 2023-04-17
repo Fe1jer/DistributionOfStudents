@@ -25,8 +25,24 @@ namespace webapi.Controllers
             _studentRepository = studentRepository;
         }
 
+        [HttpGet("{facultyName}/{groupId}/Competition")]
+        public async Task<ActionResult<float>> GetCompetition(string facultyName, int groupId)
+        {
+            List<RecruitmentPlan> plans;
+            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
+
+            if (group == null)
+            {
+                return NotFound();
+            }
+            plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
+            DistributionService distributionService = new(plans, group.Admissions);
+
+            return (float)Math.Round(distributionService.Competition, 2);
+        }
+
         [HttpGet("{facultyName}/{groupId}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetDistribution(string facultyName, int groupId)
+        public async Task<ActionResult<object>> GetDistribution(string facultyName, int groupId)
         {
             List<RecruitmentPlan> plans;
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
@@ -40,14 +56,28 @@ namespace webapi.Controllers
             List<RecruitmentPlan> plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
             if (!distributionService.AreControversialStudents())
             {
-                return GetConfirmDistributedPlans(plansWithEnrolledStudents);
+                foreach (RecruitmentPlan plan in plansWithEnrolledStudents)
+                {
+                    plan.Speciality.GroupsOfSpecialties = null;
+                    plan.Speciality.RecruitmentPlans = null;
+                    foreach (EnrolledStudent enrolledStudent in plan.EnrolledStudents ?? new())
+                    {
+                        foreach (Admission admission in enrolledStudent.Student.Admissions ?? new())
+                        {
+                            admission.Student = new();
+                            admission.GroupOfSpecialties = new();
+                            admission.SpecialityPriorities = new();
+                        }
+                    }
+                }
+                return new { plans = plansWithEnrolledStudents.OrderBy(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c))))).ToList(), areControversialStudents = false };
             }
 
-            return GetDistributedPlans(plansWithEnrolledStudents, group.Admissions ?? new());
+            return new { plans = GetDistributedPlans(plansWithEnrolledStudents, group.Admissions ?? new()), areControversialStudents = true };
         }
 
         [HttpPost("{facultyName}/{groupId}/CreateDistribution")]
-        public async Task<ActionResult<IEnumerable<object>>> CreateDistribution(string facultyName, int groupId, List<PlanForDistributionVM> models)
+        public async Task<ActionResult<object>> CreateDistribution(string facultyName, int groupId, List<PlanForDistributionVM> models)
         {
             if (ModelState.IsValid)
             {
@@ -62,10 +92,24 @@ namespace webapi.Controllers
                     List<RecruitmentPlan> plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
                     if (!distributionService.AreControversialStudents())
                     {
-                        return GetConfirmDistributedPlans(plansWithEnrolledStudents);
+                        foreach (RecruitmentPlan plan in plansWithEnrolledStudents)
+                        {
+                            plan.Speciality.GroupsOfSpecialties = null;
+                            plan.Speciality.RecruitmentPlans = null;
+                            foreach (EnrolledStudent enrolledStudent in plan.EnrolledStudents ?? new())
+                            {
+                                foreach (Admission admission in enrolledStudent.Student.Admissions ?? new())
+                                {
+                                    admission.Student = new();
+                                    admission.GroupOfSpecialties = new();
+                                    admission.SpecialityPriorities = new();
+                                }
+                            }
+                        }
+                        return new { plans = plansWithEnrolledStudents.OrderBy(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c))))).ToList(), areControversialStudents = false };
                     }
 
-                    return GetDistributedPlans(plansWithEnrolledStudents, group.Admissions ?? new());
+                    return new { plans = GetDistributedPlans(plansWithEnrolledStudents, group.Admissions ?? new()), areControversialStudents = true };
                 }
                 catch
                 {
@@ -77,7 +121,7 @@ namespace webapi.Controllers
         }
 
         [HttpPost("{facultyName}/{groupId}/ConfirmDistribution")]
-        public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, List<ConfirmDistributedPlanVM> models)
+        public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, List<PlanForDistributionVM> models)
         {
             try
             {
@@ -124,6 +168,7 @@ namespace webapi.Controllers
             await _groupsRepository.UpdateAsync(group);
             foreach (RecruitmentPlan plan in plans)
             {
+                plan.PassingScore = 0;
                 plan.EnrolledStudents = null;
                 await _plansRepository.UpdateAsync(plan);
             }
@@ -132,36 +177,30 @@ namespace webapi.Controllers
             return Ok();
         }
 
-        private static List<PlanForDistributionVM> GetDistributedPlans(List<RecruitmentPlan> plans, List<Admission> admissions)
+        private static List<RecruitmentPlan> GetDistributedPlans(List<RecruitmentPlan> plans, List<Admission> admissions)
         {
-            List<PlanForDistributionVM> distributedPlans = new();
+            List<RecruitmentPlan> distributedPlans = new();
             bool isControversialPlan = false;
 
             foreach (RecruitmentPlan plan in plans.OrderByDescending(i => i.PassingScore))
             {
-                PlanForDistributionVM distributedPlan = new(plan);
-                List<IsDistributedStudentVM> distributedStudents = new();
+                plan.Speciality.GroupsOfSpecialties = null;
+                plan.Speciality.RecruitmentPlans = null;
                 plan.EnrolledStudents ??= new();
                 foreach (EnrolledStudent student in plan.EnrolledStudents)
                 {
-                    distributedStudents.Add(new(admissions.First(i => i.Student.Id == student.Student.Id), plan));
+                    student.Student.Admissions = admissions.Where(i => i.Student.Id == student.Student.Id).ToList();
+                    foreach (Admission admission in student.Student.Admissions ?? new())
+                    {
+                        admission.Student = new();
+                        admission.GroupOfSpecialties = new();
+                        admission.SpecialityPriorities = new();
+                    }
                     isControversialPlan = plan.Count < plan.EnrolledStudents.Count;
                 }
-                distributedPlan.DistributedStudents = distributedStudents.OrderByDescending(i => i.Score).ToList();
-                distributedPlans.Add(distributedPlan);
+                plan.EnrolledStudents = plan.EnrolledStudents.OrderByDescending(i => i.Student.GPS + (i.Student.Admissions != null ? i.Student.Admissions[0].StudentScores.Sum(s => s.Score) : new())).ToList();
+                distributedPlans.Add(plan);
                 if (isControversialPlan) break;
-            }
-
-            return distributedPlans;
-        }
-
-        private static List<ConfirmDistributedPlanVM> GetConfirmDistributedPlans(List<RecruitmentPlan> plans)
-        {
-            List<ConfirmDistributedPlanVM> distributedPlans = new();
-
-            foreach (RecruitmentPlan plan in plans.OrderBy(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c))))))
-            {
-                distributedPlans.Add(new(plan));
             }
 
             return distributedPlans;
@@ -179,34 +218,13 @@ namespace webapi.Controllers
                     plan.EnrolledStudents = new();
                     foreach (IsDistributedStudentVM distributedStudent in distributedPlan.DistributedStudents.Where(i => i.IsDistributed))
                     {
-                        Student? student = await _studentRepository.GetByIdAsync(distributedStudent.Student.Id);
+                        Student? student = await _studentRepository.GetByIdAsync(distributedStudent.StudentId);
                         if (student != null)
                         {
                             plan.EnrolledStudents.Add(new EnrolledStudent() { Student = student });
                         }
                     }
                     plans = plans.Select(i => i.Id != plan.Id ? i : plan).ToList();
-                }
-            }
-
-            return plans;
-        }
-
-        private async Task<List<RecruitmentPlan>> GetPlansFromModelAsync(List<ConfirmDistributedPlanVM> models, string facultyName, GroupOfSpecialties group)
-        {
-            List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            foreach (ConfirmDistributedPlanVM distributedPlan in models)
-            {
-                RecruitmentPlan plan = plans.First(i => i.Id == distributedPlan.PlanId);
-                plan.PassingScore = distributedPlan.PassingScore;
-                plan.EnrolledStudents = new();
-                foreach (ConfirmDistributedStudentVM distributedStudent in distributedPlan.DistributedStudents)
-                {
-                    Student? student = await _studentRepository.GetByIdAsync(distributedStudent.StudentId);
-                    if (student != null)
-                    {
-                        plan.EnrolledStudents.Add(new EnrolledStudent() { Student = student });
-                    }
                 }
             }
 

@@ -1,11 +1,15 @@
 ﻿import HomePage from "./home/HomePage.jsx"
 
+import CreateDistributionPage from "./distribution/CreateDistributionPage.jsx"
+
 import FacultiesPage from "./faculties/FacultiesPage.jsx"
 import FacultyPage from "./faculties/FacultyPage.jsx"
 
 import FacultiesPlans from "./recruitmentPlans/FacultiesPlans.jsx"
 import CreateFacultyPlansPage from "./recruitmentPlans/CreateFacultyPlansPage.jsx"
 import EditFacultyPlansPage from "./recruitmentPlans/EditFacultyPlansPage.jsx"
+
+import GroupOfSpecialityPage from "./groupsOfSpecialities/GroupOfSpecialityPage.jsx"
 
 import ArchiveYearsPage from "./archive/ArchiveYearsPage.jsx"
 import ArchiveFormsPage from "./archive/ArchiveFormsPage.jsx"
@@ -24,10 +28,14 @@ export default function Content() {
                 <Route index element={<FacultiesPage />} />
                 <Route path=":shortName" element={<Null />} >
                     <Route index element={<FacultyPage />} />
-                </Route>
-                <Route path=":facultyShortName/RecruitmentPlans" element={<Null />} >
-                    <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
-                    <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
+                    <Route path="RecruitmentPlans" element={<Null />} >
+                        <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
+                        <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
+                    </Route>
+                    <Route path=":groupId" element={<Null />} >
+                        <Route index element={<GroupOfSpecialityPage />} />
+                        <Route path="Distribution/Create" element={<CreateDistributionPage />} />
+                    </Route>
                 </Route>
             </Route>
             <Route path="/RecruitmentPlans" element={<FacultiesPlans />} />

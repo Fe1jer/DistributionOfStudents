@@ -7,6 +7,7 @@ namespace webapi.Data.Models
     {
         [Display(Name = "Название")]
         [DataType(DataType.Text)]
+        [Required]
         public string Name { get; set; } = String.Empty;
 
         [Display(Name = "Описание")]

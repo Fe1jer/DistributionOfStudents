@@ -1,25 +1,31 @@
-﻿export default function FacultyCardPreloader() {
+﻿import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+
+export default function FacultyCardPreloader() {
     return (
-        <div className="col-xxl-3 col-sm-6 col-md-4 pt-2 pb-2">
-            <div className="card shadow-sm">
+        <Col xxl="3" sm="6" md="4" className="pt-2 pb-2">
+            <Card className="shadow-sm">
                 <div className="scale card-img__faculty">
                     <svg className="bd-placeholder-img card-img-top" width="100%" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">
                         <rect width="100%" height="100%" fill="#868e96">
                         </rect>
                     </svg>
                 </div>
-                <div className="card-body">
+                <Card.Body>
                     <div className="box">
                         <div className="h-auto">
-                            <h4 className="placeholder-glow"><span className="placeholder w-25"></span></h4>
-                            <p className="placeholder-glow"><span className="placeholder col-10 bg-success"></span><br></br><span className="placeholder col-6 bg-success"></span></p>
+                            <Card.Title as="h4" className="placeholder-glow"><span className="placeholder w-25"></span></Card.Title>
+                            <Card.Text className="placeholder-glow">
+                                <span className="placeholder col-10 bg-success"></span><br></br><span className="placeholder col-6 bg-success"></span>
+                            </Card.Text >
                         </div>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
-                        <button type="button" className="btn btn-outline-success disabled placeholder col-3" ></button>
+                        <Button variant="outline-success" className="disabled placeholder col-3" ></Button>
                     </div>
-                </div>
-            </div>
-        </div >
+                </Card.Body>
+            </Card>
+        </Col >
     );
 }

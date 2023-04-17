@@ -53,7 +53,6 @@ export default function ModalWindowCreate({ show, handleClose, onLoadSpecialitie
                 setUpdatedSpeciality(defaultSpeciality);
             }
             else if (xhr.status === 400) {
-                console.log(xhr.response);
                 var a = eval('({obj:[' + xhr.response + ']})');
                 if (a.obj[0].errors) {
                     setErrors(a.obj[0].errors);

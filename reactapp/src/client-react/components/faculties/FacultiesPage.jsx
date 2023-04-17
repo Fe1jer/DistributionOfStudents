@@ -5,6 +5,8 @@ import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";
 import ModalWindowEdit from "./ModalWindows/ModalWindowEdit.jsx";
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
+import Row from 'react-bootstrap/Row';
+
 import FacultiesApi from "../../api/FacultiesApi.js";
 
 import "../../../css/faculty.css"
@@ -67,11 +69,11 @@ export default function FacultiesPage() {
         return (
             <div className="ps-lg-4 pe-lg-4 pt-2 position-relative">
                 <h1 className="placeholder-glow"><span className="placeholder" style={{ width: 220 }}></span></h1>
-                <div className="row mx-1">{
+                <Row className="mx-1">{
                     numbers.map((item) =>
                         <FacultyCardPreloader key={"FacultyCardPreloader" + item} />
                     )}
-                </div>
+                </Row>
             </div>
         );
     }
@@ -91,11 +93,11 @@ export default function FacultiesPage() {
                     <ModalWindowEdit show={editShow} handleClose={handleEditClose} shortName={updateShortNameShow} onLoadFaculties={loadData} />
                     <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onLoadFaculties={loadData} />
 
-                    <div className="row mx-1">{
+                    <Row className="mx-1">{
                         facultiesPlans.map((item) =>
                             <FacultyCard key={item.shortName + item.fullName} faculty={item} onClickDelete={onClickDeleteFaculty} onClickEdit={onClickEditFaculty} />
                         )}
-                    </div>
+                    </Row>
                 </div>
             </React.Suspense>
         );

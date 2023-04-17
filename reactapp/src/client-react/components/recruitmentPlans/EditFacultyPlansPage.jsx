@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 
 export default function EditFacultyPlansPage() {
     const params = useParams();
-    const facultyShortName = params.facultyShortName;
+    const facultyShortName = params.shortName;
     const year = params.year;
 
     const [plans, setPlans] = useState([]);

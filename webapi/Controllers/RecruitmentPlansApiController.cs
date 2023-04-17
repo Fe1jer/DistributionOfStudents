@@ -4,6 +4,8 @@ using webapi.Data.Specifications;
 using webapi.ViewModels.RecruitmentPlans;
 using Microsoft.AspNetCore.Mvc;
 using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Services;
+using webapi.Data.Interfaces.Services;
 
 namespace webapi.Controllers.Api
 {
@@ -100,14 +102,56 @@ namespace webapi.Controllers.Api
         [HttpGet("{facultyName}/{groupId}/GroupRecruitmentPlans")]
         public async Task<ActionResult<IEnumerable<RecruitmentPlan>>> GetGroupRecruitmentPlans(string facultyName, int groupId)
         {
-            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());
+            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties());
 
             if (group == null)
             {
                 return NotFound();
             }
 
-            return await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
+            List<RecruitmentPlan> plans;
+            if (!group.IsCompleted)
+            {
+                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
+                group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions());
+                IDistributionService distributionService = new DistributionService(plans, group.Admissions);
+                plans = distributionService.GetPlansWithEnrolledStudents();
+            }
+            else
+            {
+                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
+            }
+            return plans.Select(i => new RecruitmentPlan()
+            {
+                Id = i.Id,
+                Count = i.Count,
+                EnrolledStudents = (i.EnrolledStudents ?? new()).Select(s => new EnrolledStudent()
+                {
+                    Student = new()
+                    {
+                        Surname = s.Student.Surname,
+                        Name = s.Student.Name,
+                        Patronymic = s.Student.Patronymic,
+                        Id = s.Student.Id,
+                        GPS = s.Student.GPS
+                    }
+                }).ToList(),
+                FormOfEducation = i.FormOfEducation,
+                PassingScore = i.PassingScore,
+                Speciality = new Speciality()
+                {
+                    Code = i.Speciality.Code,
+                    Description = i.Speciality.Description,
+                    DirectionCode = i.Speciality.DirectionCode,
+                    DirectionName = i.Speciality.DirectionName,
+                    FullName = i.Speciality.FullName,
+                    Id = i.Speciality.Id,
+                    ShortCode = i.Speciality.ShortCode,
+                    ShortName = i.Speciality.ShortName,
+                    SpecializationCode = i.Speciality.SpecializationCode,
+                    SpecializationName = i.Speciality.SpecializationName
+                }
+            }).ToArray();
         }
 
         [HttpPut("{facultyName}/{year}")]
