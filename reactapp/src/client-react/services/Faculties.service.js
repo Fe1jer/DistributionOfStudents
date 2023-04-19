@@ -78,5 +78,8 @@ const handleResponse = async (response) => {
     }
 };
 
+const exportedObject = {
+    httpGet, httpPost, httpPut, httpDelete, httpGetByShortName
+};
 
-export default { httpGet, httpPost, httpPut, httpDelete, httpGetByShortName };
+export default exportedObject;

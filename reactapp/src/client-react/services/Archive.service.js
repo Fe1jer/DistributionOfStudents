@@ -47,4 +47,8 @@ const handleResponse = async (response) => {
     }
 };
 
-export default { httpGetYears, httpGetArchveForms, httpGetArchveByYearAndForm };
+const exportedObject = {
+    httpGetYears, httpGetArchveForms, httpGetArchveByYearAndForm
+};
+
+export default exportedObject;

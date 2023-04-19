@@ -25,4 +25,8 @@ const handleResponse = async (response) => {
     }
 };
 
-export default { httpGet };
+const exportedObject = {
+    httpGet
+};
+
+export default exportedObject;

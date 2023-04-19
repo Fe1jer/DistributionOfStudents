@@ -49,4 +49,8 @@ const handleResponse = async (response) => {
     }
 };
 
-export default { httpGetPlansStatistic, httpGetGroupStatistic, httpPutGroupStatisticUrl };
+const exportedObject = {
+    httpGetPlansStatistic, httpGetGroupStatistic, httpPutGroupStatisticUrl
+};
+
+export default exportedObject;

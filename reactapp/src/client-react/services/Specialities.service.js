@@ -90,4 +90,8 @@ const handleResponse = async (response) => {
     }
 };
 
-export default { httpGetById, httpPost, httpPut, httpDelete, httpGetFacultySpecialities, httpGetGroupSpecialities };
+const exportedObject = {
+    httpGetById, httpPost, httpPut, httpDelete, httpGetFacultySpecialities, httpGetGroupSpecialities
+};
+
+export default exportedObject;
