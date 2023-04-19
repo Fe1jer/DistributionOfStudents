@@ -70,7 +70,7 @@ export default function GroupsOfSpecialities({ year }) {
         var groups = null;
         var distributedGroups = null;
 
-        if (groupsOfSpecialities && groupsOfSpecialities.length > 0 && year) {
+        if (year) {
             groups = <React.Suspense>
                 <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onLoadGroups={loadGroupsOfSpecialities} />
                 <ModalWindowEdit show={editShow} handleClose={handleEditClose} groupId={editGroupId} onLoadGroups={loadGroupsOfSpecialities} />

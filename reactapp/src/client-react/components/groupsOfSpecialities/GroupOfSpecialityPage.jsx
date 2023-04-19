@@ -6,7 +6,7 @@ import ModalWindowDeleteDitribution from "../distribution/ModalWindows/ModalWind
 
 import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
 import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
-import StatisticApi from '../../api/StatisticApi.js';
+import StatisticService from "../../services/Statistic.service.js";
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -60,23 +60,13 @@ export default function GroupOfSpecialityPage() {
         }.bind(this);
         xhr.send();
     }
-    const loadPlansStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", StatisticApi.getPlansStatisticUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlansStatistic(data);
-        }.bind(this);
-        xhr.send();
+    const loadPlansStatistic = async () => {
+        const data = await StatisticService.httpGetPlansStatistic(facultyShortName, groupId);
+        setPlansStatistic(data);
     }
-    const loadGroupStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", StatisticApi.getGroupStatisticUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupStatistic(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupStatistic = async () => {
+        const data = await StatisticService.httpGetGroupStatistic(groupId);
+        setGroupStatistic(data);
     }
     const loadData = () => {
         setLoadedPlansStatistic(false);

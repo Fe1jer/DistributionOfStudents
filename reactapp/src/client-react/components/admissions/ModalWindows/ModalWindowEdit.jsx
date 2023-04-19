@@ -2,7 +2,7 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import StatisticApi from "../../../api//StatisticApi.js";
+import StatisticService from "../../../services/Statistic.service.js";
 import AdmissionsApi from "../../../api/AdmissionsApi.js";
 import RecruitmentPlansApi from "../../../api/RecruitmentPlansApi.js";
 
@@ -73,13 +73,8 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
         }.bind(this);
         xhr.send(JSON.stringify(admission));
     }
-    const onUpdateStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("put", StatisticApi.getPutGroupStatisticUrl(facultyShortName, groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-        }.bind(this);
-        xhr.send();
+    const onUpdateStatistic = async () => {
+        await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
     const loadAdmission = () => {
         var xhr = new XMLHttpRequest();

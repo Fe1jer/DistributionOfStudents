@@ -1,5 +1,5 @@
 ﻿import AdmissionsApi from "../../../api/AdmissionsApi.js";
-import StatisticApi from "../../../api//StatisticApi.js";
+import StatisticService from "../../../services/Statistic.service.js";
 
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
@@ -32,13 +32,8 @@ export default function ModalWindowDelete({ show, handleClose, onLoadAdmissions,
         }.bind(this);
         xhr.send();
     }
-    const onUpdateStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("put", StatisticApi.getPutGroupStatisticUrl(facultyShortName, groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-        }.bind(this);
-        xhr.send();
+    const onUpdateStatistic = async () => {
+        await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
     const loadAdmission = () => {
         var xhr = new XMLHttpRequest();
