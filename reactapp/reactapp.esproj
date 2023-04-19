@@ -319,5 +319,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="public\js\" />
+    <Folder Include="src\client-react\services\" />
   </ItemGroup>
 </Project>

@@ -133,7 +133,7 @@ namespace webapi.Controllers
                 List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
                 if (plans.Select(i => i.EnrolledStudents).Any(i => i != null && i.Count > 0))
                 {
-                    ModelState.AddModelError(string.Empty, "Невозможно распределить студентов, так как уже существуют зачисленные студенты на этих специальностях");
+                    ModelState.AddModelError("modelErrors", "Невозможно распределить студентов, так как уже существуют зачисленные студенты на этих специальностях");
                     return BadRequest(ModelState);
                 }
                 plans = await GetPlansFromModelAsync(models, facultyName, group);

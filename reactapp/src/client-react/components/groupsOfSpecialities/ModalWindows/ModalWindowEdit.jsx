@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 
 import GroupsOfSpecialitiesApi from '../../../api/GroupsOfSpecialitiesApi.js';
 import SpecialitiesApi from '../../../api/SpecialitiesApi.js';
-import SubjectsApi from '../../../api/SubjectsApi.js';
+import SubjectsService from "../../../services/Subjects.service.js";
 
 import UpdateGroupOfSpeciality from '../UpdateGroupOfSpeciality.jsx';
 
@@ -76,23 +76,13 @@ export default function EditModalWindow({ show, handleClose, onLoadGroups, group
         }.bind(this);
         xhr.send();
     }
-    const loadSubjects = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getSubjectsUrl(), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setSubjects(data);
-        }.bind(this);
-        xhr.send();
+    const loadSubjects = async () => {
+        const subjectsData = await SubjectsService.httpGet();
+        setSubjects(subjectsData);
     }
-    const loadGroupSubjects = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getGroupSubjectsUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupSubjects(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupSubjects = async () => {
+        const subjectsData = await SubjectsService.httpGetGroupSubjects(groupId);
+        setGroupSubjects(subjectsData);
     }
     const onEditGroup = () => {
         group.formOfEducation = form

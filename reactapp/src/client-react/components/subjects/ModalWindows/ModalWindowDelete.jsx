@@ -2,7 +2,7 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import SubjectsApi from "../../../api/SubjectsApi.js";
+import SubjectsService from "../../../services/Subjects.service.js";
 
 import React, { useState } from 'react';
 
@@ -14,30 +14,16 @@ export default function ModalWindowDelete({ show, handleClose, subjectId, onLoad
         onDeleteSubject();
     }
 
-    const onDeleteSubject = () => {
+    const onDeleteSubject = async () => {
         if (subjectId !== null) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("delete", SubjectsApi.getDeleteUrl(subjectId), true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                   handleClose();
-                    onLoadSubjects();
-                }
-            }.bind(this);
-            xhr.send();
+            await SubjectsService.httpDelete(subjectId);
+            handleClose();
+            onLoadSubjects();
         }
     }
-    const getSubjectById = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getSubjectUrl(subjectId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                setSubject(JSON.parse(xhr.responseText));
-            }
-        }.bind(this);
-        xhr.send();
+    const getSubjectById = async () => {
+        var subjectData = await SubjectsService.httpGetById(subjectId);
+        setSubject(subjectData);
     }
 
     React.useEffect(() => {
