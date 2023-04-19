@@ -3,7 +3,7 @@ import Search from "../Searh.jsx";
 import Pagination from "../Pagination.jsx";
 import TablePreloader from "../TablePreloader.jsx";
 
-import StudentsApi from "../../api/StudentsApi.js";
+import StudentsService from "../../services/Students.service";
 
 import React from 'react';
 
@@ -16,16 +16,11 @@ export default function StudentsPage() {
     const [pageNeighbours, setPageNeighbours] = React.useState(4);
     const [loading, setLoading] = React.useState(true);
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", StudentsApi.getStudents(searhText, currentPage, pageLimit), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setStudents(data.students);
-            setCountSearchStudents(data.countOfSearchStudents);
-            setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        const data = await StudentsService.httpGet(searhText, currentPage, pageLimit);
+        setStudents(data.students);
+        setCountSearchStudents(data.countOfSearchStudents);
+        setLoading(false);
     }
     const onSearhChange = (text) => {
         setSearhText(text);
