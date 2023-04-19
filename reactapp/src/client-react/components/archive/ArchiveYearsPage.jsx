@@ -1,22 +1,17 @@
 ﻿import React from 'react';
 import { Link } from 'react-router-dom'
 
-import ArchiveApi from "../../api/ArchiveApi.js";
+import ArchiveService from "../../services/Archive.service.js";
 
 export default function ArchiveYearsPage() {
     const [years, setYears] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     var numbers = [1, 2, 3, 4, 5]
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", ArchiveApi.getYearsUrl(), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setYears(data);
-            setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        const data = await ArchiveService.httpGetYears();
+        setYears(data);
+        setLoading(false);
     }
     React.useEffect(() => {
         loadData();

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Link, useParams } from 'react-router-dom'
 
-import ArchiveApi from "../../api/ArchiveApi.js";
+import ArchiveService from "../../services/Archive.service.js";
 
 export default function ArchiveFormsPage() {
     const params = useParams();
@@ -11,15 +11,10 @@ export default function ArchiveFormsPage() {
     const [loading, setLoading] = React.useState(true);
     var numbers = [1, 2, 3, 4, 5]
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", ArchiveApi.getArchveFormsUrl(year), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setForms(data);
-            setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        const data = await ArchiveService.httpGetArchveForms(year);
+        setForms(data);
+        setLoading(false);
     }
     React.useEffect(() => {
         loadData();
