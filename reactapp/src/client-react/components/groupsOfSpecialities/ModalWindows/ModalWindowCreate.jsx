@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
 import GroupsOfSpecialitiesApi from '../../../api/GroupsOfSpecialitiesApi.js';
-import SpecialitiesApi from '../../../api/SpecialitiesApi.js';
+import SpecialitiesService from "../../../services/Specialities.service";
 import SubjectsService from "../../../services/Subjects.service.js";
 
 import UpdateGroupOfSpeciality from '../UpdateGroupOfSpeciality.jsx';
@@ -60,14 +60,9 @@ export default function CreateModalWindow({ show, handleClose, onLoadGroups }) {
         setGroup(updatedGroup);
         setForm(updatedForm);
     }
-    const loadSpecialities = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SpecialitiesApi.getFacultySpecialitiesUrl(facultyShortName), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setSpecialities(data);
-        }.bind(this);
-        xhr.send();
+    const loadSpecialities = async () => {
+        const specialitiesData = await SpecialitiesService.httpGetFacultySpecialities(facultyShortName);
+        setSpecialities(specialitiesData);
     }
     const loadSubjects = async () => {
         const subjectsData = await SubjectsService.httpGet();

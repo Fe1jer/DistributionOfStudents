@@ -8,7 +8,7 @@ import TablePreloader from "../TablePreloader.jsx";
 
 import FacultiesApi from "../../api/FacultiesApi.js";
 import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
-import SpecialitiesApi from '../../api/SpecialitiesApi.js';
+import SpecialitiesService from "../../services/Specialities.service";
 
 import Placeholder from 'react-bootstrap/Placeholder';
 
@@ -47,14 +47,9 @@ export default function FacultyPage() {
         loadSpecialities();
         loadFacultyPlans();
     }
-    const loadSpecialities = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SpecialitiesApi.getFacultySpecialitiesUrl(shortName), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setSpecialities(data);
-        }.bind(this);
-        xhr.send();
+    const loadSpecialities = async () => {
+        var specialitiesData = await SpecialitiesService.httpGetFacultySpecialities(shortName);
+        setSpecialities(specialitiesData);
     }
     const loadFacultyPlans = () => {
         var xhr = new XMLHttpRequest();
@@ -127,7 +122,7 @@ export default function FacultyPage() {
     if (loading || facultyPlansYear === null) {
         return (
             <React.Suspense>
-                <Placeholder as="h1" animation="glow" className="text-center"><Placeholder className="w-50"/></Placeholder>
+                <Placeholder as="h1" animation="glow" className="text-center"><Placeholder className="w-50" /></Placeholder>
                 <hr />
                 <div id="content" className="ps-lg-4 pe-lg-4 position-relative">{
                     numbers.map((item) =>

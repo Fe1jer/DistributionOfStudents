@@ -2,10 +2,13 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
+import { SpecialityValidationSchema } from '../../../validations/Speciality.validation';
+
 import FacultiesApi from "../../../api/FacultiesApi.js";
-import SubjectsApi from "../../../api/SpecialitiesApi.js";
+import SpecialitiesService from "../../../services/Specialities.service";
 import UpdateSpeciality from "../UpdateSpeciality.jsx";
 
+import { Formik } from 'formik';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
 
@@ -26,40 +29,15 @@ export default function ModalWindowCreate({ show, handleClose, onLoadSpecialitie
     }
 
     const [faculty, setFaculty] = useState(null);
-    const [updatedSpeciality, setUpdatedSpeciality] = useState(defaultSpeciality);
-    const [validated, setValidated] = useState(false);
-    const [errors, setErrors] = useState();
 
-    const onChangeModel = (updateSpeciality) => {
-        setUpdatedSpeciality(updateSpeciality);
+    const handleSubmit = (values) => {
+        onCreateSpeciality(values);
     }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onCreateSpeciality();
-        setValidated(true);
-    }
-
-    const onCreateSpeciality = () => {
-        updatedSpeciality.faculty = faculty;
-        var xhr = new XMLHttpRequest();
-        xhr.open("post", SubjectsApi.getPostUrl(shortName), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            setErrors(null);
-            if (xhr.status === 200) {
-                handleClose();
-                onLoadSpecialities();
-                setValidated(false);
-                setUpdatedSpeciality(defaultSpeciality);
-            }
-            else if (xhr.status === 400) {
-                var a = eval('({obj:[' + xhr.response + ']})');
-                if (a.obj[0].errors) {
-                    setErrors(a.obj[0].errors);
-                }
-            }
-        }.bind(this);
-        xhr.send(JSON.stringify(updatedSpeciality));
+    const onCreateSpeciality = async (values) => {
+        values.faculty = faculty;
+        await SpecialitiesService.httpPost(shortName, values);
+        handleClose();
+        onLoadSpecialities();
     }
     const getFacultyByShortName = () => {
         var xhr = new XMLHttpRequest();
@@ -79,18 +57,25 @@ export default function ModalWindowCreate({ show, handleClose, onLoadSpecialitie
 
     return (
         <Modal size="xl" fullscreen="lg-down" show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-            <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Добавить специальность</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <UpdateSpeciality speciality={updatedSpeciality} errors={errors} onChangeModel={onChangeModel} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button type="submit" variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Form >
+            <Formik
+                validationSchema={SpecialityValidationSchema}
+                onSubmit={handleSubmit}
+                initialValues={defaultSpeciality}>
+                {({ handleSubmit, handleChange, values, touched, errors }) => (
+                    <Form noValidate onSubmit={handleSubmit}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Добавить специальность</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <UpdateSpeciality speciality={values} errors={errors} onChangeModel={handleChange} />
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
+                            <Button type="submit" variant="primary">Сохранить</Button>
+                        </Modal.Footer>
+                    </Form >
+                )}
+            </Formik>
         </Modal>
     );
 }

@@ -1,17 +1,30 @@
 const config = {
-    api: '/api/SubjectsApi/',
+    api: '/api/SpecialitiesApi/',
     options: {
         headers: { 'content-type': 'application/json' },
     },
 };
 
-const httpGet = () => {
-    return fetch(`${config.api}`, {
+const httpGetFacultySpecialities = (facultyName) => {
+    return fetch(`${config.api}FacultySpecialities/${facultyName}`, {
         ...config.options,
     })
         .then((response) => handleResponse(response))
         .then((response) => response.json())
         .catch((error) => {
+            console.error(error.message);
+            throw Error(error);
+        });
+};
+
+const httpGetGroupSpecialities = (groupId) => {
+    return fetch(`${config.api}GroupSpecialities/${groupId}`, {
+        ...config.options,
+    })
+        .then((response) => handleResponse(response))
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error(error.message);
             throw Error(error);
         });
 };
@@ -23,23 +36,13 @@ const httpGetById = (id) => {
         .then((response) => handleResponse(response))
         .then((response) => response.json())
         .catch((error) => {
+            console.error(error.message);
             throw Error(error);
         });
 };
 
-const httpGetGroupSubjects = (groupId) => {
-    return fetch(`${config.api}GroupSubjects/${groupId}`, {
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response.json())
-        .catch((error) => {
-            throw Error(error);
-        });
-};
-
-const httpPost = (data) => {
-    return fetch(`${config.api}`, {
+const httpPost = (facultyName, data) => {
+    return fetch(`${config.api}${facultyName}`, {
         method: 'post',
         body: data ? JSON.stringify(data) : null,
         ...config.options,
@@ -47,6 +50,7 @@ const httpPost = (data) => {
         .then((response) => handleResponse(response))
         .then((response) => response)
         .catch((error) => {
+            console.error(error.message);
             throw Error(error);
         });
 };
@@ -60,7 +64,7 @@ const httpPut = (id, data) => {
         .then((response) => handleResponse(response))
         .then((response) => response)
         .catch((error) => {
-            console.error(error);
+            console.error(error.message);
             throw Error(error);
         });
 };
@@ -73,7 +77,7 @@ const httpDelete = (id) => {
         .then((response) => handleResponse(response))
         .then((response) => response)
         .catch((error) => {
-            console.error(error);
+            console.error(error.message);
             throw Error(error);
         });
 };
@@ -86,5 +90,4 @@ const handleResponse = async (response) => {
     }
 };
 
-
-export default { httpGet, httpGetById, httpPost, httpPut, httpDelete, httpGetGroupSubjects };
+export default { httpGetById, httpPost, httpPut, httpDelete, httpGetFacultySpecialities, httpGetGroupSpecialities };
