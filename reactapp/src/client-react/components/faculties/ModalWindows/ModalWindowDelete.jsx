@@ -2,9 +2,9 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import FacultiesApi from "../../../api/FacultiesApi.js";
+import FacultiesService from "../../../services/Faculties.service.js";
 
-import React, { useState } from 'react';
+import React from 'react';
 
 export default function ModalWindowDelete({ show, handleClose, shortName, fullName, onLoadFaculties }) {
     const handleSubmit = (e) => {
@@ -12,17 +12,10 @@ export default function ModalWindowDelete({ show, handleClose, shortName, fullNa
         onDeleteFaculty(shortName);
     }
 
-    const onDeleteFaculty = (facultyShortName) => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("delete", FacultiesApi.getDeleteUrl(facultyShortName), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                onLoadFaculties();
-            }
-        }.bind(this);
-        xhr.send();
+    const onDeleteFaculty = async (facultyShortName) => {
+        await FacultiesService.httpDelete(facultyShortName);
         handleClose();
+        onLoadFaculties();
     }
 
     if (!shortName || !fullName) {

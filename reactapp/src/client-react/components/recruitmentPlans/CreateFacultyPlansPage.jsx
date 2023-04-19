@@ -2,7 +2,7 @@
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
 import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
-import FacultiesApi from "../../api/FacultiesApi.js";
+import FacultiesService from "../../services/Faculties.service.js";
 
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React, { useState } from 'react';
@@ -20,7 +20,7 @@ export default function CreateFacultyPlansPage() {
 
     const navigate = useNavigate();
 
-    const loadData = () => {
+    const loadData = async () => {
         if (year == 1) {
             var now = new Date();
             setYear(now.getFullYear());
@@ -34,13 +34,8 @@ export default function CreateFacultyPlansPage() {
             }.bind(this);
             xhr1.send();
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("get", FacultiesApi.getFacultyUrl(facultyShortName), true);
-            xhr.onload = function () {
-                var data = JSON.parse(xhr.responseText);
-                setFacultyName(data.fullName);
-            }.bind(this);
-            xhr.send();
+            const faciltyData = await FacultiesService.httpGetByShortName(facultyShortName);
+            setFacultyName(faciltyData.fullName);
         }
     }
     const onCangeYear = (e) => {

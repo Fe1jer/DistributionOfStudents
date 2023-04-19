@@ -2,7 +2,7 @@
 import ModalWindowEdit from "./ModalWindows/ModalWindowEdit.jsx";
 
 import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
-import FacultiesApi from "../../api/FacultiesApi.js";
+import FacultiesService from "../../services/Faculties.service.js";
 
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React, { useState } from 'react';
@@ -19,7 +19,7 @@ export default function EditFacultyPlansPage() {
 
     const navigate = useNavigate();
 
-    const loadData = () => {
+    const loadData = async () => {
         var xhr1 = new XMLHttpRequest();
         xhr1.open("get", RecruitmentPlansApi.getFacultyRecruitmentPlansUrl(facultyShortName, year), true);
         xhr1.onload = function () {
@@ -28,13 +28,8 @@ export default function EditFacultyPlansPage() {
         }.bind(this);
         xhr1.send();
 
-        var xhr2 = new XMLHttpRequest();
-        xhr2.open("get", FacultiesApi.getFacultyUrl(facultyShortName), true);
-        xhr2.onload = function () {
-            var data = JSON.parse(xhr2.responseText);
-            setFacultyName(data.fullName);
-        }.bind(this);
-        xhr2.send();
+        const faciltyData = await FacultiesService.httpGetByShortName(facultyShortName);
+        setFacultyName(faciltyData.fullName);
     }
     const onChangePlans = (changedPlans) => {
         setPlans(changedPlans);

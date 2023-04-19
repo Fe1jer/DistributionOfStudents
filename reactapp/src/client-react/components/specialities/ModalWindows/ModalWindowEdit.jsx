@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 
 import { SpecialityValidationSchema } from '../../../validations/Speciality.validation';
 
-import FacultiesApi from "../../../api/FacultiesApi.js";
+import FacultiesService from "../../../services/Faculties.service.js";
 import SpecialitiesService from "../../../services/Specialities.service";
 import UpdateSpeciality from "../UpdateSpeciality.jsx";
 
@@ -37,16 +37,9 @@ export default function ModalWindowEdit({ show, handleClose, specialityId, onLoa
         setUpdatedSpeciality(specialityData);
         setSpecialityFullName(specialityData.fullName);
     }
-    const getFacultyByShortName = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", FacultiesApi.getFacultyUrl(shortName), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                setFaculty(JSON.parse(xhr.responseText));
-            }
-        }.bind(this);
-        xhr.send();
+    const getFacultyByShortName = async () => {
+        const faciltyData = await FacultiesService.httpGetByShortName(shortName);
+        setFaculty(faciltyData);
     }
     const onClose = () => {
         handleClose();

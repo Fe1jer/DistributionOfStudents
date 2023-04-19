@@ -7,7 +7,7 @@ import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
 import Row from 'react-bootstrap/Row';
 
-import FacultiesApi from "../../api/FacultiesApi.js";
+import FacultiesService from "../../services/Faculties.service.js";
 
 import "../../../css/faculty.css"
 
@@ -24,15 +24,10 @@ export default function FacultiesPage() {
     const [createShow, setCreateShow] = useState(false);
     const [deleteShow, setDeleteShow] = useState(false);
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", FacultiesApi.getFacultiesUrl(), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setFacultiesPlans(data);
-            setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        const faciltiesData = await FacultiesService.httpGet();
+        setFacultiesPlans(faciltiesData);
+        setLoading(false);
     }
 
     const handleEditClose = () => {

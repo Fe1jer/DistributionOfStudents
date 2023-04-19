@@ -6,7 +6,7 @@ import ModalWindowPlansDelete from "../recruitmentPlans/ModalWindows/ModalWindow
 
 import TablePreloader from "../TablePreloader.jsx";
 
-import FacultiesApi from "../../api/FacultiesApi.js";
+import FacultiesService from "../../services/Faculties.service.js";
 import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
 import SpecialitiesService from "../../services/Specialities.service";
 
@@ -33,14 +33,10 @@ export default function FacultyPage() {
         loadSpecialities();
         loadFacultyPlans();
     }
-    const loadFaculty = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", FacultiesApi.getFacultyUrl(shortName), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setFaculty(data); setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadFaculty = async () => {
+        const faciltyData = await FacultiesService.httpGetByShortName(shortName);
+        setFaculty(faciltyData);
+        setLoading(false);
     }
 
     const updateSpecialities = () => {
