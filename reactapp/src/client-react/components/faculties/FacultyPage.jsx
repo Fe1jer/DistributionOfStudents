@@ -7,7 +7,7 @@ import ModalWindowPlansDelete from "../recruitmentPlans/ModalWindows/ModalWindow
 import TablePreloader from "../TablePreloader.jsx";
 
 import FacultiesService from "../../services/Faculties.service.js";
-import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 import SpecialitiesService from "../../services/Specialities.service";
 
 import Placeholder from 'react-bootstrap/Placeholder';
@@ -47,28 +47,16 @@ export default function FacultyPage() {
         var specialitiesData = await SpecialitiesService.httpGetFacultySpecialities(shortName);
         setSpecialities(specialitiesData);
     }
-    const loadFacultyPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getFacultyLastYearRecruitmentPlasUrl(shortName), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setFacultyPlans(data.plansForSpecialities);
-            setFacultyPlansYear(data.year);
-        }.bind(this);
-        xhr.send();
+    const loadFacultyPlans = async () => {
+        const data = await RecruitmentPlansService.httpGetFacultyLastYearRecruitmentPlas(shortName);
+        setFacultyPlans(data.plansForSpecialities);
+        setFacultyPlansYear(data.year);
     }
 
-    const onDeleteFacultyPlans = (facultyShortName) => {
+    const onDeleteFacultyPlans = async (facultyShortName) => {
         if (facultyPlansYear !== "0") {
-            var xhr = new XMLHttpRequest();
-            xhr.open("delete", RecruitmentPlansApi.getDeleteUrl(facultyShortName, facultyPlansYear), true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    loadFacultyPlans();
-                }
-            }.bind(this);
-            xhr.send();
+            await RecruitmentPlansService.httpDelete(facultyShortName, facultyPlansYear);
+            loadFacultyPlans();
         }
         handleDeletePlansClose();
     }

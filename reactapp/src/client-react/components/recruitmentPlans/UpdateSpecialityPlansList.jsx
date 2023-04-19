@@ -3,15 +3,7 @@
 import Table from 'react-bootstrap/Table';
 import React from 'react';
 
-
 export default function UpdateSpecialityPlansList({ plans, errors, onChange }) {
-    const [changedPlans, setChangedPlans] = React.useState(plans);
-    const onChangePlan = (plan, index) => {
-        var changedPlansTemp = changedPlans;
-        changedPlansTemp[index] = plan;
-        setChangedPlans(changedPlansTemp);
-        onChange(changedPlans);
-    }
     return <Table responsive bordered className="mb-0">
         <thead>
             <tr>
@@ -32,7 +24,7 @@ export default function UpdateSpecialityPlansList({ plans, errors, onChange }) {
         </thead>
         <tbody>{
             plans.map((item, index) =>
-                <UpdateSpecialityPlan key={JSON.stringify(item)} index={index} specialityPlan={item} errors={errors} onChange={onChangePlan} />
+                <UpdateSpecialityPlan key={item.specialityName} index={index} specialityPlan={item} errors={errors[index] ?? {}} handleChange={onChange} />
             )}
         </tbody>
     </Table>;

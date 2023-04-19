@@ -1,4 +1,4 @@
-import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 import DistributionApi from "../../api/DistributionApi.js";
 
 import Button from 'react-bootstrap/Button';
@@ -13,14 +13,9 @@ export default function GroupOfSpecialities({ group, facultyShortName, onClickDe
     const [plans, setPlans] = useState(null);
     const [competition, setCompetition] = useState([]);
 
-    const loadSpecialities = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, group.id), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadSpecialities = async () => {
+        const data = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, group.id);
+        setPlans(data);
     }
     const loadCompetition = () => {
         var xhr = new XMLHttpRequest();

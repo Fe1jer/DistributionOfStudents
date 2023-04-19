@@ -1,9 +1,14 @@
 ﻿import UpdateSpecialityPlansList from "./UpdateSpecialityPlansList.jsx";
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
-import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
 import FacultiesService from "../../services/Faculties.service.js";
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 
+import { RecruitmentPlansValidationSchema } from '../../validations/RecruitmentPlans.validation';
+
+import Form from 'react-bootstrap/Form';
+
+import { Formik } from 'formik';
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React, { useState } from 'react';
 
@@ -12,10 +17,9 @@ export default function CreateFacultyPlansPage() {
     const facultyShortName = params.shortName;
     const lastYear = params.lastYear;
 
-    const [plans, setPlans] = useState([]);
+    const [plans, setPlans] = useState(null);
     const [year, setYear] = useState(parseInt(lastYear) + 1);
     const [facultyName, setFacultyName] = useState("");
-    const [errors, setErrors] = useState({});
     const [createShow, setCreateShow] = useState(false);
 
     const navigate = useNavigate();
@@ -25,42 +29,17 @@ export default function CreateFacultyPlansPage() {
             var now = new Date();
             setYear(now.getFullYear());
         }
-        else {
-            var xhr1 = new XMLHttpRequest();
-            xhr1.open("get", RecruitmentPlansApi.getFacultyRecruitmentPlansUrl(facultyShortName, year), true);
-            xhr1.onload = function () {
-                var data = JSON.parse(xhr1.responseText);
-                setPlans(data);
-            }.bind(this);
-            xhr1.send();
-
-            const faciltyData = await FacultiesService.httpGetByShortName(facultyShortName);
-            setFacultyName(faciltyData.fullName);
-        }
-    }
-    const onCangeYear = (e) => {
-        setYear(e.target.value);
-    }
-    const onChangePlans = (changedPlans) => {
-        setPlans(changedPlans);
+        const faciltyData = FacultiesService.httpGetByShortName(facultyShortName);
+        const recruitmentsPlansData = RecruitmentPlansService.httpGetFacultyRecruitmentPlans(facultyShortName, year);
+        setFacultyName((await faciltyData).fullName);
+        setPlans(await recruitmentsPlansData);
     }
 
-    const onCreateFacultyPlans = () => {
+    const onCreateFacultyPlans = async () => {
         if (year != 1) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("post", RecruitmentPlansApi.getPostUrl(facultyShortName, year), true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    handleCreateClose();
-                    navigate("/Faculties/" + facultyShortName);
-                }
-                else if (xhr.status === 400) {
-                    var a = eval('({obj:[' + xhr.response + ']})');
-                    setErrors(a.obj[0].errors);
-                }
-            }.bind(this);
-            xhr.send(JSON.stringify(plans));
+            await RecruitmentPlansService.httpPost(facultyShortName, year, plans)
+            handleCreateClose();
+            navigate("/Faculties/" + facultyShortName);
         }
         else {
             handleCreateClose();
@@ -69,29 +48,46 @@ export default function CreateFacultyPlansPage() {
     const handleCreateClose = () => {
         setCreateShow(false);
     };
-    const onClickCreatePlans = () => {
+    const onClickCreatePlans = (values) => {
+        setPlans(values.plans);
+        setYear(values.year);
         setCreateShow(true);
     }
 
     React.useEffect(() => {
         loadData();
-    }, [year])
+    }, [])
 
-    return (
-        <React.Suspense>
-            <h1 className="input-group-lg text-center">План приёма на <input min="0" type="number" onChange={onCangeYear} className="form-control d-inline" value={year} style={{ width: 100 }} /> год</h1>
-            <hr />
-            <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onCreatePlans={onCreateFacultyPlans} facultyShortName={facultyShortName} year={year} />
-            <div className="ps-lg-4 pe-lg-4 position-relative">
-                <h4>{facultyName}</h4>
-                <UpdateSpecialityPlansList year={year} plans={plans} errors={errors} onChange={onChangePlans} />
-            </div>
-            <div className="col text-center pt-4">
-                <button type="button" className="btn btn-outline-success btn-lg" onClick={() => onClickCreatePlans()}>
-                    Создать
-                </button>
-                <Link type="button" className="btn btn-outline-secondary btn-lg" to={"/Faculties/" + facultyShortName}>В факультет</Link>
-            </div>
-        </React.Suspense>
-    );
+    if (plans && year) {
+        return (
+            <Formik
+                validationSchema={RecruitmentPlansValidationSchema}
+                onSubmit={onClickCreatePlans}
+                initialValues={{ plans, year }}>
+                {({ handleSubmit, handleChange, values, touched, errors }) => (
+                    <React.Suspense>
+                        <h1 className="input-group-lg text-center">План приёма на
+                            <Form.Control className="form-control d-inline mx-2" min="0" style={{ width: 100 }} type="number" name={"year"}
+                                value={values.year}
+                                onChange={handleChange}
+                                isInvalid={!!errors.year} />
+                            год
+                        </h1>
+                        <hr />
+                        <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onCreatePlans={onCreateFacultyPlans} facultyShortName={facultyShortName} year={values.year} />
+                        <div className="ps-lg-4 pe-lg-4 position-relative">
+                            <h4>{facultyName}</h4>
+                            <UpdateSpecialityPlansList plans={values.plans} errors={errors.plans ?? {}} onChange={handleChange} />
+                        </div>
+                        <div className="col text-center pt-4">
+                            <button type="button" className="btn btn-outline-success btn-lg" onClick={handleSubmit}>
+                                Создать
+                            </button>
+                            <Link type="button" className="btn btn-outline-secondary btn-lg" to={"/Faculties/" + facultyShortName}>В факультет</Link>
+                        </div>
+                    </React.Suspense>
+                )}
+            </Formik>
+        );
+    }
 }

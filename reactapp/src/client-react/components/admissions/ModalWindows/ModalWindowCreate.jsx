@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import StatisticService from "../../../services/Statistic.service.js";
 import AdmissionsApi from "../../../api/AdmissionsApi.js";
 import SubjectsService from "../../../services/Subjects.service.js";
-import RecruitmentPlansApi from "../../../api/RecruitmentPlansApi.js";
+import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
 
 import UpdateAdmission from "../UpdateAdmission.jsx";
 
@@ -88,16 +88,10 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
     const onUpdateStatistic = async () => {
         await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
-    const loadGroupPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupPlans = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        setGroupPlans(recruitmentsPlansData);
     }
-
     const loadGroupSubjects = async () => {
         const subjectsData = await SubjectsService.httpGetGroupSubjects(groupId);
         setGroupSubjects(subjectsData);

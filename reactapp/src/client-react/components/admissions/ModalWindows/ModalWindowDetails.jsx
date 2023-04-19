@@ -2,10 +2,9 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Form from 'react-bootstrap/Form';
 
 import AdmissionsApi from "../../../api/AdmissionsApi.js";
-import RecruitmentPlansApi from "../../../api/RecruitmentPlansApi.js";
+import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
@@ -44,14 +43,9 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
         }.bind(this);
         xhr.send();
     }
-    const loadGroupPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupPlans = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        setGroupPlans(recruitmentsPlansData);
     }
     React.useEffect(() => {
         if (admissionId) {

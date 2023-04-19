@@ -5,7 +5,7 @@ import Admissions from "../admissions/Admissions.jsx";
 import ModalWindowDeleteDitribution from "../distribution/ModalWindows/ModalWindowDelete.jsx";
 
 import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
-import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 import StatisticService from "../../services/Statistic.service.js";
 
 import Row from 'react-bootstrap/Row';
@@ -51,14 +51,9 @@ export default function GroupOfSpecialityPage() {
         }.bind(this);
         xhr.send();
     }
-    const loadPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadPlans = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        setPlans(recruitmentsPlansData);
     }
     const loadPlansStatistic = async () => {
         const data = await StatisticService.httpGetPlansStatistic(facultyShortName, groupId);
