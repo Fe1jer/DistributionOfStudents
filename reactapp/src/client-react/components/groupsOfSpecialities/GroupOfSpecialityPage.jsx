@@ -4,7 +4,7 @@ import Admissions from "../admissions/Admissions.jsx";
 
 import ModalWindowDeleteDitribution from "../distribution/ModalWindows/ModalWindowDelete.jsx";
 
-import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
+import GroupsOfSpecialitiesService from '../../services/GroupsOfSpecialities.service.js';
 import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 import StatisticService from "../../services/Statistic.service.js";
 
@@ -40,16 +40,11 @@ export default function GroupOfSpecialityPage() {
     const [deleteDistributionShow, setDeleteDistributionShow] = useState(false);
     const [canDistribution, setCanDistribution] = useState('disabled');
 
-    const loadGroup = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", GroupsOfSpecialitiesApi.getGroupUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setLoading(false);
-            setGroup(data);
-            setCanDistribution(new Date(getTodayTimeNull()) < new Date(data.enrollmentDate) ? 'disabled' : '');
-        }.bind(this);
-        xhr.send();
+    const loadGroup = async () => {
+        const groupData = await GroupsOfSpecialitiesService.httpGetById(groupId);
+        setLoading(false);
+        setGroup(groupData);
+        setCanDistribution(new Date(getTodayTimeNull()) < new Date(groupData.enrollmentDate) ? 'disabled' : '');
     }
     const loadPlans = async () => {
         const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);

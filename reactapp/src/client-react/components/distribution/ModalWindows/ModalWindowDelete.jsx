@@ -1,4 +1,4 @@
-﻿import GroupsOfSpecialitiesApi from "../../../api/GroupsOfSpecialitiesApi.js";
+﻿import GroupsOfSpecialitiesService from '../../../services/GroupsOfSpecialities.service.js';
 import DistributionApi from "../../../api/DistributionApi.js";
 
 import Button from 'react-bootstrap/Button';
@@ -14,14 +14,9 @@ export default function ModalWindowDelete({ show, handleClose, onLoadGroup, grou
         e.preventDefault();
         onDeleteDistribution();
     }
-    const loadGroupOfSpecialities = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", GroupsOfSpecialitiesApi.getGroupUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroup(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupOfSpecialities = async () => {
+        const groupData = await GroupsOfSpecialitiesService.httpGetById(groupId);
+        setGroup(groupData);
     }
 
     const onDeleteDistribution = () => {

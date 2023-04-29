@@ -1,5 +1,5 @@
 import DistributionApi from '../../api/DistributionApi.js';
-import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
+import GroupsOfSpecialitiesService from '../../services/GroupsOfSpecialities.service.js';
 import ModalWindowConfirm from "./ModalWindows/ModalWindowConfirm.jsx";
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
@@ -48,14 +48,9 @@ export default function CreateDistributionPage() {
         setErrors(null);
         setModelErrors(null);
     }
-    const loadGroup = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", GroupsOfSpecialitiesApi.getGroupUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroup(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroup = async () => {
+        const groupData = await GroupsOfSpecialitiesService.httpGetById(groupId);
+        setGroup(groupData);
     }
     const loadPlans = () => {
         var xhr = new XMLHttpRequest();

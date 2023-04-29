@@ -34,11 +34,11 @@ export default function UpdateFaculty({ form, modelErrors, errors, onChangeModel
             <Form.Group style={{ textAlign: "-webkit-center" }}>
                 <Image className="scale card-image m-0 text-center" src={preview} style={{ objectFit: "cover", width: 290 }}></Image>
                 <Field name="fileImg">
-                {({ form }) => (
-                    <Form.Control name="fileImg" type="file" accept=".jpg, .jpeg, .png" style={{ width: 290 }}
-                        onChange={e => showPreview(e, form)}
-                        isInvalid={!!errors.fileImg} />
-                )}
+                    {({ form }) => (
+                        <Form.Control name="fileImg" type="file" accept=".jpg, .jpeg, .png" style={{ width: 290 }}
+                            onChange={e => showPreview(e, form)}
+                            isInvalid={!!errors.fileImg} />
+                    )}
                 </Field>
                 <Form.Control.Feedback className="m-0" type="invalid">{errors.img}</Form.Control.Feedback>
             </Form.Group>
@@ -51,7 +51,7 @@ export default function UpdateFaculty({ form, modelErrors, errors, onChangeModel
                 <Form.Control.Feedback type="invalid">{errors.fullName}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="pt-3">
-                <Form.Label className="mb-0">Полное название</Form.Label><sup>*</sup>
+                <Form.Label className="mb-0">Сокращенное название</Form.Label><sup>*</sup>
                 <Form.Control type="text" name="shortName"
                     value={form.shortName ?? ""}
                     onChange={onChangeModel}
