@@ -8,7 +8,7 @@ import ModalWindowEdit from './ModalWindows/ModalWindowEdit.jsx';
 import ModalWindowDelete from './ModalWindows/ModalWindowDelete.jsx';
 import ModalWindowDetails from './ModalWindows/ModalWindowDetails.jsx';
 
-import AdmissionsApi from "../../api/AdmissionsApi.js";
+import AdmissionsService from "../../services/Admissions.service.js";
 
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -32,16 +32,11 @@ export default function Admissions({ groupId, plans, onLoadGroup }) {
     const [createShow, setCreateShow] = useState(false);
     const [detailsShow, setDetailsShow] = useState(false);
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", AdmissionsApi.getGroupAdmissionsUrl(groupId, searhText, currentPage, pageLimit), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setAdmissions(data.admissions);
-            setCountSearchAdmissions(data.countOfSearchStudents);
-            setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        var data = await AdmissionsService.httpGetGroupAdmissions(groupId, searhText, currentPage, pageLimit);
+        setAdmissions(data.admissions);
+        setCountSearchAdmissions(data.countOfSearchStudents);
+        setLoading(false);
     }
     const handleDeleteClose = () => {
         setDeleteShow(false);

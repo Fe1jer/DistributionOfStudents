@@ -1,13 +1,14 @@
 import Form from 'react-bootstrap/Form';
 import Sortable from "../Sortable.jsx";
+
 import $ from 'jquery';
 
-import React from 'react';
+import React, { useState } from 'react';
 
-export default function UpdateAdmissionSpetialitiesPriority({ onChangeModel, specialitiesPriority, modelErrors }) {
-    const [specialitiesInPriority, setSpecialitiesInPriority] = React.useState(specialitiesPriority.filter(item => item.priority > 0).sort((a, b) => a.priority - b.priority).map(item => { return item.nameSpeciality }));
-    const [specialitiesIsntInPriority, setSpecialitiesIsntInPriority] = React.useState(specialitiesPriority.filter(item => item.priority === 0).map(item => { return item.nameSpeciality }));
-    const [updatedSpecialitiesPriority, setUpdatedSpecialitiesPriority] = React.useState(specialitiesPriority);
+export default function UpdateAdmissionSpetialitiesPriority({ form, specialitiesPriority, errors }) {
+    const [updatedSpecialitiesPriority, setUpdatedSpecialitiesPriority] = useState(specialitiesPriority);
+    const [specialitiesInPriority] = useState(updatedSpecialitiesPriority.filter(item => item.priority > 0).sort((a, b) => a.priority - b.priority).map(item => { return item.nameSpeciality }));
+    const [specialitiesIsntInPriority] = useState(updatedSpecialitiesPriority.filter(item => item.priority === 0).map(item => { return item.nameSpeciality }));
 
     const onChangeSpecialitiesPriority = (nameSpeciality, priority) => {
         var updateSpecialitiesPriorityTemp = updatedSpecialitiesPriority;
@@ -17,7 +18,7 @@ export default function UpdateAdmissionSpetialitiesPriority({ onChangeModel, spe
         setUpdatedSpecialitiesPriority(updateSpecialitiesPriorityTemp);
     }
 
-    const change = (event, ui) => {
+    const sortableModel = () => {
         $(".not .one").each(function () {
             const nameSpeciality = $(this).find(".item").text();
             onChangeSpecialitiesPriority(nameSpeciality, 0);
@@ -32,35 +33,30 @@ export default function UpdateAdmissionSpetialitiesPriority({ onChangeModel, spe
             $(this).find("strong").removeClass("alert-danger");
             $(this).find("strong").addClass("alert-success");
         });
-        onChangeModel(updatedSpecialitiesPriority.slice());
+    }
+
+    const onChangeModel = (event, ui) => {
+        sortableModel();
+        form.setFieldValue("specialitiesPriority", updatedSpecialitiesPriority);
     }
 
     React.useEffect(() => {
-        change();
+        sortableModel();
     }, []);
 
-    const _formGroupErrors = (errors) => {
-        if (errors) {
-            return (<React.Suspense>{
-                errors.map((error) =>
-                    <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>
-                )}
-            </React.Suspense>);
-        }
-    }
     return (
         <React.Suspense>
             <h5 className="text-center">Приоритет специальностей<sup>*</sup></h5>
             <Form.Group style={{ textAlign: "-webkit-center" }}>
-                <Form.Control className="d-none" plaintext readOnly isInvalid={modelErrors} />
-                <Form.Control.Feedback className="mt-0" type="invalid">{modelErrors ? _formGroupErrors(modelErrors) : ""}</Form.Control.Feedback>
+                <Form.Control className="d-none" plaintext readOnly isInvalid={errors} />
+                <Form.Control.Feedback className="mt-0" type="invalid">{errors}</Form.Control.Feedback>
             </Form.Group>
             <div className="priority">
-                <Sortable onChange={change} data={specialitiesInPriority} />
+                <Sortable onChange={onChangeModel} data={specialitiesInPriority} />
             </div>
             <h5 className="text-center">Специальности, не входящие в приоритет</h5>
             <div className="not">
-                <Sortable onChange={change} data={specialitiesIsntInPriority} />
+                <Sortable onChange={onChangeModel} data={specialitiesIsntInPriority} />
             </div>
         </React.Suspense>
     );

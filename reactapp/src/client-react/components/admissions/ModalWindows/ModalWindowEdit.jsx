@@ -3,11 +3,14 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
 import StatisticService from "../../../services/Statistic.service.js";
-import AdmissionsApi from "../../../api/AdmissionsApi.js";
+import AdmissionsService from "../../../services/Admissions.service.js";
 import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
+
+import { AdmissionValidationSchema } from "../../../validations/Admission.validation";
 
 import UpdateAdmission from "../UpdateAdmission.jsx";
 
+import { Formik } from 'formik';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
 
@@ -18,76 +21,40 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [studentFullName, setStudentFullName] = useState("");
-    const [student, setStudent] = useState(null);
     const [admission, setAdmission] = useState(null);
     const [studentScores, setStudentScores] = useState(null);
     const [specialitiesPriority, setSpecialitiesPriority] = useState(null);
     const [admissionSpecialitiesPriority, setAdmissionSpecialitiesPriority] = useState(null);
     const [groupPlans, setGroupPlans] = useState(null);
-    const [validated, setValidated] = useState(false);
-    const [errors, setErrors] = useState();
 
-    const onChangeModel = (updateAdmission, updateStudent, updateStudentScores, updateSpecialitiesPriority) => {
-        setAdmission(updateAdmission);
-        setStudent(updateStudent);
-        setStudentScores(updateStudentScores);
-        setSpecialitiesPriority(updateSpecialitiesPriority);
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onEditAdmission();
-        setValidated(true);
+    const handleSubmit = (values) => {
+        onEditAdmission(values);
     }
     const setDefaultValues = () => {
-        setValidated(false);
         setIsLoaded(false);
         setAdmission(null);
-        setStudent(null);
         setStudentScores(null);
         setSpecialitiesPriority(null);
         setAdmissionSpecialitiesPriority(null);
         setGroupPlans(null);
     }
-    const onEditAdmission = () => {
-        admission.student = student;
-        admission.studentScores = studentScores;
-        admission.specialitiesPriority = specialitiesPriority;
-        var xhr = new XMLHttpRequest();
-        xhr.open("put", AdmissionsApi.getPutUrl(admissionId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            setErrors(null);
-            if (xhr.status === 200) {
-                handleClose();
-                onLoadAdmissions();
-                onLoadGroup();
-                setDefaultValues();
-                onUpdateStatistic();
-            }
-            else if (xhr.status === 400) {
-                var a = eval('({obj:[' + xhr.response + ']})');
-                if (a.obj[0].errors) {
-                    setErrors(a.obj[0].errors);
-                }
-            }
-        }.bind(this);
-        xhr.send(JSON.stringify(admission));
+    const onEditAdmission = async (values) => {
+        await AdmissionsService.httpPut(admissionId, values);
+        handleClose();
+        onLoadAdmissions();
+        onLoadGroup();
+        setDefaultValues();
+        onUpdateStatistic();
     }
     const onUpdateStatistic = async () => {
         await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
-    const loadAdmission = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", AdmissionsApi.getAdmissionUrl(admissionId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setAdmission(data);
-            setAdmissionSpecialitiesPriority(data.specialityPriorities);
-            setStudent(data.student);
-            setStudentFullName(data.student.surname + " " + data.student.name + " " + data.student.patronymic);
-            setStudentScores(data.studentScores);
-        }.bind(this);
-        xhr.send();
+    const loadAdmission = async () => {
+        var data = await AdmissionsService.httpGetById(admissionId);
+        setAdmission(data);
+        setAdmissionSpecialitiesPriority(data.specialityPriorities);
+        setStudentFullName(data.student.surname + " " + data.student.name + " " + data.student.patronymic);
+        setStudentScores(data.studentScores);
     }
     const loadGroupPlans = async () => {
         const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
@@ -117,11 +84,9 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
     }, [groupPlans, admissionSpecialitiesPriority, admissionId]);
 
     const onClose = () => {
-        setValidated(false);
-        setErrors(null);
         handleClose();
     }
-    if (!admission || !student || !specialitiesPriority || !studentScores) {
+    if (!admission || !specialitiesPriority || !studentScores) {
         return (
             <Modal show={show} onHide={onClose} backdrop="static" keyboard={false}>
                 <Modal.Header closeButton>
@@ -140,18 +105,25 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
     else {
         return (
             <Modal size="xl" fullscreen="lg-down" show={show} onHide={onClose} backdrop="static" keyboard={false}>
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Изменить заявку <b className="text-success">"{studentFullName}"</b></Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <UpdateAdmission admission={admission} student={student} specialitiesPriority={specialitiesPriority} studentScores={studentScores} errors={errors} onChangeModel={onChangeModel} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={onClose}>Закрыть</Button>
-                        <Button type="submit" variant="primary">Сохранить</Button>
-                    </Modal.Footer>
-                </Form >
+                <Formik
+                    validationSchema={AdmissionValidationSchema}
+                    onSubmit={handleSubmit}
+                    initialValues={{ ...admission, studentScores, specialitiesPriority }}>
+                    {({ handleSubmit, handleChange, values, touched, errors }) => (
+                        <Form noValidate onSubmit={handleSubmit}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Изменить заявку <b className="text-success">"{studentFullName}"</b></Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <UpdateAdmission values={values} errors={errors} onChangeModel={handleChange} />
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={onClose}>Закрыть</Button>
+                                <Button type="submit" variant="primary">Сохранить</Button>
+                            </Modal.Footer>
+                        </Form >
+                    )}
+                </Formik>
             </Modal>
         );
     }

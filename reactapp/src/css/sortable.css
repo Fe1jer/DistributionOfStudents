@@ -1,8 +1,10 @@
 .one-placeholder {
     border: 1px dotted black;
     height: 44px;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 .sortableCard {
-    min-height: 45px
+    min-height: 45px;
 }

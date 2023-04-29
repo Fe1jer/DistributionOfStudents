@@ -1,4 +1,4 @@
-﻿import AdmissionsApi from "../../../api/AdmissionsApi.js";
+﻿import AdmissionsService from "../../../services/Admissions.service.js";
 import StatisticService from "../../../services/Statistic.service.js";
 
 import Modal from 'react-bootstrap/Modal';
@@ -17,32 +17,21 @@ export default function ModalWindowDelete({ show, handleClose, onLoadAdmissions,
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onDeleteAdmission(admissionId);
+        onDeleteAdmission();
         handleClose();
     }
-    const onDeleteAdmission = (id) => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("delete", AdmissionsApi.getDeleteUrl(admissionId), true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                onLoadGroup();
-                onLoadAdmissions();
-                onUpdateStatistic();
-            }
-        }.bind(this);
-        xhr.send();
+    const onDeleteAdmission = async () => {
+        await AdmissionsService.httpDelete(admissionId);
+        onLoadGroup();
+        onLoadAdmissions();
+        onUpdateStatistic();
     }
     const onUpdateStatistic = async () => {
         await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
-    const loadAdmission = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", AdmissionsApi.getAdmissionUrl(admissionId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setAdmission(data);
-        }.bind(this);
-        xhr.send();
+    const loadAdmission = async () => {
+        var data = await AdmissionsService.httpGetById(admissionId);
+        setAdmission(data);
     }
 
     React.useEffect(() => {
