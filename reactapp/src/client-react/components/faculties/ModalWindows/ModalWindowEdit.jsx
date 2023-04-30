@@ -7,6 +7,8 @@ import UpdateFaculty from "../UpdateFaculty.jsx";
 import FacultiesService from "../../../services/Faculties.service.js";
 import { FacultyValidationSchema } from "../../../validations/Faculty.validation";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import { Formik } from 'formik';
 
 import React, { useState } from 'react';
@@ -55,20 +57,7 @@ export default function ModalWindowEdit({ show, handleClose, onLoadFaculties, sh
     }, [shortName]);
 
     if (!updatedFaculty) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Изменить факультет</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

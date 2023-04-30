@@ -1,6 +1,8 @@
 ﻿import AdmissionsService from "../../../services/Admissions.service.js";
 import StatisticService from "../../../services/Statistic.service.js";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -44,20 +46,7 @@ export default function ModalWindowDelete({ show, handleClose, onLoadAdmissions,
     }, [admissionId])
 
     if (!admissionId || admission == null) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Удалить заявку</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="outline-danger">Удалить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

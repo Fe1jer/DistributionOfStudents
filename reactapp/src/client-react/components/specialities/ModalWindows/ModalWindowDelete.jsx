@@ -2,6 +2,8 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import SpecialitiesService from "../../../services/Specialities.service";
 
 import React, { useState } from 'react';
@@ -22,12 +24,13 @@ export default function ModalWindowDelete({ show, handleClose, specialityId, onL
         }
     }
     const getSpetyalityById = async () => {
+        console.log("d");
         var specialityData = await SpecialitiesService.httpGetById(specialityId);
         setSpeciality(specialityData);
     }
 
     React.useEffect(() => {
-        if (specialityId) {
+        if (specialityId && show) {
             getSpetyalityById();
         }
         else {
@@ -37,18 +40,7 @@ export default function ModalWindowDelete({ show, handleClose, specialityId, onL
 
     if (!speciality) {
         return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Удалить специальность</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="outline-danger">Удалить</Button>
-                </Modal.Footer>
-            </Modal>
+            <ModalWindowPreloader show={show} handleClose={handleClose} />
         );
     }
     else {

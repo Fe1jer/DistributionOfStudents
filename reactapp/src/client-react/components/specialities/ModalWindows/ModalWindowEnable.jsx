@@ -2,6 +2,8 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import FacultiesService from "../../../services/Faculties.service.js";
 import SpecialitiesService from "../../../services/Specialities.service";
 
@@ -40,7 +42,7 @@ export default function ModalWindowEnable({ show, handleClose, specialityId, onL
 
     React.useEffect(() => {
         getFacultyByShortName();
-        if (specialityId) {
+        if (specialityId && show) {
             getSpetyalityById();
         }
         else {
@@ -49,20 +51,7 @@ export default function ModalWindowEnable({ show, handleClose, specialityId, onL
     }, [specialityId]);
 
     if (!speciality) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Вернуть специальность</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="primary">Вернуть</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (
@@ -76,7 +65,7 @@ export default function ModalWindowEnable({ show, handleClose, specialityId, onL
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                        <Button type="submit" variant="primary">Вернуть</Button>
+                        <Button type="submit" variant="success">Вернуть</Button>
                     </Modal.Footer>
                 </Form >
             </Modal>

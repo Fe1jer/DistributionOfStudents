@@ -1,10 +1,12 @@
-﻿import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-
-import { SubjectValidationSchema } from '../../../validations/Subject.validation';
+﻿import { SubjectValidationSchema } from '../../../validations/Subject.validation';
 import SubjectsService from "../../../services/Subjects.service.js";
 import UpdateSubject from "../UpdateSubject.jsx";
+
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 import * as formik from 'formik';
 
@@ -49,20 +51,7 @@ export default function ModalWindowEdit({ show, handleClose, subjectId, onLoadSu
     }, [subjectId]);
 
     if (!updatedSubject) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title as="h5">Изменить предмет</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (
