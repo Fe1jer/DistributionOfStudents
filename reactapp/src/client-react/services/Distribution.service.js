@@ -1,12 +1,12 @@
 const config = {
-    api: '/api/GroupsOfSpecialtiesApi/',
+    api: '/api/DistributionApi/',
     options: {
         headers: { 'content-type': 'application/json' },
     },
 };
 
-const httpGetFacultyGroups = (facultyShortName, year) => {
-    return fetch(`${config.api}FacultyGroups/${facultyShortName}/${year}`, {
+const httpGet = (facultyName, groupId) => {
+    return fetch(`${config.api}${facultyName}/${groupId}`, {
         ...config.options,
     })
         .then((response) => handleResponse(response))
@@ -16,8 +16,8 @@ const httpGetFacultyGroups = (facultyShortName, year) => {
         });
 };
 
-const httpGetById = (id) => {
-    return fetch(`${config.api}${id}`, {
+const httpGetGroupCompetition = (facultyName, groupId) => {
+    return fetch(`${config.api}${facultyName}/${groupId}/Competition`, {
         ...config.options,
     })
         .then((response) => handleResponse(response))
@@ -27,8 +27,22 @@ const httpGetById = (id) => {
         });
 };
 
-const httpPost = (facultyShortName, data) => {
-    return fetch(`${config.api}${facultyShortName}`, {
+const httpPost = (facultyName, groupId, data) => {
+    return fetch(`${config.api}${facultyName}/${groupId}/CreateDistribution`, {
+        method: 'post',
+        body: data ? JSON.stringify(data) : null,
+        ...config.options,
+    })
+        .then((response) => handleResponse(response))
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error(error);
+            throw Error(error);
+        });
+};
+
+const httpPostConfirm = (facultyName, groupId, data) => {
+    return fetch(`${config.api}${facultyName}/${groupId}/ConfirmDistribution`, {
         method: 'post',
         body: data ? JSON.stringify(data) : null,
         ...config.options,
@@ -41,22 +55,8 @@ const httpPost = (facultyShortName, data) => {
         });
 };
 
-const httpPut = (facultyShortName, data) => {
-    return fetch(`${config.api}${facultyShortName}`, {
-        method: 'put',
-        body: data ? JSON.stringify(data) : null,
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response)
-        .catch((error) => {
-            console.error(error);
-            throw Error(error);
-        });
-};
-
-const httpDelete = (facultyShortName, id) => {
-    return fetch(`${config.api}${facultyShortName}/${id}`, {
+const httpDelete = (facultyName, groupId) => {
+    return fetch(`${config.api}${facultyName}/${groupId}`, {
         method: 'delete',
         ...config.options,
     })
@@ -73,7 +73,7 @@ const handleResponse = async (response) => {
         return response;
     }
     else if (response.status === 400) {
-        throw Error(JSON.stringify((await response.json()).modelErrors));
+        throw Error(JSON.stringify((await response.json())));
     }
     else {
         throw Error(response.json() | 'error');
@@ -81,7 +81,7 @@ const handleResponse = async (response) => {
 };
 
 const exportedObject = {
-    httpGetFacultyGroups, httpPost, httpPut, httpDelete, httpGetById
+    httpGet, httpGetGroupCompetition, httpPost, httpPostConfirm, httpDelete
 };
 
 export default exportedObject;

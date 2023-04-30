@@ -18,11 +18,7 @@ export default function UpdateFaculty({ form, modelErrors, errors, onChangeModel
 
     const _formGroupErrors = (errors) => {
         if (errors) {
-            return (<React.Suspense>{
-                errors.map((error) =>
-                    <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>
-                )}
-            </React.Suspense>);
+            return errors.map((error) => <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>)
         }
     }
     return (

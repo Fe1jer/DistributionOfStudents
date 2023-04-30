@@ -1,5 +1,5 @@
 ﻿import GroupsOfSpecialitiesService from '../../../services/GroupsOfSpecialities.service.js';
-import DistributionApi from "../../../api/DistributionApi.js";
+import DistributionService from '../../../services/Distribution.service.js';
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -19,17 +19,10 @@ export default function ModalWindowDelete({ show, handleClose, onLoadGroup, grou
         setGroup(groupData);
     }
 
-    const onDeleteDistribution = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("delete", DistributionApi.getDeleteUrl(facultyShortName, groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                onLoadGroup();
-                handleClose();
-            }
-        }.bind(this);
-        xhr.send();
+    const onDeleteDistribution = async () => {
+        await DistributionService.httpDelete(facultyShortName, groupId);
+        onLoadGroup();
+        handleClose();
     }
 
     React.useEffect(() => {
