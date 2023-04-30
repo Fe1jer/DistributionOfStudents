@@ -1,6 +1,6 @@
 import Button from 'react-bootstrap/Button';
 
-export default function Speciality({ speciality, onClickEdit, onClickDelete, onClickDisable, onClickEnable }) {
+export default function Speciality({ speciality, onClickEdit, onClickDelete, onClickEnable, onClickDisable }) {
     const _showEnableDisableButton = () => {
         if (!speciality.isDisabled) {
             return <Button variant="outline-secondary" size="sm" className="py-1" onClick={() => onClickDisable(speciality.id)}>

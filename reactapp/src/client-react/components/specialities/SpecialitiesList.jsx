@@ -1,10 +1,12 @@
-import Speciality from './Speciality.jsx';
+import Speciality from './Speciality';
 
 import SpecialitiesService from "../../services/Specialities.service";
 
-import ModalWindowCreate from './ModalWindows/ModalWindowCreate.jsx';
-import ModalWindowEdit from './ModalWindows/ModalWindowEdit.jsx';
-import ModalWindowDelete from './ModalWindows/ModalWindowDelete.jsx';
+import ModalWindowCreate from './ModalWindows/ModalWindowCreate';
+import ModalWindowEdit from './ModalWindows/ModalWindowEdit';
+import ModalWindowDelete from './ModalWindows/ModalWindowDelete';
+import ModalWindowEnable from './ModalWindows/ModalWindowEnable';
+import ModalWindowDisable from './ModalWindows/ModalWindowDisable';
 
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
@@ -18,6 +20,13 @@ export default function SpecialitiesList({ specialities, onLoadSpecialities, sho
     const [editShow, setEditShow] = useState(false);
     const [createShow, setCreateShow] = useState(false);
     const [deleteShow, setDeleteShow] = useState(false);
+    const [enableShow, setEnableShow] = useState(false);
+    const [disableShow, setDisableShow] = useState(false);
+
+    const reloadSpecialities = () => {
+        onLoadSpecialities();
+        loadDisabledSpecialities();
+    }
 
     const loadDisabledSpecialities = async () => {
         var disabledSpecialitiesData = await SpecialitiesService.httpGetFacultyDisabledSpecialities(shortName);
@@ -41,6 +50,14 @@ export default function SpecialitiesList({ specialities, onLoadSpecialities, sho
         setEditShow(false);
         setSelectedSpecialityId(null);
     };
+    const handleEnableClose = () => {
+        setEnableShow(false);
+        setSelectedSpecialityId(null);
+    };
+    const handleDisableClose = () => {
+        setDisableShow(false);
+        setSelectedSpecialityId(null);
+    };
     const handleCreateClose = () => {
         setCreateShow(false);
     };
@@ -52,6 +69,14 @@ export default function SpecialitiesList({ specialities, onLoadSpecialities, sho
     const onClickEditSpeciality = (id) => {
         setSelectedSpecialityId(id);
         setEditShow(true);
+    }
+    const onClickEnableSpeciality = (id) => {
+        setSelectedSpecialityId(id);
+        setEnableShow(true);
+    }
+    const onClickDisableSpeciality = (id) => {
+        setSelectedSpecialityId(id);
+        setDisableShow(true);
     }
     const onClickCreateSpeciality = () => {
         setCreateShow(true);
@@ -72,7 +97,8 @@ export default function SpecialitiesList({ specialities, onLoadSpecialities, sho
         if (disabledSpecialities && disabledSpecialities.length > 0) {
             return <tbody>{
                 disabledSpecialities.map((item) =>
-                    <Speciality key={item.directionCode ?? item.code + "-" + (item.directionName ?? item.fullName)} speciality={item} onClickEdit={onClickEditSpeciality} onClickDelete={onClickDeleteSpeciality} />
+                    <Speciality key={item.directionCode ?? item.code + "-" + (item.directionName ?? item.fullName)} speciality={item}
+                        onClickEdit={onClickEditSpeciality} onClickDelete={onClickDeleteSpeciality} onClickEnable={onClickEnableSpeciality} />
                 )}
             </tbody>
         }
@@ -86,9 +112,11 @@ export default function SpecialitiesList({ specialities, onLoadSpecialities, sho
 
     return <React.Suspense>
         <div className="card shadow">
-            <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onLoadSpecialities={onLoadSpecialities} />
-            <ModalWindowEdit show={editShow} handleClose={handleEditClose} specialityId={selectedSpecialityId} onLoadSpecialities={onLoadSpecialities} />
-            <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} specialityId={selectedSpecialityId} onLoadSpecialities={onLoadSpecialities} />
+            <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onLoadSpecialities={reloadSpecialities} />
+            <ModalWindowEdit show={editShow} handleClose={handleEditClose} specialityId={selectedSpecialityId} onLoadSpecialities={reloadSpecialities} />
+            <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} specialityId={selectedSpecialityId} onLoadSpecialities={reloadSpecialities} />
+            <ModalWindowEnable show={enableShow} handleClose={handleEnableClose} specialityId={selectedSpecialityId} onLoadSpecialities={reloadSpecialities} />
+            <ModalWindowDisable show={disableShow} handleClose={handleDisableClose} specialityId={selectedSpecialityId} onLoadSpecialities={reloadSpecialities} />
             <Table responsive className="table mb-0">
                 <thead>
                     <tr>
@@ -106,7 +134,8 @@ export default function SpecialitiesList({ specialities, onLoadSpecialities, sho
                 </thead>
                 <tbody>{
                     specialities.map((item) =>
-                        <Speciality key={item.directionCode ?? item.code + "-" + (item.directionName ?? item.fullName)} speciality={item} onClickEdit={onClickEditSpeciality} onClickDelete={onClickDeleteSpeciality} />
+                        <Speciality key={item.directionCode ?? item.code + "-" + (item.directionName ?? item.fullName)} speciality={item}
+                            onClickDisable={onClickDisableSpeciality} onClickEdit={onClickEditSpeciality} onClickDelete={onClickDeleteSpeciality} />
                     )}
                 </tbody>
                 {_showDisabledSpecialities()}
