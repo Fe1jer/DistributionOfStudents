@@ -2,10 +2,13 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import FacultiesApi from "../../../api/FacultiesApi.js";
-import SubjectsApi from "../../../api/SpecialitiesApi.js";
+import { SpecialityValidationSchema } from '../../../validations/Speciality.validation';
+
+import FacultiesService from "../../../services/Faculties.service.js";
+import SpecialitiesService from "../../../services/Specialities.service";
 import UpdateSpeciality from "../UpdateSpeciality.jsx";
 
+import { Formik } from 'formik';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
 
@@ -15,68 +18,30 @@ export default function ModalWindowEdit({ show, handleClose, specialityId, onLoa
 
     const [faculty, setFaculty] = useState(null);
     const [specialityFullName, setSpecialityFullName] = useState(null);
-    const [validated, setValidated] = useState(false);
-    const [errors, setErrors] = useState();
     const [updatedSpeciality, setUpdatedSpeciality] = useState(null);
 
-    const onChangeModel = (updateSpeciality) => {
-        setUpdatedSpeciality(updateSpeciality);
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onEditSpeciality();
-        setValidated(true);
+    const handleSubmit = (values) => {
+        onEditSpeciality(values);
     }
 
-    const onEditSpeciality = () => {
+    const onEditSpeciality = async (values) => {
         if (specialityId !== null) {
-            updatedSpeciality.faculty = faculty;
-            var xhr = new XMLHttpRequest();
-            xhr.open("put", SubjectsApi.getPutUrl(specialityId), true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                setErrors(null);
-                if (xhr.status === 200) {
-                    handleClose();
-                    onLoadSpecialities();
-                    setValidated(false);
-                }
-                else if (xhr.status === 400) {
-                    var a = eval('({obj:[' + xhr.response + ']})');
-                    if (a.obj[0].errors) {
-                        setErrors(a.obj[0].errors);
-                    }
-                }
-            }.bind(this);
-            xhr.send(JSON.stringify(updatedSpeciality));
+            values.faculty = faculty;
+            await SpecialitiesService.httpPut(specialityId, values);
+            handleClose();
+            onLoadSpecialities();
         }
     }
-    const getSpetyalityById = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getSpecialityUrl(specialityId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                setUpdatedSpeciality(JSON.parse(xhr.responseText));
-                setSpecialityFullName(JSON.parse(xhr.responseText).fullName);
-            }
-        }.bind(this);
-        xhr.send();
+    const getSpetyalityById = async () => {
+        var specialityData = await SpecialitiesService.httpGetById(specialityId);
+        setUpdatedSpeciality(specialityData);
+        setSpecialityFullName(specialityData.fullName);
     }
-    const getFacultyByShortName = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", FacultiesApi.getFacultyUrl(shortName), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                setFaculty(JSON.parse(xhr.responseText));
-            }
-        }.bind(this);
-        xhr.send();
+    const getFacultyByShortName = async () => {
+        const faciltyData = await FacultiesService.httpGetByShortName(shortName);
+        setFaculty(faciltyData);
     }
     const onClose = () => {
-        setValidated(false);
-        setErrors(null);
         handleClose();
     }
 
@@ -109,18 +74,25 @@ export default function ModalWindowEdit({ show, handleClose, specialityId, onLoa
     else {
         return (
             <Modal size="xl" fullscreen="lg-down" show={show} onHide={onClose} backdrop="static" keyboard={false}>
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Изменить специальность <b className="text-success">"{specialityFullName}"</b></Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <UpdateSpeciality speciality={updatedSpeciality} errors={errors} onChangeModel={onChangeModel} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={onClose}>Закрыть</Button>
-                        <Button type="submit" variant="primary">Сохранить</Button>
-                    </Modal.Footer>
-                </Form >
+                <Formik
+                    validationSchema={SpecialityValidationSchema}
+                    onSubmit={handleSubmit}
+                    initialValues={updatedSpeciality}>
+                    {({ handleSubmit, handleChange, values, touched, errors }) => (
+                        <Form noValidate onSubmit={handleSubmit}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Изменить специальность <b className="text-success">"{specialityFullName}"</b></Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <UpdateSpeciality speciality={values} errors={errors} onChangeModel={handleChange} />
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={onClose}>Закрыть</Button>
+                                <Button type="submit" variant="primary">Сохранить</Button>
+                            </Modal.Footer>
+                        </Form >
+                    )}
+                </Formik>
             </Modal>
         );
     }

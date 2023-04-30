@@ -2,72 +2,57 @@
 import Form from 'react-bootstrap/Form';
 import Image from 'react-bootstrap/Image'
 
-export default function UpdateFaculty({ faculty, modelErrors, errors, onChangeModel }) {
-    const [updatedFaculty, setUpdatedFaculty] = React.useState({
-        id: faculty.id,
-        shortName: faculty.shortName,
-        fullName: faculty.fullName,
-        img: faculty.img
-    });
-    const { id, shortName, fullName, img } = updatedFaculty;
-    const [uploadImg, setUploadImg] = React.useState(null);
-    const [preview, setPreview] = React.useState(img);
-    const onChangeFaculty = (event) => {
-        const { name, value } = event.target;
-        setUpdatedFaculty((prevState) => {
-            return {
-                ...prevState,
-                [name]: value,
-            };
-        });
-    }
-    const showPreview = (e) => {
+import { Field } from 'formik';
+
+export default function UpdateFaculty({ form, modelErrors, errors, onChangeModel }) {
+    const [preview, setPreview] = React.useState(form.img);
+
+    const showPreview = (e, form) => {
         const reader = new FileReader();
         reader.onload = x => {
             setPreview(x.target.result);
         }
         reader.readAsDataURL(e.target.files[0]);
-        setUploadImg(e.target.files[0]);
+        form.setFieldValue("fileImg", e.currentTarget.files[0]);
     };
-    React.useEffect(() => {
-        onChangeModel(updatedFaculty, uploadImg);
-    }, [updatedFaculty, uploadImg])
 
     const _formGroupErrors = (errors) => {
         if (errors) {
-            return (<React.Suspense>{
-                errors.map((error) =>
-                    <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>
-                )}
-            </React.Suspense>);
+            return errors.map((error) => <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>)
         }
     }
     return (
         <React.Suspense>
             <Form.Group style={{ textAlign: "-webkit-center" }}>
                 <Form.Control className="p-0 d-none" plaintext readOnly isInvalid={modelErrors ? !!modelErrors : false} />
-                <Form.Control.Feedback type="invalid">{modelErrors ? _formGroupErrors(modelErrors) : ""}</Form.Control.Feedback>               
+                <Form.Control.Feedback type="invalid">{modelErrors ? _formGroupErrors(modelErrors) : ""}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group style={{ textAlign: "-webkit-center" }}>
                 <Image className="scale card-image m-0 text-center" src={preview} style={{ objectFit: "cover", width: 290 }}></Image>
-                <Form.Control type="file" accept=".jpg, .jpeg, .png" style={{ width: 290 }}
-                    name="Img" onChange={showPreview}
-                    isInvalid={errors ? !!errors.Img : false} />
-                <Form.Control.Feedback className="m-0" type="invalid">{errors ? _formGroupErrors(errors.Img) : ""}</Form.Control.Feedback>
+                <Field name="fileImg">
+                    {({ form }) => (
+                        <Form.Control name="fileImg" type="file" accept=".jpg, .jpeg, .png" style={{ width: 290 }}
+                            onChange={e => showPreview(e, form)}
+                            isInvalid={!!errors.fileImg} />
+                    )}
+                </Field>
+                <Form.Control.Feedback className="m-0" type="invalid">{errors.img}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="pt-3">
                 <Form.Label className="mb-0">Полное название</Form.Label><sup>*</sup>
-                <Form.Control type="text"
-                    required name="fullName" value={fullName ?? ""} onChange={onChangeFaculty}
-                    isInvalid={errors ? !!errors["Faculty.FullName"] : false} />
-                <Form.Control.Feedback type="invalid">{errors ? _formGroupErrors(errors["Faculty.FullName"]) : ""}</Form.Control.Feedback>
+                <Form.Control type="text" name="fullName"
+                    value={form.fullName ?? ""}
+                    onChange={onChangeModel}
+                    isInvalid={!!errors.fullName} />
+                <Form.Control.Feedback type="invalid">{errors.fullName}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="pt-3">
-                <Form.Label className="mb-0">Полное название</Form.Label><sup>*</sup>
-                <Form.Control type="text"
-                    required name="shortName" value={shortName ?? ""} onChange={onChangeFaculty}
-                    isInvalid={errors ? !!errors["Faculty.ShortName"] : false} />
-                <Form.Control.Feedback type="invalid">{errors ? _formGroupErrors(errors["Faculty.ShortName"]) : ""}</Form.Control.Feedback>
+                <Form.Label className="mb-0">Сокращенное название</Form.Label><sup>*</sup>
+                <Form.Control type="text" name="shortName"
+                    value={form.shortName ?? ""}
+                    onChange={onChangeModel}
+                    isInvalid={!!errors.shortName} />
+                <Form.Control.Feedback type="invalid">{errors.shortName}</Form.Control.Feedback>
             </Form.Group>
         </React.Suspense>
     );

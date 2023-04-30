@@ -1,7 +1,7 @@
 ﻿import SubjectsList from "./SubjectsList.jsx";
 import TablePreloader from "../TablePreloader.jsx";
 
-import SubjectsApi from "../../api/SubjectsApi.js";
+import SubjectsService from "../../services/Subjects.service.js";
 
 import React from 'react';
 
@@ -9,15 +9,16 @@ export default function SubjectsPage() {
     const [subjects, setSubjects] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     // загрузка данных
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getSubjectsUrl(), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setSubjects(data);
+    const loadData = async () => {
+        try {
+            setLoading(true);
+            const subjectsData = await SubjectsService.httpGet();
+            setSubjects(subjectsData);
+        } catch (err) {
+            console.error(err.message);
+        } finally {
             setLoading(false);
-        }.bind(this);
-        xhr.send();
+        }
     }
 
     React.useEffect(() => {

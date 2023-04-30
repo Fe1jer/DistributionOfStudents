@@ -2,13 +2,16 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import StatisticApi from "../../../api//StatisticApi.js";
-import AdmissionsApi from "../../../api/AdmissionsApi.js";
-import SubjectsApi from "../../../api/SubjectsApi.js";
-import RecruitmentPlansApi from "../../../api/RecruitmentPlansApi.js";
+import StatisticService from "../../../services/Statistic.service.js";
+import AdmissionsService from "../../../services/Admissions.service.js";
+import SubjectsService from "../../../services/Subjects.service.js";
+import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
+
+import { AdmissionValidationSchema } from "../../../validations/Admission.validation";
 
 import UpdateAdmission from "../UpdateAdmission.jsx";
 
+import { Formik } from 'formik';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
 
@@ -27,96 +30,43 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
         id: 0,
         dateOfApplication: getNow()
     }
+    defaultAdmission.student = defaultStudent;
 
     const [isLoaded, setIsLoaded] = useState(false);
-    const [student, setStudent] = useState(defaultStudent);
-    const [admission, setAdmission] = useState(defaultAdmission);
     const [studentScores, setStudentScores] = useState([]);
     const [specialitiesPriority, setSpecialitiesPriority] = useState([]);
     const [groupSubjects, setGroupSubjects] = useState(null);
     const [groupPlans, setGroupPlans] = useState(null);
-    const [validated, setValidated] = useState(false);
-    const [errors, setErrors] = useState();
 
-    const onChangeModel = (updateAdmission, updateStudent, updateStudentScores, updateSpecialitiesPriority) => {
-        setAdmission(updateAdmission);
-        setStudent(updateStudent);
-        setStudentScores(updateStudentScores);
-        setSpecialitiesPriority(updateSpecialitiesPriority);
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onCreateAdmission();
-        setValidated(true);
+    const handleSubmit = (values) => {
+        onCreateAdmission(values);
     }
 
-    const setDefaultValues = () => {
-        setValidated(false);
-        setIsLoaded(false);
-        setAdmission(defaultAdmission);
-        setStudent(defaultStudent);
-        setStudentScores([]);
-        setSpecialitiesPriority([]);
-        setGroupSubjects(null);
-        setGroupPlans(null);
+    const onCreateAdmission = async (values) => {
+        await AdmissionsService.httpPost(groupId, values);
+
+        handleClose();
+        onUpdateStatistic();
+        onLoadAdmissions();
+        onLoadGroup();
     }
-    const onCreateAdmission = () => {
-        admission.student = student;
-        admission.studentScores = studentScores;
-        admission.specialitiesPriority = specialitiesPriority;
-        var xhr = new XMLHttpRequest();
-        xhr.open("post", AdmissionsApi.getPostUrl(groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            setErrors(null);
-            if (xhr.status === 200) {
-                handleClose();
-                onUpdateStatistic();
-                onLoadAdmissions();
-                onLoadGroup();
-                setDefaultValues();
-            }
-            else if (xhr.status === 400) {
-                var a = eval('({obj:[' + xhr.response + ']})');
-                if (a.obj[0].errors) {
-                    setErrors(a.obj[0].errors);
-                }
-            }
-        }.bind(this);
-        xhr.send(JSON.stringify(admission));
+    const onUpdateStatistic = async () => {
+        await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
-    const onUpdateStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("put", StatisticApi.getPutGroupStatisticUrl(facultyShortName, groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-        }.bind(this);
-        xhr.send(null);
+    const loadGroupPlans = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        setGroupPlans(recruitmentsPlansData);
     }
-    const loadGroupPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupPlans(data);
-        }.bind(this);
-        xhr.send();
-    }
-    const loadGroupSubjects = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getGroupSubjectsUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupSubjects(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupSubjects = async () => {
+        const subjectsData = await SubjectsService.httpGetGroupSubjects(groupId);
+        setGroupSubjects(subjectsData);
     }
 
     React.useEffect(() => {
         if (!isLoaded) {
+            setIsLoaded(true);
             loadGroupSubjects();
             loadGroupPlans();
-            setIsLoaded(true);
             return;
         }
         if (groupPlans && specialitiesPriority.length == 0) {
@@ -126,10 +76,9 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
             setStudentScores(groupSubjects.map(item => { return { subject: item, score: 0 } }))
         }
         if (show) {
-            admission.dateOfApplication = getNow();
-            setAdmission(admission);
+            defaultAdmission.dateOfApplication = getNow();
         }
-    }, [groupPlans, groupSubjects, show, admission]);
+    }, [groupPlans, groupSubjects, show, defaultAdmission]);
 
     if (!groupSubjects || !groupPlans) {
         return (
@@ -150,18 +99,25 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
     else {
         return (
             <Modal size="xl" fullscreen="lg-down" show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Создать заявку</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <UpdateAdmission admission={admission} student={student} specialitiesPriority={specialitiesPriority} studentScores={studentScores} errors={errors} onChangeModel={onChangeModel} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                        <Button type="submit" variant="primary">Сохранить</Button>
-                    </Modal.Footer>
-                </Form >
+                <Formik
+                    validationSchema={AdmissionValidationSchema}
+                    onSubmit={handleSubmit}
+                    initialValues={{ ...defaultAdmission, studentScores, specialitiesPriority }}>
+                    {({ handleSubmit, handleChange, values, touched, errors }) => (
+                        <Form noValidate onSubmit={handleSubmit}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Создать заявку</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <UpdateAdmission values={values} errors={errors} onChangeModel={handleChange} />
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
+                                <Button type="submit" variant="primary">Сохранить</Button>
+                            </Modal.Footer>
+                        </Form >
+                    )}
+                </Formik>
             </Modal>
         );
     }

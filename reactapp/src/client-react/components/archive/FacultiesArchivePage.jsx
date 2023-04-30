@@ -2,7 +2,7 @@
 
 import TablePreloader from "../TablePreloader.jsx";
 
-import ArchiveApi from "../../api/ArchiveApi.js";
+import ArchiveService from "../../services/Archive.service.js";
 
 import React from 'react';
 import { useParams } from 'react-router-dom'
@@ -16,15 +16,10 @@ export default function FacultiesArchivePlans() {
     const [loading, setLoading] = React.useState(true);
     var numbers = [1, 2]
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", ArchiveApi.getArchveByYearAndFormUrl(year, form), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setFacultiesArchive(data);
-            setLoading(false);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        const data = await ArchiveService.httpGetArchveByYearAndForm(year, form);
+        setFacultiesArchive(data);
+        setLoading(false);
     }
 
     React.useEffect(() => {

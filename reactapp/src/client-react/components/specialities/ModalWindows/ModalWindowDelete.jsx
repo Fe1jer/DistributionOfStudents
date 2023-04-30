@@ -2,7 +2,7 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import SubjectsApi from "../../../api/SpecialitiesApi.js";
+import SpecialitiesService from "../../../services/Specialities.service";
 
 import React, { useState } from 'react';
 
@@ -14,30 +14,16 @@ export default function ModalWindowDelete({ show, handleClose, specialityId, onL
         onDeleteSpeciality();
     }
 
-    const onDeleteSpeciality = () => {
+    const onDeleteSpeciality = async () => {
         if (specialityId !== null) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("delete", SubjectsApi.getDeleteUrl(specialityId), true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    handleClose();
-                    onLoadSpecialities();
-                }
-            }.bind(this);
-            xhr.send();
+            await SpecialitiesService.httpDelete(specialityId);
+            handleClose();
+            onLoadSpecialities();
         }
     }
-    const getSpetyalityById = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", SubjectsApi.getSpecialityUrl(specialityId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                setSpeciality(JSON.parse(xhr.responseText));
-            }
-        }.bind(this);
-        xhr.send();
+    const getSpetyalityById = async () => {
+        var specialityData = await SpecialitiesService.httpGetById(specialityId);
+        setSpeciality(specialityData);
     }
 
     React.useEffect(() => {

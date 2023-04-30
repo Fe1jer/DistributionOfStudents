@@ -3,7 +3,7 @@ import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";
 
 import TablePreloader from "../TablePreloader.jsx";
 
-import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 
 import React, { useState } from 'react';
 
@@ -16,30 +16,18 @@ export default function FacultiesPlans() {
     const [deleteShow, setDeleteShow] = useState(false);
     var numbers = [1, 2]
 
-    const loadData = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getRecruitmentPlansUrl(), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setFacultiesPlans(data);
-            setLoading(false);
-            const year = data.lenght !== 0 ? Math.max(...data.map(o => o.year)) : 0;
-            setYear(year);
-        }.bind(this);
-        xhr.send();
+    const loadData = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGet();
+        setFacultiesPlans(recruitmentsPlansData);
+        setLoading(false);
+        const year = recruitmentsPlansData.lenght !== 0 ? Math.max(...recruitmentsPlansData.map(o => o.year)) : 0;
+        setYear(year);
     }
 
-    const onDeleteFacultyPlans = (facultyShortName, year) => {
+    const onDeleteFacultyPlans = async (facultyShortName, year) => {
         if (year != null) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("delete", RecruitmentPlansApi.getDeleteUrl(facultyShortName, year), true);
-            xhr.setRequestHeader("Content-Type", "application/json")
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    loadData();
-                }
-            }.bind(this);
-            xhr.send();
+            await RecruitmentPlansService.httpDelete(facultyShortName, year)
+            loadData();
         }
         handleDeleteClose();
     }

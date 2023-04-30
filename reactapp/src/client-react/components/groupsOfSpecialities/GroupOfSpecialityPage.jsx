@@ -4,9 +4,9 @@ import Admissions from "../admissions/Admissions.jsx";
 
 import ModalWindowDeleteDitribution from "../distribution/ModalWindows/ModalWindowDelete.jsx";
 
-import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
-import RecruitmentPlansApi from '../../api/RecruitmentPlansApi.js';
-import StatisticApi from '../../api/StatisticApi.js';
+import GroupsOfSpecialitiesService from '../../services/GroupsOfSpecialities.service.js';
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
+import StatisticService from "../../services/Statistic.service.js";
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -40,43 +40,23 @@ export default function GroupOfSpecialityPage() {
     const [deleteDistributionShow, setDeleteDistributionShow] = useState(false);
     const [canDistribution, setCanDistribution] = useState('disabled');
 
-    const loadGroup = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", GroupsOfSpecialitiesApi.getGroupUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setLoading(false);
-            setGroup(data);
-            setCanDistribution(new Date(getTodayTimeNull()) < new Date(data.enrollmentDate) ? 'disabled' : '');
-        }.bind(this);
-        xhr.send();
+    const loadGroup = async () => {
+        const groupData = await GroupsOfSpecialitiesService.httpGetById(groupId);
+        setLoading(false);
+        setGroup(groupData);
+        setCanDistribution(new Date(getTodayTimeNull()) < new Date(groupData.enrollmentDate) ? 'disabled' : '');
     }
-    const loadPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadPlans = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        setPlans(recruitmentsPlansData);
     }
-    const loadPlansStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", StatisticApi.getPlansStatisticUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlansStatistic(data);
-        }.bind(this);
-        xhr.send();
+    const loadPlansStatistic = async () => {
+        const data = await StatisticService.httpGetPlansStatistic(facultyShortName, groupId);
+        setPlansStatistic(data);
     }
-    const loadGroupStatistic = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", StatisticApi.getGroupStatisticUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupStatistic(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupStatistic = async () => {
+        const data = await StatisticService.httpGetGroupStatistic(groupId);
+        setGroupStatistic(data);
     }
     const loadData = () => {
         setLoadedPlansStatistic(false);

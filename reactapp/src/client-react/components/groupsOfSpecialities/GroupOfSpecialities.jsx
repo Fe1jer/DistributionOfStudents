@@ -1,5 +1,5 @@
-import RecruitmentPlansApi from "../../api/RecruitmentPlansApi.js";
-import DistributionApi from "../../api/DistributionApi.js";
+import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
+import DistributionService from '../../services/Distribution.service.js';
 
 import Button from 'react-bootstrap/Button';
 import Placeholder from 'react-bootstrap/Placeholder';
@@ -11,25 +11,15 @@ import { getTodayTimeNull } from "../../../../src/js/datePicker.js"
 
 export default function GroupOfSpecialities({ group, facultyShortName, onClickDelete, onClickEdit }) {
     const [plans, setPlans] = useState(null);
-    const [competition, setCompetition] = useState([]);
+    const [competition, setCompetition] = useState(null);
 
-    const loadSpecialities = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, group.id), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadSpecialities = async () => {
+        const data = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, group.id);
+        setPlans(data);
     }
-    const loadCompetition = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", DistributionApi.getGroupCompetitionUrl(facultyShortName, group.id), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setCompetition(data);
-        }.bind(this);
-        xhr.send();
+    const loadCompetition = async () => {
+        const data = await DistributionService.httpGetGroupCompetition(facultyShortName, group.id);
+        setCompetition(data);
     }
 
     useEffect(() => {
@@ -54,10 +44,8 @@ export default function GroupOfSpecialities({ group, facultyShortName, onClickDe
             )
         }
     }
-
-    var buttons = null;
-    if (!group.isCompleted) {
-        buttons = <td className="text-center">
+    const _showButtons = () => {
+        return <td className="text-center">
             <div className="d-inline-flex">
                 <Button variant="outline-success" className="py-1" onClick={() => onClickEdit(group.id)}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -74,7 +62,6 @@ export default function GroupOfSpecialities({ group, facultyShortName, onClickDe
         </td>;
     }
 
-
     return <tr className="align-middle">
         <td>
             <Link className="nav-link text-success p-0" to={"/Faculties/" + facultyShortName + "/" + group.id}>
@@ -86,8 +73,8 @@ export default function GroupOfSpecialities({ group, facultyShortName, onClickDe
             <p className="m-1"></p>
             {new Date(group.enrollmentDate).toLocaleDateString("ru-ru")}
         </td>
-        <td>{competition}</td>
+        <td>{competition ?? <Placeholder className="w-100" />}</td>
         <td>{_showPlans()}</td>
-        {buttons}
+        {!group.isCompleted ? _showButtons() : null}
     </tr>;
 }

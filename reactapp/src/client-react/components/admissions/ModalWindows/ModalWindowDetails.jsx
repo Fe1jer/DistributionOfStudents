@@ -2,10 +2,9 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Form from 'react-bootstrap/Form';
 
-import AdmissionsApi from "../../../api/AdmissionsApi.js";
-import RecruitmentPlansApi from "../../../api/RecruitmentPlansApi.js";
+import AdmissionsService from "../../../services/Admissions.service.js";
+import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
@@ -32,26 +31,16 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
         setAdmissionSpecialitiesPriority(null);
         setGroupPlans(null);
     }
-    const loadAdmission = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", AdmissionsApi.getAdmissionUrl(admissionId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setAdmission(data);
-            setAdmissionSpecialitiesPriority(data.specialityPriorities);
-            setStudent(data.student);
-            setStudentScores(data.studentScores);
-        }.bind(this);
-        xhr.send();
+    const loadAdmission = async () => {
+        var data = await AdmissionsService.httpGetById(admissionId);
+        setAdmission(data);
+        setAdmissionSpecialitiesPriority(data.specialityPriorities);
+        setStudent(data.student);
+        setStudentScores(data.studentScores);
     }
-    const loadGroupPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", RecruitmentPlansApi.getGroupRecruitmentPlansUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupPlans(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupPlans = async () => {
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        setGroupPlans(recruitmentsPlansData);
     }
     React.useEffect(() => {
         if (admissionId) {

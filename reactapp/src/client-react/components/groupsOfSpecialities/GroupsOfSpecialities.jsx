@@ -6,7 +6,7 @@ import ModalWindowCreate from './ModalWindows/ModalWindowCreate.jsx';
 import ModalWindowEdit from './ModalWindows/ModalWindowEdit.jsx';
 import ModalWindowDelete from './ModalWindows/ModalWindowDelete.jsx';
 
-import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
+import GroupsOfSpecialitiesService from '../../services/GroupsOfSpecialities.service.js';
 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
@@ -22,14 +22,9 @@ export default function GroupsOfSpecialities({ year }) {
     const [deleteGroupId, setDeleteGroupId] = useState();
     const [editGroupId, setEditGroupId] = useState();
 
-    const loadGroupsOfSpecialities = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", GroupsOfSpecialitiesApi.getFacultyGroupsUrl(shortName, year), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroupsOfSpecialities(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroupsOfSpecialities = async () => {
+        const groupsData = await GroupsOfSpecialitiesService.httpGetFacultyGroups(shortName, year);
+        setGroupsOfSpecialities(groupsData);
     }
 
     React.useEffect(() => {
@@ -70,7 +65,7 @@ export default function GroupsOfSpecialities({ year }) {
         var groups = null;
         var distributedGroups = null;
 
-        if (groupsOfSpecialities && groupsOfSpecialities.length > 0 && year) {
+        if (year) {
             groups = <React.Suspense>
                 <ModalWindowCreate show={createShow} handleClose={handleCreateClose} onLoadGroups={loadGroupsOfSpecialities} />
                 <ModalWindowEdit show={editShow} handleClose={handleEditClose} groupId={editGroupId} onLoadGroups={loadGroupsOfSpecialities} />

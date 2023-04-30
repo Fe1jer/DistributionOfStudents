@@ -1,11 +1,13 @@
-import DistributionApi from '../../api/DistributionApi.js';
-import GroupsOfSpecialitiesApi from '../../api/GroupsOfSpecialitiesApi.js';
-import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
+import DistributionService from '../../services/Distribution.service.js';
+import GroupsOfSpecialitiesService from '../../services/GroupsOfSpecialities.service.js';
+import { DistributionValidationSchema } from "../../validations/Distribution.validation";
+
 import ModalWindowConfirm from "./ModalWindows/ModalWindowConfirm.jsx";
+import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
+
+import DistributedPlan from "../distribution/DistributedPlan.jsx";
 
 import CreateDistributionPlanList from './CreateDistributionPlanList.jsx';
-import ConfirmDistributionPlan from './ConfirmDistributionPlan.jsx';
-import DistributedPlan from "../distribution/DistributedPlan.jsx";
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -13,8 +15,9 @@ import Placeholder from 'react-bootstrap/Placeholder';
 
 import TablePreloader from "../TablePreloader.jsx";
 
+import { Formik } from 'formik';
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 export default function CreateDistributionPage() {
     const params = useParams();
@@ -27,101 +30,80 @@ export default function CreateDistributionPage() {
     const [isDistributed, setIsDistributed] = useState(false);
     const [createDistributionShow, setCreateDistributionShow] = useState(false);
     const [confirmDistributionShow, setConfirmDistributionShow] = useState(false);
-    const [selectedStudents, setSelectedStudents] = useState(null);
-    const [errors, setErrors] = useState({});
-    const [validated, setValidated] = useState(false);
+    const [distributedPlans, setDistribitedPlans] = useState(null);
+    const [modelErrors, setModelErrors] = useState(null);
     const [isInitSelectedStudents, setIsInitSelectedStudents] = useState(false);
 
-    const handleCreateSubmit = (e) => {
-        e.preventDefault();
-        setCreateDistributionShow(true);
-        setValidated(true);
-    }
-
     const setDefaultValues = () => {
-        setValidated(false);
         setCreateDistributionShow(false);
         setConfirmDistributionShow(false);
         setIsInitSelectedStudents(false);
         setPlans(null);
-        setSelectedStudents(null);
-        setErrors(null);
+        setDistribitedPlans(null);
+        setModelErrors(null);
     }
-    const loadGroup = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", GroupsOfSpecialitiesApi.getGroupUrl(groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            setGroup(data);
-        }.bind(this);
-        xhr.send();
+    const loadGroup = async () => {
+        const groupData = await GroupsOfSpecialitiesService.httpGetById(groupId);
+        setGroup(groupData);
     }
-    const loadPlans = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("get", DistributionApi.getDistributionUrl(facultyShortName, groupId), true);
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
+    const loadPlans = async () => {
+        const data = await DistributionService.httpGet(facultyShortName, groupId);
+        setIsDistributed(!data.areControversialStudents);
+        setPlans(data.plans);
+    }
+
+    const onCreateDistribution = async () => {
+        setModelErrors(null);
+        try {
+            const data = await DistributionService.httpPost(facultyShortName, groupId, distributedPlans);
+            setDefaultValues();
             setIsDistributed(!data.areControversialStudents);
             setPlans(data.plans);
-        }.bind(this);
-        xhr.send();
+            initializationSelectedStudents(data.plans);
+        }
+        catch (err) {
+            setModelErrors(JSON.parse(`{${err.message.replace('Error', '"Error"')}}`).Error.modelErrors);
+        }
+        handleCreateClose();
     }
-
-    const onCreateDistribution = () => {
-        setErrors(null);
-        setCreateDistributionShow(false);
-        var xhr = new XMLHttpRequest();
-        xhr.open("post", DistributionApi.getPostCreateUrl(facultyShortName, groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                setDefaultValues();
-                var data = JSON.parse(xhr.responseText);
-                setIsDistributed(!data.areControversialStudents);
-                setPlans(data.plans);
-                initializationSelectedStudents(data.plans);
-            }
-            else if (xhr.status === 400) {
-                var a = eval('({obj:[' + xhr.response + ']})');
-                setErrors(a.obj[0].errors);
-            }
-        }.bind(this);
-        xhr.send(JSON.stringify(selectedStudents));
+    const onConfirmDistribution = async () => {
+        setModelErrors(null);
+        try {
+            await DistributionService.httpPostConfirm(facultyShortName, groupId, distributedPlans);
+            navigate("/Faculties/" + facultyShortName + "/" + groupId);
+        }
+        catch (err) {
+            setModelErrors(JSON.parse(`{${err.message.replace('Error', '"Error"')}}`).Error.modelErrors);
+        }
+        handleConfirmClose();
     }
-
-    const onConfirmDistribution = () => {
-        var xhr = new XMLHttpRequest();
-        xhr.open("post", DistributionApi.getPostConfirmUrl(facultyShortName, groupId), true);
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                navigate("/Faculties/" + facultyShortName + "/" + groupId);
-            }
-            else if (xhr.status === 400) {
-                var a = eval('({obj:[' + xhr.response + ']})');
-                console.log(a.obj[0]);
-            }
-        }.bind(this);
-        xhr.send(JSON.stringify(selectedStudents));
+    const isDistributedStudent = (plan, enrolledStudent) => {
+        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) == plan.passingScore;
     }
-
-    const onChangeSelectedStudents = (index, updatedSelectedStudents) => {
-        var updateSelectedStudentsTemp = selectedStudents;
-        updateSelectedStudentsTemp[index].distributedStudents = updatedSelectedStudents;
-        setSelectedStudents(updateSelectedStudentsTemp);
+    const generalStudentScore = (enrolledStudent) => {
+        var generalScore = 0;
+        enrolledStudent.student.admissions[0].studentScores.forEach(element => generalScore += element.score);
+        return generalScore + enrolledStudent.student.gps;
     }
-
+    const initializationSelectedStudentsInPlan = (plan) => {
+        return plan.enrolledStudents.map((item) => {
+            return { studentId: item.student.id, isDistributed: !isDistributedStudent(plan, item) }
+        });
+    }
     const initializationSelectedStudents = (plans) => {
         if (!isInitSelectedStudents) {
             setIsInitSelectedStudents(true);
-            var initializatedSelectedStudents = plans.map((item) => {
-                return { planId: item.id, planCount: item.count, passingScore: item.passingScore, distributedStudents: null }
+            var initializatedDistributedPlans = plans.map((item) => {
+                return { planId: item.id, planCount: item.count, passingScore: item.passingScore, distributedStudents: initializationSelectedStudentsInPlan(item) }
             });
-            setSelectedStudents(initializatedSelectedStudents);
+            setDistribitedPlans(initializatedDistributedPlans);
         }
     };
 
-
+    const handleCreateSubmit = (values) => {
+        setDistribitedPlans(values.distributedPlans);
+        setCreateDistributionShow(true);
+    }
     const handleConfirmSubmit = () => {
         setConfirmDistributionShow(true);
     }
@@ -132,12 +114,9 @@ export default function CreateDistributionPage() {
         setConfirmDistributionShow(false);
     };
 
-    const _showContent = () => {
-        if (!isDistributed) {
-            return _showCreateDistrinution();
-        }
-        else {
-            return _showConfirmDistrinution();
+    const _formGroupErrors = (errors) => {
+        if (errors) {
+            return errors.map((error) => <React.Suspense key={error}><span>{error}</span><br></br></React.Suspense>)
         }
     }
 
@@ -147,33 +126,32 @@ export default function CreateDistributionPage() {
                 <ModalWindowConfirm show={confirmDistributionShow} handleClose={handleConfirmClose} onConfirmDistribution={onConfirmDistribution} />{
                     plans.map((plan, index) =>
                         <React.Suspense key={plan.speciality.directionName ?? plan.speciality.fullName}>
-                            <ConfirmDistributionPlan index={index} plan={plan} onChangeSelectedStudents={onChangeSelectedStudents} />
+                            <DistributedPlan plan={plan} />
                             {index !== plans.length - 1 ? <hr /> : null}
                         </React.Suspense>
                     )}
                 <div className="text-center pt-4">
-                    <Button type="submit" size="lg" variant="outline-success" onClick={() => handleConfirmSubmit()}>Подтвердить</Button>
+                    <Button size="lg" variant="outline-success" onClick={() => handleConfirmSubmit()}>Подтвердить</Button>
                     <Link type="button" className="btn btn-outline-danger btn-lg ms-2" to={"/Faculties/" + facultyShortName + "/" + groupId}>Отмена</Link>
                 </div>
             </React.Suspense>
         )
     }
-
-    const _showCreateDistrinution = () => {
+    const _showCreateDistrinution = (handleChange, values, touched, errors) => {
         return (
-            <Form noValidate validated={validated} onSubmit={handleCreateSubmit}>
-                <ModalWindowCreate show={createDistributionShow} handleClose={handleCreateClose} onCreateDistribution={onCreateDistribution} />                {
-                    plans.map((plan, index) =>
-                        <React.Suspense key={plan.speciality.directionName ?? plan.speciality.fullName}>
-                            <h4>{plan.speciality.directionName ?? plan.speciality.fullName} (Набор {plan.count} человек, проходной балл {plan.passingScore})</h4>
-                            <CreateDistributionPlanList index={index} plan={plan} error={errors ? errors['[' + index + ']'] : null} onChangeSelectedStudents={onChangeSelectedStudents} />
-                            {index != (plans.length - 1) ? <hr /> : null}
+            <React.Suspense>
+                <ModalWindowCreate show={createDistributionShow} handleClose={handleCreateClose} onCreateDistribution={onCreateDistribution} />{
+                    values.distributedPlans.map((plan, index) =>
+                        <React.Suspense key={plan.planId}>
+                            <h4>{plans[index].speciality.directionName ?? plans[index].speciality.fullName} (Набор {plans[index].count} человек, проходной балл {plans[index].passingScore})</h4>
+                            <CreateDistributionPlanList planIndex={index} plan={plans[index]} distributedPlan={plan} errors={errors.distributedPlans ? errors.distributedPlans[index] : {}} handleChange={handleChange} />
+                            {index != (distributedPlans.length - 1) ? <hr /> : null}
                         </React.Suspense>)}
                 <div className="text-center pt-4">
                     <Button type="submit" size="lg" variant="outline-success">Подтвердить</Button>
                     <Link type="button" className="btn btn-outline-danger btn-lg ms-2" to={"/Faculties/" + facultyShortName + "/" + groupId}>Отмена</Link>
                 </div>
-            </Form >
+            </React.Suspense>
         );
     }
 
@@ -186,8 +164,7 @@ export default function CreateDistributionPage() {
             initializationSelectedStudents(plans);
         }
     }, [plans])
-
-    if (!group || !plans || !selectedStudents) {
+    if (!group || !plans || !distributedPlans) {
         return <React.Suspense>
             <Placeholder as="h1" animation="glow" className="text-center"><Placeholder xs={12} /></Placeholder>
             <hr />
@@ -208,7 +185,20 @@ export default function CreateDistributionPage() {
                 <h1 className="text-center">{group.name}</h1>
                 <hr />
                 <div className="ps-lg-4 pe-lg-4 position-relative">
-                    {_showContent()}
+                    <Formik
+                        validationSchema={DistributionValidationSchema}
+                        onSubmit={handleCreateSubmit}
+                        initialValues={{ distributedPlans }}>
+                        {({ handleSubmit, handleChange, values, touched, errors }) => (
+                            <Form noValidate onSubmit={handleSubmit}>
+                                <Form.Group style={{ textAlign: "-webkit-center" }}>
+                                    <Form.Control className="p-0 d-none" plaintext readOnly isInvalid={modelErrors ? !!modelErrors : false} />
+                                    <Form.Control.Feedback type="invalid">{modelErrors ? _formGroupErrors(modelErrors) : ""}</Form.Control.Feedback>
+                                </Form.Group>
+                                {!isDistributed ? _showCreateDistrinution(handleChange, values, touched, errors) : _showConfirmDistrinution()}
+                            </Form >
+                        )}
+                    </Formik>
                 </div>
             </React.Suspense>
         );
