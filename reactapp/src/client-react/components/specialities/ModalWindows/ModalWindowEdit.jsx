@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button';
 
 import { SpecialityValidationSchema } from '../../../validations/Speciality.validation';
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import FacultiesService from "../../../services/Faculties.service.js";
 import SpecialitiesService from "../../../services/Specialities.service";
 import UpdateSpeciality from "../UpdateSpeciality.jsx";
@@ -47,7 +49,7 @@ export default function ModalWindowEdit({ show, handleClose, specialityId, onLoa
 
     React.useEffect(() => {
         getFacultyByShortName();
-        if (specialityId) {
+        if (specialityId && show) {
             getSpetyalityById();
         }
         else {
@@ -56,20 +58,7 @@ export default function ModalWindowEdit({ show, handleClose, specialityId, onLoa
     }, [specialityId]);
 
     if (!updatedSpeciality) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Изменить специальность</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (
@@ -88,7 +77,7 @@ export default function ModalWindowEdit({ show, handleClose, specialityId, onLoa
                             </Modal.Body>
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={onClose}>Закрыть</Button>
-                                <Button type="submit" variant="primary">Сохранить</Button>
+                                <Button type="submit" variant="success">Сохранить</Button>
                             </Modal.Footer>
                         </Form >
                     )}

@@ -4,9 +4,9 @@ import Button from 'react-bootstrap/Button';
 
 import { SpecialityValidationSchema } from '../../../validations/Speciality.validation';
 
-import FacultiesService from "../../../services/Faculties.service.js";
+import FacultiesService from "../../../services/Faculties.service";
 import SpecialitiesService from "../../../services/Specialities.service";
-import UpdateSpeciality from "../UpdateSpeciality.jsx";
+import UpdateSpeciality from "../UpdateSpeciality";
 
 import { Formik } from 'formik';
 import React, { useState } from 'react';

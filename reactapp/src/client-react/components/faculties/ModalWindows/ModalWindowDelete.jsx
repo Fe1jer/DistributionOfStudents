@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button';
 
 import FacultiesService from "../../../services/Faculties.service.js";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import React from 'react';
 
 export default function ModalWindowDelete({ show, handleClose, shortName, fullName, onLoadFaculties }) {
@@ -19,20 +21,7 @@ export default function ModalWindowDelete({ show, handleClose, shortName, fullNa
     }
 
     if (!shortName || !fullName) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Удалить факультет</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="outline-danger">Удалить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

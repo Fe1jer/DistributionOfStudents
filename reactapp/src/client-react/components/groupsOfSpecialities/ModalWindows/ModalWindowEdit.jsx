@@ -9,6 +9,8 @@ import SubjectsService from "../../../services/Subjects.service.js";
 import UpdateGroupOfSpeciality from '../UpdateGroupOfSpeciality.jsx';
 import { GroupOfSpecialitiesValidationSchema } from "../../../validations/GroupOfSpecialities.validation";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import { Formik } from 'formik';
 import { useParams } from 'react-router-dom'
 import React, { useState } from 'react';
@@ -75,20 +77,7 @@ export default function EditModalWindow({ show, handleClose, onLoadGroups, group
     }, [subjects, specialities, groupSubjects, groupSpecialities, groupId])
 
     if (!group || !selectedSubjects || !selectedSpecialities) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Сохранить изменения</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

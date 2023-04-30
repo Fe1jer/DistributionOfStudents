@@ -11,6 +11,8 @@ import { AdmissionValidationSchema } from "../../../validations/Admission.valida
 
 import UpdateAdmission from "../UpdateAdmission.jsx";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import { Formik } from 'formik';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
@@ -69,10 +71,10 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
             loadGroupPlans();
             return;
         }
-        if (groupPlans && specialitiesPriority.length == 0) {
+        if (groupPlans && specialitiesPriority.length === 0) {
             setSpecialitiesPriority(groupPlans.map(item => { return { planId: item.id, nameSpeciality: item.speciality.directionName ?? item.speciality.fullName, priority: 0 } }))
         }
-        if (groupSubjects && studentScores.length == 0) {
+        if (groupSubjects && studentScores.length === 0) {
             setStudentScores(groupSubjects.map(item => { return { subject: item, score: 0 } }))
         }
         if (show) {
@@ -81,20 +83,7 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
     }, [groupPlans, groupSubjects, show, defaultAdmission]);
 
     if (!groupSubjects || !groupPlans) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Создать заявку</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button type="submit" variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
-        )
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

@@ -39,6 +39,8 @@ namespace webapi.Data.Models
         [Display(Name = "Код специализации")]
         public string? SpecializationCode { get; set; }
 
+        public bool IsDisabled { get; set; }
+
         public Faculty Faculty { get; set; } = new();
         public List<GroupOfSpecialties>? GroupsOfSpecialties { get; set; }
         public List<RecruitmentPlan>? RecruitmentPlans { get; set; }

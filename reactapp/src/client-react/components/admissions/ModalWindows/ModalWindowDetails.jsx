@@ -6,6 +6,8 @@ import Row from 'react-bootstrap/Row';
 import AdmissionsService from "../../../services/Admissions.service.js";
 import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom'
 
@@ -66,19 +68,7 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
     }, [groupPlans, admissionSpecialitiesPriority, admissionId]);
 
     if (!admission || !student || !specialitiesPriority || !studentScores) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Детали заявки</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

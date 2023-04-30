@@ -1,10 +1,10 @@
-﻿import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-
-import { SubjectValidationSchema } from '../../../validations/Subject.validation';
+﻿import { SubjectValidationSchema } from '../../../validations/Subject.validation';
 import SubjectsService from "../../../services/Subjects.service.js";
 import UpdateSubject from "../UpdateSubject.jsx";
+
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 import * as formik from 'formik';
 

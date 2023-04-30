@@ -6,6 +6,8 @@ import StatisticService from "../../../services/Statistic.service.js";
 import AdmissionsService from "../../../services/Admissions.service.js";
 import RecruitmentPlansService from "../../../services/RecruitmentPlans.service.js";
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import { AdmissionValidationSchema } from "../../../validations/Admission.validation";
 
 import UpdateAdmission from "../UpdateAdmission.jsx";
@@ -87,20 +89,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
         handleClose();
     }
     if (!admission || !specialitiesPriority || !studentScores) {
-        return (
-            <Modal show={show} onHide={onClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Изменить заявку</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onClose}>Закрыть</Button>
-                    <Button variant="primary">Сохранить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

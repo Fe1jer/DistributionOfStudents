@@ -1,5 +1,7 @@
 ﻿import GroupsOfSpecialitiesService from '../../../services/GroupsOfSpecialities.service.js';
 
+import ModalWindowPreloader from "../../ModalWindowPreloader";
+
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -39,20 +41,7 @@ export default function ModalWindowDelete({ show, handleClose, onLoadGroups, gro
     }, [groupId])
 
     if (!groupId || group == null) {
-        return (
-            <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Удалить группу</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
-                    Загрузка...
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                    <Button variant="outline-danger">Удалить</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+        return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
         return (

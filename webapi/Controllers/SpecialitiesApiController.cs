@@ -37,19 +37,30 @@ namespace webapi.Controllers.Api
             {
                 return NotFound();
             }
-            return faculty.Specialities.Select(i => new Speciality()
+
+            faculty.Specialities.ForEach(i => i.Faculty = new());
+            faculty.Specialities.ForEach(i => i.GroupsOfSpecialties = null);
+            faculty.Specialities.ForEach(i => i.RecruitmentPlans = null);
+            return faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
+        }
+
+        [HttpGet("FacultyDisabledSpecialities/{facultyName}")]
+        public async Task<ActionResult<IEnumerable<Speciality>>> GetFacultyDisabledSpecialities(string facultyName)
+        {
+            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeDisabledSpecialties());
+            if (faculty == null)
             {
-                Code = i.Code,
-                Description = i.Description,
-                DirectionCode = i.DirectionCode,
-                DirectionName = i.DirectionName,
-                FullName = i.FullName,
-                Id = i.Id,
-                ShortCode = i.ShortCode,
-                ShortName = i.ShortName,
-                SpecializationCode = i.SpecializationCode,
-                SpecializationName = i.SpecializationName
-            }).OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
+                return NotFound();
+            }
+            if (faculty.Specialities == null)
+            {
+                return NotFound();
+            }
+
+            faculty.Specialities.ForEach(i => i.Faculty = new());
+            faculty.Specialities.ForEach(i => i.GroupsOfSpecialties = null);
+            faculty.Specialities.ForEach(i => i.RecruitmentPlans = null);
+            return faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
         }
 
         [HttpGet("GroupSpecialities/{groupId}")]
@@ -65,19 +76,10 @@ namespace webapi.Controllers.Api
                 return NotFound();
             }
 
-            return group.Specialities.Select(i => new Speciality()
-            {
-                Code = i.Code,
-                Description = i.Description,
-                DirectionCode = i.DirectionCode,
-                DirectionName = i.DirectionName,
-                FullName = i.FullName,
-                Id = i.Id,
-                ShortCode = i.ShortCode,
-                ShortName = i.ShortName,
-                SpecializationCode = i.SpecializationCode,
-                SpecializationName = i.SpecializationName
-            }).OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
+            group.Specialities.ForEach(i => i.Faculty = new());
+            group.Specialities.ForEach(i => i.GroupsOfSpecialties = null);
+            group.Specialities.ForEach(i => i.RecruitmentPlans = null);
+            return group.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
         }
 
         [HttpGet("{id}")]
