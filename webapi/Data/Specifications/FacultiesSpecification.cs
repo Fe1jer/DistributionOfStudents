@@ -1,6 +1,7 @@
 ﻿using webapi.Data.Models;
 using webapi.Data.Specifications.Base;
 using System.Linq.Expressions;
+using System.Xml.Linq;
 
 namespace webapi.Data.Specifications
 {
@@ -19,7 +20,16 @@ namespace webapi.Data.Specifications
         public FacultiesSpecification IncludeSpecialties()
         {
 #nullable disable
-            AddInclude(f => f.Specialities);
+            AddInclude(f => f.Specialities.Where(s => !s.IsDisabled));
+#nullable restore
+
+            return this;
+        }
+
+        public FacultiesSpecification IncludeDisabledSpecialties()
+        {
+#nullable disable
+            AddInclude(f => f.Specialities.Where(s => s.IsDisabled));
 #nullable restore
 
             return this;

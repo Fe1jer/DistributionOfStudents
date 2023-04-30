@@ -102,7 +102,7 @@ namespace webapi.Controllers.Api
         [HttpGet("{facultyName}/{groupId}/GroupRecruitmentPlans")]
         public async Task<ActionResult<IEnumerable<RecruitmentPlan>>> GetGroupRecruitmentPlans(string facultyName, int groupId)
         {
-            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties());
+            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties().IncludeAdmissions());
 
             if (group == null)
             {
@@ -113,7 +113,6 @@ namespace webapi.Controllers.Api
             if (!group.IsCompleted)
             {
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-                group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions());
                 IDistributionService distributionService = new DistributionService(plans, group.Admissions);
                 plans = distributionService.GetPlansWithEnrolledStudents();
             }
