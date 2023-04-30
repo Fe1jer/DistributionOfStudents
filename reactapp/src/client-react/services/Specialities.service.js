@@ -17,6 +17,18 @@ const httpGetFacultySpecialities = (facultyName) => {
         });
 };
 
+const httpGetFacultyDisabledSpecialities = (facultyName) => {
+    return fetch(`${config.api}FacultyDisabledSpecialities/${facultyName}`, {
+        ...config.options,
+    })
+        .then((response) => handleResponse(response))
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error(error.message);
+            throw Error(error);
+        });
+};
+
 const httpGetGroupSpecialities = (groupId) => {
     return fetch(`${config.api}GroupSpecialities/${groupId}`, {
         ...config.options,
@@ -91,7 +103,7 @@ const handleResponse = async (response) => {
 };
 
 const exportedObject = {
-    httpGetById, httpPost, httpPut, httpDelete, httpGetFacultySpecialities, httpGetGroupSpecialities
+    httpGetById, httpPost, httpPut, httpDelete, httpGetFacultySpecialities, httpGetFacultyDisabledSpecialities, httpGetGroupSpecialities
 };
 
 export default exportedObject;

@@ -74,7 +74,7 @@ export default function FacultyPage() {
 
         if (specialities.length !== 0 && specialities !== []) {
             title = <React.Suspense >
-                <hr className="mt-4" />
+                <hr />
                 <h4>
                     План приёма на {facultyPlansYear} год
                     <Link className="text-success ms-2" to={"/Faculties/" + shortName + "/RecruitmentPlans/" + facultyPlansYear + "/Create"}>
@@ -127,7 +127,7 @@ export default function FacultyPage() {
                 <hr />
                 <div className="ps-lg-4 pe-lg-4 pt-2 position-relative">
                     <h4>Специальности</h4>
-                    <SpecialitiesList onLoadSpecialities={updateSpecialities} specialities={specialities} />
+                    <SpecialitiesList onLoadSpecialities={updateSpecialities} specialities={specialities} shortName={shortName} />
                     {_showRecruitmenPlans()}
                     <GroupsOfSpecialities year={facultyPlansYear} />
                 </div>
