@@ -23,8 +23,8 @@ import { Route, Routes, Outlet } from 'react-router-dom'
 export default function Content() {
     return (
         <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/Faculties" element={<Null />} >
+            <Route exact path="/" element={<HomePage />} />
+            <Route exact path="/Faculties" element={<Null />} >
                 <Route index element={<FacultiesPage />} />
                 <Route path=":shortName" element={<Null />} >
                     <Route index element={<FacultyPage />} />
@@ -38,15 +38,15 @@ export default function Content() {
                     </Route>
                 </Route>
             </Route>
-            <Route path="/RecruitmentPlans" element={<FacultiesPlans />} />
-            <Route path="/Students" element={<StudentsPage />} />
-            <Route path="/Subjects" element={<SubjectsPage />} />
-            <Route path="/Archive" element={<Null />} >
+            <Route exact path="/RecruitmentPlans" element={<FacultiesPlans />} />
+            <Route exact path="/Students" element={<StudentsPage />} />
+            <Route exact path="/Subjects" element={<SubjectsPage />} />
+            <Route exact path="/Archive" element={<Null />} >
                 <Route index element={<ArchiveYearsPage />} />
                 <Route path=":year" element={<ArchiveFormsPage />} />
                 <Route path=":year/:form" element={<FacultiesArchivePage />} />
             </Route>
-            <Route path="*" element={<h2>Ресурс не найден</h2>} />
+            <Route exact path="*" element={<h2>Ресурс не найден</h2>} />
         </Routes>
     );
 }

@@ -1,8 +1,23 @@
-﻿import SidebarMenu from "./SidebarMenu.jsx";
+﻿import SidebarMenu from "./SidebarMenu";
+import Search from "./Searh";
+import Form from 'react-bootstrap/Form';
 
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'
+
+import "../../css/sidebar.css"
 
 export default function Header() {
+    const navigate = useNavigate();
+    const [searhText, setSearhText] = useState("");
+
+    const onSearhChange = (text) => {
+        setSearhText(text);
+    }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        navigate("/Students?searchStudents=" + searhText);
+    }
     return (
         <header>
             {/*Sidebar*/}
@@ -24,14 +39,9 @@ export default function Header() {
                         <p className="text-light font-monospace ms-3 m-0" style={{ fontSize: 'xx-large', lineHeight: 'normal' }}>БНТУ</p>
                     </Link>
                     {/*Search form*/}
-                    <form asp-controller="Students" asp-action="Index" method="get" className="d-none d-sm-flex input-group w-auto my-auto">
-                        <input name="searchStudents" autoComplete="off" type="search" className="form-control rounded" placeholder='Найти студента' style={{ minWidth: 300 }} />
-                        <button className="input-group-text border-0" type="submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="currentColor" className="bi bi-search" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                            </svg>
-                        </button>
-                    </form>
+                    <Form onSubmit={handleSubmit} className="d-none d-sm-flex" style={{ minWidth: 300 }}>
+                        <Search filter={onSearhChange} />
+                    </Form >
                     {/*Right links*/}
                     <ul className="navbar-nav ms-auto d-flex flex-row">
                         {/*Avatar*/}
@@ -43,7 +53,7 @@ export default function Header() {
                                 <li><p className="dropdown-item-text text-nowrap my-0">Приветствуем <b>{/*@User.FindFirst("Name").Value.ToString()*/}</b></p></li>
                                 <li><hr className="dropdown-divider" /></li>
                                 <li><Link className="dropdown-item" to="#">Профиль</Link></li>
-                                <li><a className="dropdown-item disabled" asp-controller="Account" asp-action="Settings" target="_blank">Настройки</a></li>
+                                <li><Link className="dropdown-item disabled" to="#" target="_blank">Настройки</Link></li>
                                 <li><hr className="dropdown-divider" /></li>
                                 <li><Link className="dropdown-item" to="#">Выйти</Link></li>
                             </ul>

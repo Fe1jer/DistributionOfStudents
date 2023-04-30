@@ -91,7 +91,7 @@ export default function Admissions({ groupId, plans, onLoadGroup }) {
                 <ModalWindowEdit show={editShow} handleClose={handleEditClose} admissionId={editAdmissionId} onLoadAdmissions={loadData} onLoadGroup={onLoadGroup} />
                 <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} admissionId={deleteAdmissionId} onLoadAdmissions={loadData} onLoadGroup={onLoadGroup} />
                 <ModalWindowDetails show={detailsShow} handleClose={handleDetailsClose} admissionId={detailsAdmissionId} />
-                <Search filter={onSearhChange} defaultValue={searhText} />
+                <Search filter={onSearhChange} defaultValue={searhText} className="mb-2" />
                 <AdmissionsList key={admissions} admissions={admissions} plans={plans}
                     onClickDelete={onClickDeleteAdmission} onClickEdit={onClickEditAdmission} onClickCreate={onClickCreateAdmission} onClickDetails={onClickDetailsAdmission} />
                 <Pagination key={countSearchAdmissions} totalRecords={countSearchAdmissions} pageLimit={pageLimit} pageNeighbours={pageNeighbours} onPageChanged={onPageChanged} />
