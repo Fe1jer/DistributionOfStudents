@@ -23,9 +23,12 @@ import getData from '../../../js/showStatistic';
 import { getTodayTimeNull } from "../../../../src/js/datePicker.js"
 import { Link, useParams } from 'react-router-dom'
 import React, { useState } from 'react';
+import useDocumentTitle from "../useDocumentTitle.jsx";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function GroupOfSpecialityPage() {
+    const [groupName, setGroupName] = useState("Группа специальностей");
+    useDocumentTitle(groupName);
     const params = useParams();
     const facultyShortName = params.shortName;
     const groupId = params.groupId;
@@ -43,6 +46,7 @@ export default function GroupOfSpecialityPage() {
     const loadGroup = async () => {
         const groupData = await GroupsOfSpecialitiesService.httpGetById(groupId);
         setLoading(false);
+        setGroupName(groupData.name)
         setGroup(groupData);
         setCanDistribution(new Date(getTodayTimeNull()) < new Date(groupData.enrollmentDate) ? 'disabled' : '');
     }

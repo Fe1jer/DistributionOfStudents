@@ -7,8 +7,11 @@ import StudentsService from "../../services/Students.service";
 
 import { useLocation } from 'react-router-dom';
 import React from 'react';
+import useDocumentTitle from "../useDocumentTitle";
 
 export default function StudentsPage() {
+    useDocumentTitle("Студенты");
+
     const location = useLocation();
     var searchStudentsParam = new URLSearchParams(location.search).get("searchStudents") ?? "";
 

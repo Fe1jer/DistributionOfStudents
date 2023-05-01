@@ -24,7 +24,7 @@ export default function Content() {
     return (
         <Routes>
             <Route exact path="/" element={<HomePage />} />
-            <Route exact path="/Faculties" element={<Null />} >
+            <Route path="/Faculties" element={<Null />} >
                 <Route index element={<FacultiesPage />} />
                 <Route path=":shortName" element={<Null />} >
                     <Route index element={<FacultyPage />} />
@@ -38,15 +38,15 @@ export default function Content() {
                     </Route>
                 </Route>
             </Route>
-            <Route exact path="/RecruitmentPlans" element={<FacultiesPlans />} />
-            <Route exact path="/Students" element={<StudentsPage />} />
-            <Route exact path="/Subjects" element={<SubjectsPage />} />
-            <Route exact path="/Archive" element={<Null />} >
+            <Route path="/RecruitmentPlans" element={<FacultiesPlans />} />
+            <Route path="/Students" element={<StudentsPage />} />
+            <Route path="/Subjects" element={<SubjectsPage />} />
+            <Route path="/Archive" element={<Null />} >
                 <Route index element={<ArchiveYearsPage />} />
-                <Route path=":year" element={<ArchiveFormsPage />} />
+                <Route exact path=":year" element={<ArchiveFormsPage />} />
                 <Route path=":year/:form" element={<FacultiesArchivePage />} />
             </Route>
-            <Route exact path="*" element={<h2>Ресурс не найден</h2>} />
+            <Route path="*" element={<h2>Ресурс не найден</h2>}/>
         </Routes>
     );
 }

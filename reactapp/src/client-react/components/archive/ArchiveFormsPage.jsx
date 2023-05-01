@@ -2,10 +2,12 @@
 import { Link, useParams } from 'react-router-dom'
 
 import ArchiveService from "../../services/Archive.service.js";
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function ArchiveFormsPage() {
     const params = useParams();
     const year = params.year;
+    useDocumentTitle("Архив " + year);
 
     const [forms, setForms] = React.useState([]);
     const [loading, setLoading] = React.useState(true);

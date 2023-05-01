@@ -4,8 +4,11 @@ import TablePreloader from "../TablePreloader.jsx";
 import SubjectsService from "../../services/Subjects.service.js";
 
 import React from 'react';
+import useDocumentTitle from "../useDocumentTitle.jsx";
 
 export default function SubjectsPage() {
+    useDocumentTitle("Предметы");
+
     const [subjects, setSubjects] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     // загрузка данных

@@ -6,11 +6,13 @@ import ArchiveService from "../../services/Archive.service.js";
 
 import React from 'react';
 import { useParams } from 'react-router-dom'
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function FacultiesArchivePlans() {
     const params = useParams();
     const year = params.year;
     const form = params.form;
+    useDocumentTitle("Архив " + year + " " + form);
 
     const [facultiesArchive, setFacultiesArchive] = React.useState([]);
     const [loading, setLoading] = React.useState(true);

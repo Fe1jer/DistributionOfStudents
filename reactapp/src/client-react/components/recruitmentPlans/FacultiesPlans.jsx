@@ -6,13 +6,16 @@ import TablePreloader from "../TablePreloader.jsx";
 import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 
 import React, { useState } from 'react';
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function FacultiesPlans() {
+    const [year, setYear] = useState(0);
+    useDocumentTitle("План приёма " + year);
+
     const [deleteFacultyShortName, setDeleteFacultyShortName] = useState(null);
     const [deleteYear, setDeleteYear] = useState(null);
     const [facultiesPlans, setFacultiesPlans] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [year, setYear] = useState(0);
     const [deleteShow, setDeleteShow] = useState(false);
     var numbers = [1, 2]
 
