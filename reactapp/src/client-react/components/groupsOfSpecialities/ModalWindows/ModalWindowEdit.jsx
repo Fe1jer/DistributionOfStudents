@@ -96,7 +96,7 @@ export default function EditModalWindow({ show, handleClose, onLoadGroups, group
                             </Modal.Body>
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={handleClose}>Закрыть</Button>
-                                <Button type="submit" variant="primary">Сохранить</Button>
+                                <Button type="submit" variant="success">Сохранить</Button>
                             </Modal.Footer>
                         </Form >
                     )}

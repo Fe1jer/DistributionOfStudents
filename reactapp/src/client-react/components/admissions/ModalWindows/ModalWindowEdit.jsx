@@ -108,7 +108,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
                             </Modal.Body>
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={onClose}>Закрыть</Button>
-                                <Button type="submit" variant="primary">Сохранить</Button>
+                                <Button type="submit" variant="success">Сохранить</Button>
                             </Modal.Footer>
                         </Form >
                     )}
