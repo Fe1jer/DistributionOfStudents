@@ -76,7 +76,7 @@ export default function ModalWindowEdit({ show, handleClose, onLoadFaculties, sh
                             </Modal.Body>
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={onClose}>Закрыть</Button>
-                                <Button type="submit" variant="primary">Сохранить</Button>
+                                <Button type="submit" variant="success">Сохранить</Button>
                             </Modal.Footer>
                         </Form >
                     )}
