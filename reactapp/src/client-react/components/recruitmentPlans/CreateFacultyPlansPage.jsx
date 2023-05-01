@@ -11,8 +11,10 @@ import Form from 'react-bootstrap/Form';
 import { Formik } from 'formik';
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React, { useState } from 'react';
+import useDocumentTitle from "../useDocumentTitle.jsx";
 
 export default function CreateFacultyPlansPage() {
+    useDocumentTitle("Создание плана приёма");
     const params = useParams();
     const facultyShortName = params.shortName;
     const lastYear = params.lastYear;
@@ -25,7 +27,7 @@ export default function CreateFacultyPlansPage() {
     const navigate = useNavigate();
 
     const loadData = async () => {
-        if (year == 1) {
+        if (year === 1) {
             var now = new Date();
             setYear(now.getFullYear());
         }
@@ -36,7 +38,7 @@ export default function CreateFacultyPlansPage() {
     }
 
     const onCreateFacultyPlans = async () => {
-        if (year != 1) {
+        if (year !== 1) {
             await RecruitmentPlansService.httpPost(facultyShortName, year, plans)
             handleCreateClose();
             navigate("/Faculties/" + facultyShortName);

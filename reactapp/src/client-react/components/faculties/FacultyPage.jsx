@@ -14,10 +14,12 @@ import Placeholder from 'react-bootstrap/Placeholder';
 
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom'
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function FacultyPage() {
     const params = useParams();
     const shortName = params.shortName;
+    useDocumentTitle(shortName);
 
     const [faculty, setFaculty] = useState();
     const [loading, setLoading] = useState(true);

@@ -18,8 +18,11 @@ import TablePreloader from "../TablePreloader.jsx";
 import { Formik } from 'formik';
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function CreateDistributionPage() {
+    useDocumentTitle("Распределение");
+
     const params = useParams();
     const facultyShortName = params.shortName;
     const groupId = params.groupId;
@@ -78,7 +81,7 @@ export default function CreateDistributionPage() {
         handleConfirmClose();
     }
     const isDistributedStudent = (plan, enrolledStudent) => {
-        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) == plan.passingScore;
+        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) === plan.passingScore;
     }
     const generalStudentScore = (enrolledStudent) => {
         var generalScore = 0;
@@ -145,7 +148,7 @@ export default function CreateDistributionPage() {
                         <React.Suspense key={plan.planId}>
                             <h4>{plans[index].speciality.directionName ?? plans[index].speciality.fullName} (Набор {plans[index].count} человек, проходной балл {plans[index].passingScore})</h4>
                             <CreateDistributionPlanList planIndex={index} plan={plans[index]} distributedPlan={plan} errors={errors.distributedPlans ? errors.distributedPlans[index] : {}} handleChange={handleChange} />
-                            {index != (distributedPlans.length - 1) ? <hr /> : null}
+                            {index !== (distributedPlans.length - 1) ? <hr /> : null}
                         </React.Suspense>)}
                 <div className="text-center pt-4">
                     <Button type="submit" size="lg" variant="outline-success">Подтвердить</Button>
@@ -173,7 +176,7 @@ export default function CreateDistributionPage() {
                     <React.Suspense key={item}>
                         <Placeholder as="h4" animation="glow"><Placeholder xs={8} /></Placeholder>
                         <TablePreloader />
-                        {index != 2 ? <hr /> : null}
+                        {index !== 2 ? <hr /> : null}
                     </React.Suspense>)}
                 <hr />
             </div>

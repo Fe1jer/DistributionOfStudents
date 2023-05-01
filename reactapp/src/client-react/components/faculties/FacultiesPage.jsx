@@ -12,8 +12,11 @@ import FacultiesService from "../../services/Faculties.service.js";
 import "../../../css/faculty.css"
 
 import React, { useState } from 'react';
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function FacultiesPage() {
+    useDocumentTitle("Факультеты");
+
     const [facultiesPlans, setFacultiesPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     var numbers = [1, 2, 3, 4, 5, 6, 7, 8]

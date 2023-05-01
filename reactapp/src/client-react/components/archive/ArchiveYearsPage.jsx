@@ -2,8 +2,11 @@
 import { Link } from 'react-router-dom'
 
 import ArchiveService from "../../services/Archive.service.js";
+import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function ArchiveYearsPage() {
+    useDocumentTitle("Архив");
+
     const [years, setYears] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     var numbers = [1, 2, 3, 4, 5]

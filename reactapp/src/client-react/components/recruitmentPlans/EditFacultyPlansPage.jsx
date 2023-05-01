@@ -9,8 +9,10 @@ import { RecruitmentPlansValidationSchema } from '../../validations/RecruitmentP
 import { Formik } from 'formik';
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import React, { useState } from 'react';
+import useDocumentTitle from "../useDocumentTitle.jsx";
 
 export default function EditFacultyPlansPage() {
+    useDocumentTitle("Редактирование плана приёма");
     const params = useParams();
     const facultyShortName = params.shortName;
     const year = params.year;
@@ -28,12 +30,9 @@ export default function EditFacultyPlansPage() {
         setFacultyName((await faciltyData).fullName);
         setPlans(await recruitmentsPlansData);
     }
-    const onChangePlans = (changedPlans) => {
-        setPlans(changedPlans);
-    }
 
     const onEditFacultyPlans = async () => {
-        if (year != 1) {
+        if (year !== 1) {
             await RecruitmentPlansService.httpPut(facultyShortName, year, plans)
             handleEditClose();
             navigate("/Faculties/" + facultyShortName);
