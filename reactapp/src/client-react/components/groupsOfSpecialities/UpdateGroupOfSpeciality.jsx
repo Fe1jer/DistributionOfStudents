@@ -1,17 +1,29 @@
 import SelectedGroupSubjects from "./SelectedGroupSubjects.jsx";
 import SelectedGroupSpecialities from "./SelectedGroupSpecialities.jsx";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
-import { Field } from 'formik';
+import { useFormikContext } from 'formik';
 
 import "../../../css/slider-radio.css";
+import { getNameByProps } from "../../../js/groupNames.js";
 
 export default function UpdateGroupOfSpeciality({ onChangeModel, values, errors }) {
+    const formikProps = useFormikContext();
+
+    useEffect(() => {
+        const _setGroupName = () => {
+            const name = getNameByProps(values.group.formOfEducation.isDailyForm, values.group.formOfEducation.isBudget, values.group.formOfEducation.isFullTime);
+            formikProps.setFieldValue("group.name", name);
+        }
+
+        _setGroupName();
+    }, [values.group.formOfEducation])
+
     return (
         <React.Suspense>
             <Form.Group className="px-2">
@@ -37,66 +49,54 @@ export default function UpdateGroupOfSpeciality({ onChangeModel, values, errors 
                     <Form.Control.Feedback type="invalid">{errors.group ? errors.group.enrollmentDate : null}</Form.Control.Feedback>
                 </Form.Group>
                 <Row className="mt-3 px-2 align-items-end text-center">
-                    <Field name="group.formOfEducation.isDailyForm">
-                        {({ form }) => (
-                            <Form.Group as={Col} sm="4" className="slider-radio elegant">
-                                <ToggleButton
-                                    id="isDaily" type="radio"
-                                    value={JSON.parse(true)} checked={values.group.formOfEducation.isDailyForm}
-                                    onChange={() => form.setFieldValue("group.formOfEducation.isDailyForm", true)}
-                                    variant="empty" bsPrefix="empty" >
-                                    Дневная
-                                </ToggleButton>
-                                <ToggleButton
-                                    id="isEvening" type="radio"
-                                    value={JSON.parse(false)} checked={!values.group.formOfEducation.isDailyForm}
-                                    onChange={() => form.setFieldValue("group.formOfEducation.isDailyForm", false)}
-                                    variant="empty" bsPrefix="empty" >
-                                    Заочная
-                                </ToggleButton>
-                            </Form.Group>
-                        )}
-                    </Field>
-                    <Field name="group.formOfEducation.isBudget">
-                        {({ form }) => (
-                            <Form.Group as={Col} sm="4" className="slider-radio elegant">
-                                <ToggleButton
-                                    id="isBudget" type="radio"
-                                    value={1} checked={values.group.formOfEducation.isBudget}
-                                    onChange={() => form.setFieldValue("group.formOfEducation.isBudget", true)}
-                                    variant="empty" bsPrefix="empty" >
-                                    Бюджет
-                                </ToggleButton>
-                                <ToggleButton
-                                    id="isPaid" type="radio"
-                                    value={0} checked={!values.group.formOfEducation.isBudget}
-                                    onChange={() => form.setFieldValue("group.formOfEducation.isBudget", false)}
-                                    variant="empty" bsPrefix="empty">
-                                    Платное
-                                </ToggleButton>
-                            </Form.Group>
-                        )}
-                    </Field>
-                    <Field name="group.formOfEducation.isFullTime">
-                        {({ form }) => (
-                            <Form.Group as={Col} sm="4" className="slider-radio elegant">
-                                <ToggleButton
-                                    id="isFullTime" type="radio"
-                                    value={JSON.parse(true)} checked={values.group.formOfEducation.isFullTime}
-                                    onChange={() => form.setFieldValue("group.formOfEducation.isFullTime", true)}
-                                    variant="empty" bsPrefix="empty" >
-                                    Полный
-                                </ToggleButton>
-                                <ToggleButton
-                                    id="isAbbreviated" type="radio"
-                                    value={JSON.parse(false)} checked={!values.group.formOfEducation.isFullTime}
-                                    onChange={() => form.setFieldValue("group.formOfEducation.isFullTime", false)}
-                                    variant="empty" bsPrefix="empty" >
-                                    Сокращённый
-                                </ToggleButton>
-                            </Form.Group>
-                        )}
-                    </Field>
+                    <Form.Group as={Col} sm="4" className="slider-radio elegant">
+                        <ToggleButton
+                            id="isDaily" type="radio"
+                            checked={values.group.formOfEducation.isDailyForm}
+                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isDailyForm", true)}
+                            variant="empty" bsPrefix="empty" >
+                            Дневная
+                        </ToggleButton>
+                        <ToggleButton
+                            id="isEvening" type="radio"
+                            checked={!values.group.formOfEducation.isDailyForm}
+                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isDailyForm", false)}
+                            variant="empty" bsPrefix="empty" >
+                            Заочная
+                        </ToggleButton>
+                    </Form.Group>
+                    <Form.Group as={Col} sm="4" className="slider-radio elegant">
+                        <ToggleButton
+                            id="isBudget" type="radio"
+                            checked={values.group.formOfEducation.isBudget}
+                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isBudget", true)}
+                            variant="empty" bsPrefix="empty" >
+                            Бюджет
+                        </ToggleButton>
+                        <ToggleButton
+                            id="isPaid" type="radio"
+                            checked={!values.group.formOfEducation.isBudget}
+                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isBudget", false)}
+                            variant="empty" bsPrefix="empty">
+                            Платное
+                        </ToggleButton>
+                    </Form.Group>
+                    <Form.Group as={Col} sm="4" className="slider-radio elegant">
+                        <ToggleButton
+                            id="isFullTime" type="radio"
+                            checked={values.group.formOfEducation.isFullTime}
+                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isFullTime", true)}
+                            variant="empty" bsPrefix="empty" >
+                            Полный
+                        </ToggleButton>
+                        <ToggleButton
+                            id="isAbbreviated" type="radio"
+                            checked={!values.group.formOfEducation.isFullTime}
+                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isFullTime", false)}
+                            variant="empty" bsPrefix="empty" >
+                            Сокращённый
+                        </ToggleButton>
+                    </Form.Group>
                 </Row>
             </Row>
             <Row>
