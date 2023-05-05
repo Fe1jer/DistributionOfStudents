@@ -3,6 +3,10 @@ import * as yup from 'yup';
 export const AdmissionValidationSchema = yup.object().shape({
     id: yup.number(),
     dateOfApplication: yup.date().required('Неверная дата'),
+    passportID: yup.string().nullable(true),
+    passportSeries: yup.string().nullable(true),
+    passportNumber: yup.number().nullable(true),
+    email: yup.string().email().nullable(true),
     student: yup.object().shape({
         id: yup.number(),
         name: yup.string().required('Введите имя'),
