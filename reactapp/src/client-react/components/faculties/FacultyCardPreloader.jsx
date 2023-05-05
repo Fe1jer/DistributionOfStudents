@@ -22,7 +22,7 @@ export default function FacultyCardPreloader() {
                         </div>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
-                        <Button variant="outline-success" className="disabled placeholder col-3" ></Button>
+                        <Button variant="outline-success" className="disabled placeholder" style={{ width: 100 }}></Button>
                     </div>
                 </Card.Body>
             </Card>

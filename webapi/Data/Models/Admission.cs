@@ -16,6 +16,19 @@ namespace webapi.Data.Models
         [Display(Name = "Приоритет")]
         public List<SpecialityPriority> SpecialityPriorities { get; set; } = new();
 
+        [Display(Name = "Идентификационный номер")]
+        public string? PassportID { get; set; }
+
+        [Display(Name = "Серия")]
+        public string? PassportSeries { get; set; }
+
+        [Display(Name = "Номер")]
+        public int? PassportNumber { get; set; }
+
+        [Display(Name = "Почта")]
+        [DataType(DataType.EmailAddress)]
+        public string? Email { get; set; }
+
         [Display(Name = "Баллы по ЦТ(ЦЭ)")]
         public List<StudentScore> StudentScores { get; set; } = new();
 
