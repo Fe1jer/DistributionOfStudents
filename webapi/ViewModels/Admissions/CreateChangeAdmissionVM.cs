@@ -13,6 +13,10 @@ namespace webapi.ViewModels.Admissions
             StudentScores = admission.StudentScores;
             Student = admission.Student;
             DateOfApplication = admission.DateOfApplication;
+            PassportID = admission.PassportID;
+            PassportSeries = admission.PassportSeries;
+            PassportNumber = admission.PassportNumber;
+            Email = admission.Email;
         }
 
         public CreateChangeAdmissionVM(List<StudentScore> scores, List<SpecialityPriorityVM> priorities)
@@ -26,6 +30,10 @@ namespace webapi.ViewModels.Admissions
         [Display(Name = "Подача заявки")]
         [DataType(DataType.DateTime)]
         public DateTime DateOfApplication { get; set; }
+        public string? PassportID { get; set; }
+        public string? PassportSeries { get; set; }
+        public int? PassportNumber { get; set; }
+        public string? Email { get; set; }
 
         [Display(Name = "Баллы по ЦТ(ЦЭ)")]
         public List<StudentScore> StudentScores { get; set; } = new();

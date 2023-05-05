@@ -116,6 +116,10 @@ namespace webapi.Controllers
                 }
 
                 admission.SpecialityPriorities = specialityPriorities;
+                admission.PassportID = model.PassportID;
+                admission.PassportSeries = model.PassportSeries;
+                admission.PassportNumber = model.PassportNumber;
+                admission.Email = model.Email;
                 admission.Student.Surname = model.Student.Surname.Trim();
                 admission.Student.Name = model.Student.Name.Trim();
                 admission.Student.Patronymic = model.Student.Patronymic.Trim();
@@ -180,7 +184,11 @@ namespace webapi.Controllers
                     StudentScores = model.StudentScores,
                     Student = new() { Name = model.Student.Name.Trim(), Surname = model.Student.Surname.Trim(), Patronymic = model.Student.Patronymic.Trim(), GPS = model.Student.GPS },
                     DateOfApplication = model.DateOfApplication,
-                    SpecialityPriorities = specialityPriorities
+                    SpecialityPriorities = specialityPriorities,
+                    PassportID = model.PassportID,
+                    PassportSeries = model.PassportSeries,
+                    PassportNumber = model.PassportNumber,
+                    Email = model.Email,
                 };
                 await _admissionsRepository.AddAsync(admission);
                 _logger.LogInformation("Заявка студента - {Surname} {Name} {Patronymic} - добавлена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
