@@ -8,5 +8,6 @@ namespace webapi.Data.Interfaces.Services
         public bool AreControversialStudents();
         public List<RecruitmentPlan> GetPlansWithEnrolledStudents();
         public List<RecruitmentPlan> GetPlansWithPassingScores();
+        public void NotifyEnrolledStudents();
     }
 }

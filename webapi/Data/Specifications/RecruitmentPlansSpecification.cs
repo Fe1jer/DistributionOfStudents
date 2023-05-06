@@ -26,6 +26,13 @@ namespace webapi.Data.Specifications
             return this;
         }
 
+        public RecruitmentPlansSpecification IncludeFaculty()
+        {
+            AddInclude(rp => rp.Speciality.Faculty);
+
+            return this;
+        }
+
         public RecruitmentPlansSpecification IncludeEnrolledStudents()
         {
             AddInclude("EnrolledStudents.Student");
