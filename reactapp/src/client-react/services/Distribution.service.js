@@ -41,10 +41,10 @@ const httpPost = (facultyName, groupId, data) => {
         });
 };
 
-const httpPostConfirm = (facultyName, groupId, data) => {
-    return fetch(`${config.api}${facultyName}/${groupId}/ConfirmDistribution`, {
+const httpPostConfirm = (facultyName, groupId, distributedPlans, notify) => {
+    return fetch(`${config.api}${facultyName}/${groupId}/ConfirmDistribution?notify=${notify}`, {
         method: 'post',
-        body: data ? JSON.stringify(data) : null,
+        body: distributedPlans ? JSON.stringify(distributedPlans) : null,
         ...config.options,
     })
         .then((response) => handleResponse(response))

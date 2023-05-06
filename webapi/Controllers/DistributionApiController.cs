@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Interfaces.Services;
 using webapi.Data.Models;
 using webapi.Data.Services;
 using webapi.Data.Specifications;
@@ -36,7 +37,7 @@ namespace webapi.Controllers
                 return NotFound();
             }
             plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            DistributionService distributionService = new(plans, group.Admissions);
+            IDistributionService distributionService = new DistributionService(plans, group.Admissions);
 
             return (float)Math.Round(distributionService.Competition, 2);
         }
@@ -52,7 +53,7 @@ namespace webapi.Controllers
                 return NotFound();
             }
             plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            DistributionService distributionService = new(plans, group.Admissions);
+            IDistributionService distributionService = new DistributionService(plans, group.Admissions);
             List<RecruitmentPlan> plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
             if (!distributionService.AreControversialStudents())
             {
@@ -88,7 +89,7 @@ namespace webapi.Controllers
                 }
                 try
                 {
-                    DistributionService distributionService = new(await GetPlansFromModelAsync(models, facultyName, group), group.Admissions);
+                    IDistributionService distributionService = new DistributionService(await GetPlansFromModelAsync(models, facultyName, group), group.Admissions);
                     List<RecruitmentPlan> plansWithEnrolledStudents = distributionService.GetPlansWithEnrolledStudents();
                     if (!distributionService.AreControversialStudents())
                     {
@@ -121,7 +122,7 @@ namespace webapi.Controllers
         }
 
         [HttpPost("{facultyName}/{groupId}/ConfirmDistribution")]
-        public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, List<PlanForDistributionVM> models)
+        public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, bool notify, List<PlanForDistributionVM> models)
         {
             try
             {
@@ -130,20 +131,21 @@ namespace webapi.Controllers
                 {
                     return NotFound();
                 }
-                List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
+                List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group).IncludeFaculty());
                 if (plans.Select(i => i.EnrolledStudents).Any(i => i != null && i.Count > 0))
                 {
                     ModelState.AddModelError("modelErrors", "Невозможно распределить студентов, так как уже существуют зачисленные студенты на этих специальностях");
                     return BadRequest(ModelState);
                 }
                 plans = await GetPlansFromModelAsync(models, facultyName, group);
-                DistributionService distributionService = new(plans, group.Admissions);
+                IDistributionService distributionService = new DistributionService(plans, group.Admissions);
                 foreach (var plan in distributionService.GetPlansWithPassingScores())
                 {
                     await _plansRepository.UpdateAsync(plan);
                 }
                 group.IsCompleted = true;
                 await _groupsRepository.UpdateAsync(group);
+                if (notify) distributionService.NotifyEnrolledStudents();
                 _logger.LogInformation("Студенты в группе {GroupName} на факультете {FacultyShortName} были зачислены", group.Name, facultyName);
 
                 return Ok();

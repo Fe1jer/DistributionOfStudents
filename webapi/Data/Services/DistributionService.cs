@@ -1,4 +1,5 @@
-﻿using webapi.Data.Interfaces.Services;
+﻿using System.Collections.Generic;
+using webapi.Data.Interfaces.Services;
 using webapi.Data.Models;
 
 namespace webapi.Data.Services
@@ -28,7 +29,7 @@ namespace webapi.Data.Services
 
         private List<Admission> GetCloneOfAdmissions()
         {
-            return _admissions.Select(i => new Admission { SpecialityPriorities = i.SpecialityPriorities.OrderBy(p => p.Priority).ToList(), StudentScores = i.StudentScores, Student = i.Student }).ToList();
+            return _admissions.Select(i => new Admission { SpecialityPriorities = i.SpecialityPriorities.OrderBy(p => p.Priority).ToList(), StudentScores = i.StudentScores, Student = i.Student, Email = i.Email }).ToList();
         }
 
         private void DistridutionControversialPlans()
@@ -133,6 +134,45 @@ namespace webapi.Data.Services
                 admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan == plan);
             }
             freeAdmissions.RemoveAll(i => _distributedStudents[plan].Contains(i));
+        }
+
+        public void NotifyEnrolledStudents()
+        {
+            List<Admission> allAdmissions = GetCloneOfAdmissions();
+            foreach (RecruitmentPlan plan in _recruitmentPlans)
+            {
+                if (plan.EnrolledStudents != null)
+                {
+                    foreach (Admission admission in allAdmissions.Where(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id)))
+                    {
+                        if (admission.Email != null)
+                        {
+                            string studentFullName = admission.Student.Name + " " + admission.Student.Patronymic;
+                            string specialityName = plan.Speciality.DirectionName ?? plan.Speciality.FullName;
+                            string message = studentFullName + ", вы зачислены на \"" + plan.Speciality.Faculty.FullName + "\""
+                                + " на специальность \"" + specialityName + "\"";
+
+                            IEmailService.SendEmailAsync(admission.Email, "Вы зачислены", message);
+                        }
+                    }
+                    allAdmissions.RemoveAll(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id));
+                }
+            }
+            foreach (Admission admission in allAdmissions)
+            {
+                if (admission.Email != null)
+                {
+                    string studentFullName = admission.Student.Name + " " + admission.Student.Patronymic;
+                    string message = studentFullName + ", вы не были зачислены на следующие специальности:\n";
+
+                    foreach (SpecialityPriority specialityPriority in admission.SpecialityPriorities)
+                    {
+                        string specialityName = specialityPriority.RecruitmentPlan.Speciality.DirectionName ?? specialityPriority.RecruitmentPlan.Speciality.FullName;
+                        message += "- " + specialityName + "\n";
+                    }
+                    IEmailService.SendEmailAsync(admission.Email, "Вы не были зачислены", message);
+                }
+            }
         }
     }
 }

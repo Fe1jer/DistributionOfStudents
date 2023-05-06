@@ -2,12 +2,20 @@
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function ModalWindowConfirm({ show, handleClose, onConfirmDistribution }) {
+    const [notify, setNotify] = useState(true);
+    const notifyChange = (e) => {
+        const { target } = e;
+        const value = target.checked;
+        console.log(value);
+        setNotify(value);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        onConfirmDistribution();
+        onConfirmDistribution(notify);
     }
 
     return (
@@ -18,6 +26,12 @@ export default function ModalWindowConfirm({ show, handleClose, onConfirmDistrib
                 </Modal.Header>
                 <Modal.Body>
                     <p>Это окончательный этап для подтверждения студентов к зачислению.</p>
+                    <Form.Group>
+                        <Form.Check name="notify"
+                            type="checkbox" checked={notify}
+                            onChange={notifyChange}
+                            label="Оповестить абитуриентов" />
+                    </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>Закрыть</Button>

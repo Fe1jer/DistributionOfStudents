@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="ChartJSCore" Version="3.9.1" />
+        <PackageReference Include="MailKit" Version="4.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.11" />
@@ -21,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\reactapp\reactapp.esproj" >
+        <ProjectReference Include="..\reactapp\reactapp.esproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         </ProjectReference>
     </ItemGroup>
