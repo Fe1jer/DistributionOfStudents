@@ -69,10 +69,10 @@ export default function CreateDistributionPage() {
         }
         handleCreateClose();
     }
-    const onConfirmDistribution = async () => {
+    const onConfirmDistribution = async (notify) => {
         setModelErrors(null);
         try {
-            await DistributionService.httpPostConfirm(facultyShortName, groupId, distributedPlans);
+            await DistributionService.httpPostConfirm(facultyShortName, groupId, distributedPlans, notify);
             navigate("/Faculties/" + facultyShortName + "/" + groupId);
         }
         catch (err) {
