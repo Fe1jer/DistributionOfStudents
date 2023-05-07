@@ -16,6 +16,17 @@ const httpGet = () => {
             throw Error(error);
         });
 };
+const httpGetById = (id) => {
+    return fetch(`${config.api}/${id}`, {
+        ...config.options,
+    })
+        .then((response) => handleResponse(response))
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error(error);
+            throw Error(error);
+        });
+};
 const httpGetFacultyRecruitmentPlans = (facultyShortName, year) => {
     return fetch(`${config.api}${facultyShortName}/${year}`, {
         ...config.options,
@@ -23,7 +34,7 @@ const httpGetFacultyRecruitmentPlans = (facultyShortName, year) => {
         .then((response) => handleResponse(response))
         .then((response) => response.json())
         .catch((error) => {
-            console.error(error.message);
+            console.error(error);
             throw Error(error);
         });
 };
@@ -34,7 +45,7 @@ const httpGetGroupRecruitmentPlans = (facultyShortName, groupId) => {
         .then((response) => handleResponse(response))
         .then((response) => response.json())
         .catch((error) => {
-            console.error(error.message);
+            console.error(error);
             throw Error(error);
         });
 };
@@ -45,7 +56,7 @@ const httpGetFacultyLastYearRecruitmentPlas = (facultyShortName) => {
         .then((response) => handleResponse(response))
         .then((response) => response.json())
         .catch((error) => {
-            console.error(error.message);
+            console.error(error);
             throw Error(error);
         });
 };
@@ -58,7 +69,7 @@ const httpPost = (facultyShortName, year, data) => {
         .then((response) => handleResponse(response))
         .then((response) => response)
         .catch((error) => {
-            console.error(error.message);
+            console.error(error);
             throw Error(error);
         });
 };
@@ -71,7 +82,20 @@ const httpPut = (facultyShortName, year, data) => {
         .then((response) => handleResponse(response))
         .then((response) => response)
         .catch((error) => {
-            console.error(error.message);
+            console.error(error);
+            throw Error(error);
+        });
+};
+const httpPutById = (id, data) => {
+    return fetch(`${config.api}${id}`, {
+        method: 'put',
+        body: data ? JSON.stringify(data) : null,
+        ...config.options,
+    })
+        .then((response) => handleResponse(response))
+        .then((response) => response)
+        .catch((error) => {
+            console.error(error);
             throw Error(error);
         });
 };
@@ -83,20 +107,24 @@ const httpDelete = (facultyShortName, year) => {
         .then((response) => handleResponse(response))
         .then((response) => response)
         .catch((error) => {
-            console.error(error.message);
+            console.error(error);
             throw Error(error);
         });
 };
 const handleResponse = async (response) => {
     if (response.status === 200) {
         return response;
-    } else {
+    }
+    else if (response.status === 400) {
+        throw Error(JSON.stringify((await response.json()).errors));
+    }
+    else {
         throw Error(response.json() | 'error');
     }
 };
 
 const exportedObject = {
-    httpGet, httpGetFacultyRecruitmentPlans, httpGetGroupRecruitmentPlans, httpGetFacultyLastYearRecruitmentPlas, httpPost, httpPut, httpDelete
+    httpGet, httpGetById, httpGetFacultyRecruitmentPlans, httpGetGroupRecruitmentPlans, httpGetFacultyLastYearRecruitmentPlas, httpPost, httpPut, httpPutById, httpDelete
 };
 
 export default exportedObject;

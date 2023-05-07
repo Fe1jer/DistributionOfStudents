@@ -6,6 +6,9 @@ export const AdmissionValidationSchema = yup.object().shape({
     passportID: yup.string().nullable(true),
     passportSeries: yup.string().nullable(true),
     passportNumber: yup.number().nullable(true),
+    isTargeted: yup.bool().default(false),
+    isWithoutEntranceExams: yup.bool().default(false),
+    isOutOfCompetition: yup.bool().default(false),
     email: yup.string().email().nullable(true),
     student: yup.object().shape({
         id: yup.number(),

@@ -3,7 +3,7 @@
 import Table from 'react-bootstrap/Table';
 
 export default function GroupOfSpecialitiesArchive({ facultyArchive }) {
-        return <Table responsive className="table table-bordered mb-0">
+    return <Table responsive bordered className="mb-0">
         <thead className="align-middle">
             <tr>
                 <th width="130">Код</th>
@@ -18,5 +18,5 @@ export default function GroupOfSpecialitiesArchive({ facultyArchive }) {
                 <SpecialitiesArchiveList key={JSON.stringify(groupArchive)} groupArchive={groupArchive} />
             )}
         </tbody>
-        </Table>;
+    </Table>;
 }

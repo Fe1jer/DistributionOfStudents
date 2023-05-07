@@ -16,3 +16,9 @@ export const RecruitmentPlansValidationSchema = yup.object().shape({
         })
     ).required(),
 });
+
+export const RecruitmentPlanValidationSchema = yup.object().shape({
+    planId: yup.number().min(0).required(),
+    count: yup.number().min(0).required(),
+    target: yup.number().min(0).required(),
+});
