@@ -1,5 +1,4 @@
 ﻿using webapi.Data.Models;
-using webapi.Data.Repositories;
 using webapi.Data.Specifications;
 using webapi.ViewModels.RecruitmentPlans;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +46,20 @@ namespace webapi.Controllers.Api
             }
 
             return model;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<RecruitmentPlan>> GetRecruitmentPlan(int id)
+        {
+            RecruitmentPlan? plan = await _plansRepository.GetByIdAsync(id, new RecruitmentPlansSpecification().IncludeSpecialty());
+
+            if (plan == null)
+            {
+                return NotFound();
+            }
+
+            plan.Speciality.RecruitmentPlans = null;
+            return plan;
         }
 
         [HttpGet("{facultyName}/{year}")]
@@ -120,37 +133,37 @@ namespace webapi.Controllers.Api
             {
                 plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
             }
-            return plans.Select(i => new RecruitmentPlan()
+            plans.ForEach(i => (i.EnrolledStudents ?? new()).ForEach(s => s.Student.Admissions = null));
+            plans.ForEach(i => i.Speciality.Faculty = new());
+            plans.ForEach(i => i.Speciality.RecruitmentPlans = null);
+            plans.ForEach(i => i.Speciality.GroupsOfSpecialties = null);
+
+            return plans;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutRecruitmentPlan(int id, ChangeRecruitmentPlanItemVM model)
+        {
+            if (id != model.PlanId)
             {
-                Id = i.Id,
-                Count = i.Count,
-                EnrolledStudents = (i.EnrolledStudents ?? new()).Select(s => new EnrolledStudent()
+                return BadRequest();
+            }
+            if (ModelState.IsValid)
+            {
+                RecruitmentPlan? plan =  await _plansRepository.GetByIdAsync(id);
+                if (plan == null)
                 {
-                    Student = new()
-                    {
-                        Surname = s.Student.Surname,
-                        Name = s.Student.Name,
-                        Patronymic = s.Student.Patronymic,
-                        Id = s.Student.Id,
-                        GPS = s.Student.GPS
-                    }
-                }).ToList(),
-                FormOfEducation = i.FormOfEducation,
-                PassingScore = i.PassingScore,
-                Speciality = new Speciality()
-                {
-                    Code = i.Speciality.Code,
-                    Description = i.Speciality.Description,
-                    DirectionCode = i.Speciality.DirectionCode,
-                    DirectionName = i.Speciality.DirectionName,
-                    FullName = i.Speciality.FullName,
-                    Id = i.Speciality.Id,
-                    ShortCode = i.Speciality.ShortCode,
-                    ShortName = i.Speciality.ShortName,
-                    SpecializationCode = i.Speciality.SpecializationCode,
-                    SpecializationName = i.Speciality.SpecializationName
+                    return NotFound();
                 }
-            }).ToArray();
+                plan.Count = model.Count;
+                plan.Target = model.Target;
+
+                await _plansRepository.UpdateAsync(plan);
+                _logger.LogInformation("План приёма на - {SpecialityName} - обновлён", plan.Speciality.FullName);
+
+                return Ok();
+            }
+            return BadRequest(ModelState);
         }
 
         [HttpPut("{facultyName}/{year}")]

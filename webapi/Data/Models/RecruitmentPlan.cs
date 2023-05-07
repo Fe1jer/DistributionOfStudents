@@ -11,6 +11,9 @@ namespace webapi.Data.Models
         [Display(Name = "План приема")]
         public int Count { get; set; }
 
+        [Display(Name = "Целевое")]
+        public int Target { get; set; }
+
         [Display(Name = "Проходной балл")]
         public int PassingScore { get; set; }
 

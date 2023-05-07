@@ -64,7 +64,8 @@ namespace webapi.Controllers.Api
                         {
                             PassingScore = i.PassingScore,
                             Speciality = new Speciality() { Code = i.Speciality.Code, DirectionCode = i.Speciality.DirectionCode, FullName = i.Speciality.FullName, DirectionName = i.Speciality.DirectionName },
-                            Count = i.Count
+                            Count = i.Count,
+                            Target = i.Target,
 
                         }).ToList(), distributionService.Competition);
                     groupsOfSpecialities.Add(a);
