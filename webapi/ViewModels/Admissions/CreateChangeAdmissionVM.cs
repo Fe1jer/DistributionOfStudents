@@ -17,6 +17,9 @@ namespace webapi.ViewModels.Admissions
             PassportSeries = admission.PassportSeries;
             PassportNumber = admission.PassportNumber;
             Email = admission.Email;
+            IsTargeted = admission.IsTargeted;
+            IsWithoutEntranceExams = admission.IsWithoutEntranceExams;
+            IsOutOfCompetition = admission.IsOutOfCompetition;
         }
 
         public CreateChangeAdmissionVM(List<StudentScore> scores, List<SpecialityPriorityVM> priorities)
@@ -33,6 +36,9 @@ namespace webapi.ViewModels.Admissions
         public string? PassportID { get; set; }
         public string? PassportSeries { get; set; }
         public int? PassportNumber { get; set; }
+        public bool IsTargeted { get; set; }
+        public bool IsWithoutEntranceExams { get; set; }
+        public bool IsOutOfCompetition { get; set; }
         public string? Email { get; set; }
 
         [Display(Name = "Баллы по ЦТ(ЦЭ)")]

@@ -25,6 +25,15 @@ namespace webapi.Data.Models
         [Display(Name = "Номер")]
         public int? PassportNumber { get; set; }
 
+        [Display(Name = "Целевое")]
+        public bool IsTargeted { get; set; }
+
+        [Display(Name = "Без вступительных экзаменов")]
+        public bool IsWithoutEntranceExams { get; set; }
+
+        [Display(Name = "Вне конкурса")]
+        public bool IsOutOfCompetition { get; set; }
+
         [Display(Name = "Почта")]
         [DataType(DataType.EmailAddress)]
         public string? Email { get; set; }
