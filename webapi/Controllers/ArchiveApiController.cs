@@ -57,17 +57,15 @@ namespace webapi.Controllers.Api
 
                 foreach (GroupOfSpecialties group in groups.OrderBy(i => (i.Specialities ?? new()).First().Code))
                 {
-                    List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(faculty.ShortName).WhereGroup(group));
+                    List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()
+                        .IncludeEnrolledStudents().WhereFaculty(faculty.ShortName).WhereGroup(group));
                     distributionService = new DistributionService(plans, group.Admissions);
-                    var a = new DetailsGroupOfSpecialitiesVM(group.Name, plans
-                        .Select(i => new RecruitmentPlan()
-                        {
-                            PassingScore = i.PassingScore,
-                            Speciality = new Speciality() { Code = i.Speciality.Code, DirectionCode = i.Speciality.DirectionCode, FullName = i.Speciality.FullName, DirectionName = i.Speciality.DirectionName },
-                            Count = i.Count
-
-                        }).ToList(), distributionService.Competition);
-                    groupsOfSpecialities.Add(a);
+                    plans.ForEach(plan => plan.Speciality.Faculty = new());
+                    plans.ForEach(plan => plan.Speciality.GroupsOfSpecialties = null);
+                    plans.ForEach(plan => plan.Speciality.RecruitmentPlans = null);
+                    plans.ForEach(plan => plan.EnrolledStudents = null);
+                    var details = new DetailsGroupOfSpecialitiesVM(group.Name, plans, distributionService.Competition);
+                    groupsOfSpecialities.Add(details);
                 }
                 if (groupsOfSpecialities.Count != 0)
                 {

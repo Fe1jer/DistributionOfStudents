@@ -117,6 +117,9 @@ namespace webapi.Controllers
 
                 admission.SpecialityPriorities = specialityPriorities;
                 admission.PassportID = model.PassportID;
+                admission.IsTargeted = model.IsTargeted;
+                admission.IsWithoutEntranceExams = model.IsWithoutEntranceExams;
+                admission.IsOutOfCompetition = model.IsOutOfCompetition;
                 admission.PassportSeries = model.PassportSeries;
                 admission.PassportNumber = model.PassportNumber;
                 admission.Email = model.Email;
@@ -189,6 +192,9 @@ namespace webapi.Controllers
                     PassportSeries = model.PassportSeries,
                     PassportNumber = model.PassportNumber,
                     Email = model.Email,
+                    IsTargeted = model.IsTargeted,
+                    IsWithoutEntranceExams = model.IsWithoutEntranceExams,
+                    IsOutOfCompetition = model.IsOutOfCompetition,
                 };
                 await _admissionsRepository.AddAsync(admission);
                 _logger.LogInformation("Заявка студента - {Surname} {Name} {Patronymic} - добавлена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);

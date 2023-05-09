@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using webapi.Data.Interfaces.Services;
 using webapi.Data.Models;
 
@@ -29,7 +30,16 @@ namespace webapi.Data.Services
 
         private List<Admission> GetCloneOfAdmissions()
         {
-            return _admissions.Select(i => new Admission { SpecialityPriorities = i.SpecialityPriorities.OrderBy(p => p.Priority).ToList(), StudentScores = i.StudentScores, Student = i.Student, Email = i.Email }).ToList();
+            return _admissions.Select(i => new Admission
+            {
+                SpecialityPriorities = i.SpecialityPriorities.OrderBy(p => p.Priority).ToList(),
+                StudentScores = i.StudentScores,
+                Student = i.Student,
+                Email = i.Email,
+                IsOutOfCompetition = i.IsOutOfCompetition,
+                IsTargeted = i.IsTargeted,
+                IsWithoutEntranceExams = i.IsWithoutEntranceExams
+            }).ToList();
         }
 
         private void DistridutionControversialPlans()
@@ -92,7 +102,12 @@ namespace webapi.Data.Services
             {
                 if (keyValuePair.Key.EnrolledStudents == null || keyValuePair.Key.Count == 0)
                 {
-                    keyValuePair.Key.PassingScore = keyValuePair.Key.Count > keyValuePair.Value.Count ? 0 : keyValuePair.Value.Min(a => a.Score);
+                    keyValuePair.Key.TargetPassingScore = keyValuePair.Key.Target == 0 || keyValuePair.Key.Target > keyValuePair.Value.Where(s => s.IsTargeted).Count() ? 0 :
+                        keyValuePair.Value.Where(s => s.IsTargeted).OrderByDescending(i => i.Score).Take(keyValuePair.Key.Target).Min(a => a.Score);
+
+                    keyValuePair.Key.PassingScore = keyValuePair.Key.Count > keyValuePair.Value.Count ? 0 :
+                        keyValuePair.Value.Where(s => !(s.IsTargeted && s.Score >= keyValuePair.Key.TargetPassingScore)
+                        && !s.IsWithoutEntranceExams && !s.IsOutOfCompetition).Min(a => a.Score);
                 }
             }
 
@@ -120,9 +135,24 @@ namespace webapi.Data.Services
         {
             if (_distributedStudents[plan].Count > plan.Count)
             {
-                int passingScore = _distributedStudents[plan].OrderByDescending(i => i.Score).ToList()[plan.Count - 1].Score;
-                freeAdmissions.AddRange(_distributedStudents[plan].Where(i => i.Score < passingScore));
-                _distributedStudents[plan].RemoveAll(i => i.Score < passingScore);
+                int targetPassingScore = 0, generalPassingScore = 0;
+                List<Admission> targetAdmissions = new(), generalAdmissions = new();
+
+                if (plan.Target != 0)
+                {
+                    targetAdmissions = _distributedStudents[plan].Where(s => s.IsTargeted).OrderByDescending(i => i.Score).Take(plan.Target).ToList();
+                    targetPassingScore = targetAdmissions.Count == 0 ? 0 : targetAdmissions.Min(i => i.Score);
+                    targetAdmissions = _distributedStudents[plan].Where(s => s.IsTargeted && s.Score >= targetPassingScore).ToList();
+                }
+                generalAdmissions = _distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
+                    .OrderByDescending(i => i.IsWithoutEntranceExams).ThenByDescending(i => i.IsOutOfCompetition).ThenByDescending(i => i.Score)
+                    .Take(plan.Count - plan.Target).ToList();
+                generalPassingScore = generalAdmissions.Count == 0 ? 0 : generalAdmissions.Last().Score;
+                generalAdmissions = _distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
+                    .Where(s => s.IsWithoutEntranceExams || s.IsOutOfCompetition || s.Score >= generalPassingScore).ToList();
+
+                freeAdmissions.AddRange(_distributedStudents[plan].Except(targetAdmissions).Except(generalAdmissions));
+                _distributedStudents[plan].RemoveAll(i => freeAdmissions.Contains(i));
             }
         }
 

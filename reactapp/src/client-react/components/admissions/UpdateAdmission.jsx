@@ -94,6 +94,36 @@ export default function UpdateAdmission({ values, errors, onChangeModel }) {
                     </Field>
                 </Col>
             </Row>
+            <Row>
+                <h5 className="text-center">Другое</h5>
+                <Col sm={4}>
+                    <Form.Check className="mb-1"
+                        name={"isTargeted"}
+                        type="checkbox"
+                        label="На условиях целевой подготовки"
+                        checked={values.isTargeted}
+                        onChange={onChangeModel}
+                        isInvalid={errors.isTargeted} />
+                </Col>
+                <Col sm={4}>
+                    <Form.Check className="mb-1"
+                        name={"isOutOfCompetition"}
+                        type="checkbox"
+                        label="Вне конкурса"
+                        checked={values.isOutOfCompetition}
+                        onChange={onChangeModel}
+                        isInvalid={errors.isOutOfCompetition} />
+                </Col>
+                <Col sm={4}>
+                    <Form.Check className="mb-1"
+                        name={"isWithoutEntranceExams"}
+                        type="checkbox"
+                        label="Без вступительных испытаний"
+                        checked={values.isWithoutEntranceExams}
+                        onChange={onChangeModel}
+                        isInvalid={errors.isWithoutEntranceExams} />
+                </Col>
+            </Row>
         </React.Suspense>
     );
 }

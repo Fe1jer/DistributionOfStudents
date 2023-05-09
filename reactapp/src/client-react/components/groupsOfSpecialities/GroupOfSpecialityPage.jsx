@@ -172,7 +172,7 @@ export default function GroupOfSpecialityPage() {
                         <b>Сроки приёма документов: {new Date(group.startDate).toLocaleDateString("ru-ru")} - {new Date(group.enrollmentDate).toLocaleDateString("ru-ru")}</b>
                         {_showIsCompleted()}
                     </p>
-                    <DistributedRecruitmentPlansList plans={plans} />
+                    <DistributedRecruitmentPlansList plans={plans} reloadPlans={loadPlans} />
                     <hr />
                     {_showContent()}
                 </div>
