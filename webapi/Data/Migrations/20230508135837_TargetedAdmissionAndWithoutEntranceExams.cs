@@ -15,6 +15,13 @@ namespace webapi.Data.Migrations
                 nullable: false,
                 defaultValue: 0);
 
+            migrationBuilder.AddColumn<int>(
+                name: "TargetPassingScore",
+                table: "RecruitmentPlans",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
             migrationBuilder.AddColumn<bool>(
                 name: "IsOutOfCompetition",
                 table: "Admissions",
@@ -41,6 +48,10 @@ namespace webapi.Data.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "Target",
+                table: "RecruitmentPlans");
+
+            migrationBuilder.DropColumn(
+                name: "TargetPassingScore",
                 table: "RecruitmentPlans");
 
             migrationBuilder.DropColumn(

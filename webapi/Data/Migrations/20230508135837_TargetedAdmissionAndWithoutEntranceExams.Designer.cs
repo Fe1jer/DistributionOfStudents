@@ -12,7 +12,7 @@ using webapi.Data;
 namespace webapi.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230507113301_TargetedAdmissionAndWithoutEntranceExams")]
+    [Migration("20230508135837_TargetedAdmissionAndWithoutEntranceExams")]
     partial class TargetedAdmissionAndWithoutEntranceExams
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -386,6 +386,9 @@ namespace webapi.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Target")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetPassingScore")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

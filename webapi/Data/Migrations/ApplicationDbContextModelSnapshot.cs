@@ -386,6 +386,9 @@ namespace webapi.Data.Migrations
                     b.Property<int>("Target")
                         .HasColumnType("int");
 
+                    b.Property<int>("TargetPassingScore")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FormOfEducationId");
