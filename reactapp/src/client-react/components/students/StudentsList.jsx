@@ -1,4 +1,4 @@
-﻿import Student from './Student.jsx';
+import Student from './Student.jsx';
 
 import Table from 'react-bootstrap/Table';
 

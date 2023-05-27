@@ -22,7 +22,7 @@ export default function Admissions({ groupId, plans, onLoadGroup }) {
     const [currentPage, setCurrentPage] = useState(0);
     const [pageLimit, setPageLimit] = useState(20);
     const [countSearchAdmissions, setCountSearchAdmissions] = useState(0);
-    const [pageNeighbours, setPageNeighbours] = useState(4);
+    const [pageNeighbours] = useState(4);
     const [loading, setLoading] = useState(true);
     const [deleteAdmissionId, setDeleteAdmissionId] = useState(null);
     const [editAdmissionId, setEditAdmissionId] = useState(null);

@@ -7,7 +7,7 @@ import React from 'react';
 
 export default function CreateDistributionPLanLst({ planIndex, plan, distributedPlan, errors, handleChange }) {
     const isControversial = (enrolledStudent) => {
-        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) == plan.passingScore;
+        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) === plan.passingScore;
     }
     const generalStudentScore = (enrolledStudent) => {
         var generalScore = 0;

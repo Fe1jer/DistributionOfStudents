@@ -55,7 +55,6 @@ namespace webapi.Data.Services
             {
                 if (plan.EnrolledStudents != null && plan.EnrolledStudents.Count != 0 && plan.Count <= plan.EnrolledStudents.Count)
                 {
-                    plan.PassingScore = freeAdmissions.Where(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id)).Min(i => i.Score);
                     freeAdmissions.RemoveAll(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id));
                     freeAdmissions.ForEach(admission => admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan.Id == plan.Id));
                     plans.Remove(plan);
@@ -146,7 +145,7 @@ namespace webapi.Data.Services
                 }
                 generalAdmissions = _distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
                     .OrderByDescending(i => i.IsWithoutEntranceExams).ThenByDescending(i => i.IsOutOfCompetition).ThenByDescending(i => i.Score)
-                    .Take(plan.Count - plan.Target).ToList();
+                    .Take(plan.Count - targetAdmissions.Count).ToList();
                 generalPassingScore = generalAdmissions.Count == 0 ? 0 : generalAdmissions.Last().Score;
                 generalAdmissions = _distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
                     .Where(s => s.IsWithoutEntranceExams || s.IsOutOfCompetition || s.Score >= generalPassingScore).ToList();

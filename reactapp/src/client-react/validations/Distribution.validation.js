@@ -19,7 +19,7 @@ export const DistributionValidationSchema = yup.object({
                     },
                 } = validationContext;
                 if (planCount < value.length
-                    && value.filter(i => i.isDistributed).length != planCount) {
+                    && value.filter(i => i.isDistributed).length !== planCount) {
                     return createError({ message: 'Выберите ' + planCount + ' абитуриентов' });
                 }
                 return true;

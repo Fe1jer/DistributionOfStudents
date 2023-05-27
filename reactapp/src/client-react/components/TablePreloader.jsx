@@ -1,4 +1,4 @@
-﻿import Placeholder from 'react-bootstrap/Placeholder';
+import Placeholder from 'react-bootstrap/Placeholder';
 
 export default function TablePreloader() {
     var numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]

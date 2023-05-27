@@ -1,4 +1,4 @@
-﻿import UpdateSpecialityPlansList from "./UpdateSpecialityPlansList.jsx";
+import UpdateSpecialityPlansList from "./UpdateSpecialityPlansList.jsx";
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
 
 import FacultiesService from "../../services/Faculties.service.js";

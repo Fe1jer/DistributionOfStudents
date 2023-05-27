@@ -1,4 +1,4 @@
-﻿export default function SpecialityPlan({ specialityPlan }) {
+export default function SpecialityPlan({ specialityPlan }) {
     return <tr className="align-middle">
         <td>{specialityPlan.specialityName}</td>
         <td>{specialityPlan.dailyFullBudget}</td>

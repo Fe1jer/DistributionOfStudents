@@ -1,4 +1,4 @@
-﻿import useDocumentTitle from "../useDocumentTitle";
+import useDocumentTitle from "../useDocumentTitle";
 
 export default function HomePage() {
     useDocumentTitle("Главная");

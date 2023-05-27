@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 export default function Student({ student }) {
     return <tr key={student.id} className="align-middle">

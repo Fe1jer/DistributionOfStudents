@@ -7,7 +7,7 @@ export default function AdmissionSpetialitiesPriority({ admission, specialityPri
 
     const _showPriority = () => {
         if (plans[numOfPlan].enrolledStudents.some(s => s.student.id === admission.student.id)) {
-            if (plans[numOfPlan].count < plans[numOfPlan].enrolledStudents.length && admission.score == plans[numOfPlan].passingScore) {
+            if (plans[numOfPlan].count < plans[numOfPlan].enrolledStudents.length && admission.score === plans[numOfPlan].passingScore) {
                 return <label className="bg-warning mx-1 px-1">
                     {numOfPlan + 1}
                 </label>

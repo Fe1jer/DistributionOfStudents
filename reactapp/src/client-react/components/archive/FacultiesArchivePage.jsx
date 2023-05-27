@@ -1,4 +1,4 @@
-﻿import FacultyArchive from './FacultyArchive.jsx';
+import FacultyArchive from './FacultyArchive.jsx';
 
 import TablePreloader from "../TablePreloader.jsx";
 

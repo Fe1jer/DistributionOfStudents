@@ -138,13 +138,13 @@ namespace webapi.Controllers
                     return BadRequest(ModelState);
                 }
                 plans = await GetPlansFromModelAsync(models, facultyName, group);
+                group.IsCompleted = true;
+                await _groupsRepository.UpdateAsync(group);
                 IDistributionService distributionService = new DistributionService(plans, group.Admissions);
                 foreach (var plan in distributionService.GetPlansWithPassingScores())
                 {
                     await _plansRepository.UpdateAsync(plan);
                 }
-                group.IsCompleted = true;
-                await _groupsRepository.UpdateAsync(group);
                 if (notify) distributionService.NotifyEnrolledStudents();
                 _logger.LogInformation("Студенты в группе {GroupName} на факультете {FacultyShortName} были зачислены", group.Name, facultyName);
 

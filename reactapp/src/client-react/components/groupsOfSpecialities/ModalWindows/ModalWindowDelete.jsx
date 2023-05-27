@@ -1,4 +1,4 @@
-﻿import GroupsOfSpecialitiesService from '../../../services/GroupsOfSpecialities.service.js';
+import GroupsOfSpecialitiesService from '../../../services/GroupsOfSpecialities.service.js';
 
 import ModalWindowPreloader from "../../ModalWindowPreloader";
 

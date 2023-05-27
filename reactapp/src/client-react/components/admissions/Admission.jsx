@@ -3,7 +3,6 @@ import AdmissionPriority from "./AdmissionPriority.jsx";
 import Button from 'react-bootstrap/Button';
 
 import * as React from "react";
-import { Link } from "react-router-dom";
 
 export default function Admission({ admission, plans, onClickDelete, onClickEdit, onClickDetails }) {
     return <tr className="align-middle">

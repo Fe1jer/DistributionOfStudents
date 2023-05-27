@@ -1,4 +1,4 @@
-﻿import { SubjectValidationSchema } from '../../../validations/Subject.validation';
+import { SubjectValidationSchema } from '../../../validations/Subject.validation';
 import SubjectsService from "../../../services/Subjects.service.js";
 import UpdateSubject from "../UpdateSubject.jsx";
 

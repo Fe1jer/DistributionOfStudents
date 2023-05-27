@@ -1,4 +1,4 @@
-﻿import StudentsList from "./StudentsList";
+import StudentsList from "./StudentsList";
 import Search from "../Searh";
 import Pagination from "../Pagination";
 import TablePreloader from "../TablePreloader";

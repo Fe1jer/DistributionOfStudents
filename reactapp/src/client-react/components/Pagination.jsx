@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const LEFT_PAGE = 'LEFT';
 const RIGHT_PAGE = 'RIGHT';

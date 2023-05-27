@@ -1,4 +1,4 @@
-﻿export default function Subject({ subject, num, onClickEdit, onClickDelete }) {
+export default function Subject({ subject, num, onClickEdit, onClickDelete }) {
     return <tr key={subject.id} className="align-middle">
         <td>{num}</td>
         <td>{subject.name}</td>

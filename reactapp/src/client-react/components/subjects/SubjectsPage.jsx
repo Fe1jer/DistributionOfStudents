@@ -1,4 +1,4 @@
-﻿import SubjectsList from "./SubjectsList.jsx";
+import SubjectsList from "./SubjectsList.jsx";
 import TablePreloader from "../TablePreloader.jsx";
 
 import SubjectsService from "../../services/Subjects.service.js";

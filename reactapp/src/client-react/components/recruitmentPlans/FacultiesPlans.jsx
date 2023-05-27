@@ -1,4 +1,4 @@
-﻿import FacultyPlans from './FacultyPlans.jsx';
+import FacultyPlans from './FacultyPlans.jsx';
 import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";
 
 import TablePreloader from "../TablePreloader.jsx";

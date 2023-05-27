@@ -1,4 +1,4 @@
-﻿import ModalWindowPreloader from "../../ModalWindowPreloader";
+import ModalWindowPreloader from "../../ModalWindowPreloader";
 
 import RecruitmentPlansServise from "../../../services/RecruitmentPlans.service";
 
@@ -43,7 +43,6 @@ export default function EditModalWindowItem({ show, handleClose, planId, onLoadP
         return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
-        console.log(plan);
         return (
             <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false}>
                 <Formik

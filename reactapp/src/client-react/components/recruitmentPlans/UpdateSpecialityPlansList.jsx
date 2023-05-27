@@ -1,4 +1,4 @@
-﻿import UpdateSpecialityPlan from "./UpdateSpecialityPlan.jsx";
+import UpdateSpecialityPlan from "./UpdateSpecialityPlan.jsx";
 
 import Table from 'react-bootstrap/Table';
 import React from 'react';

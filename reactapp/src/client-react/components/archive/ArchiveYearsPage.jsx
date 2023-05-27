@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom'
 
 import ArchiveService from "../../services/Archive.service.js";
@@ -26,7 +26,7 @@ export default function ArchiveYearsPage() {
             <hr className="mt-3 mx-0" />
             <div className="ps-lg-4 pe-lg-4 position-relative">
                 {numbers.map((number) =>
-                    <a key={"ArchiveYear" + number} className="nav-link text-success p-0 mb-3 placeholder-glow"><span className="placeholder w-25"></span></a>
+                    <Link to="#" key={"ArchiveYear" + number} className="nav-link text-success p-0 mb-3 placeholder-glow"><span className="placeholder w-25"></span></Link>
                 )}
             </div>
         </React.Suspense>

@@ -1,4 +1,4 @@
-﻿import ModalWindowPreloader from "../../ModalWindowPreloader";
+import ModalWindowPreloader from "../../ModalWindowPreloader";
 
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';

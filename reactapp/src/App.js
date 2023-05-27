@@ -33,7 +33,7 @@ export default class App extends Component {
 
     async populateWeatherData() {
         const response = await fetch('/api/FacultiesApi');
-        const data = await response.json();
+        await response.json();
         this.setState({ loading: false });
     }
 }

@@ -1,4 +1,4 @@
-﻿import HomePage from "./home/HomePage.jsx"
+import HomePage from "./home/HomePage.jsx"
 
 import CreateDistributionPage from "./distribution/CreateDistributionPage.jsx"
 

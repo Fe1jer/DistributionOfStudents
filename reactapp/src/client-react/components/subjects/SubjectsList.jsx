@@ -1,4 +1,4 @@
-﻿import Subject from './Subject.jsx';
+import Subject from './Subject.jsx';
 
 import ModalWindowCreate from './ModalWindows/ModalWindowCreate.jsx';
 import ModalWindowEdit from './ModalWindows/ModalWindowEdit.jsx';

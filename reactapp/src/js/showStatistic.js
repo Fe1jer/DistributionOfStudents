@@ -1,4 +1,4 @@
-﻿export default function getData(statistic) {
+export default function getData(statistic) {
     return {
         labels: statistic.data.labels,
         datasets: statistic.data.datasets.map((plan, index) => ({

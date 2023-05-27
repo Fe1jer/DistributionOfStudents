@@ -1,4 +1,4 @@
-﻿import SubjectsService from "../../../services/Subjects.service.js";
+import SubjectsService from "../../../services/Subjects.service.js";
 
 import ModalWindowPreloader from "../../ModalWindowPreloader";
 

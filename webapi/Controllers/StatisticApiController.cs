@@ -120,13 +120,14 @@ namespace webapi.Controllers.Api
 
         private async Task UpdatePlansStatisticAsync(string facultyName, GroupOfSpecialties group)
         {
-            List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            DistributionService distributionService = new(plans, group.Admissions);
-            plans = distributionService.GetPlansWithEnrolledStudents();
-            foreach (var plan in plans)
+            List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group).WithoutTracking());
+            DistributionService distributionService = new(plans.ToList(), group.Admissions);
+            List<RecruitmentPlan> distributedPlans = distributionService.GetPlansWithPassingScores();
+            foreach (var plan in distributedPlans)
             {
+                var a = await _plansRepository.GetByIdAsync(plan.Id, new RecruitmentPlansSpecification(i => i.EnrolledStudents == null || i.EnrolledStudents.Count == 0).WithoutTracking()) ?? new();
                 RecruitmentPlanStatistic planStatistic = await _plansStatisticRepository.GetByPlanAndDateAsync(plan.Id, DateTime.Today)
-                    ?? new() { Date = DateTime.Today, RecruitmentPlan = await _plansRepository.GetByIdAsync(plan.Id) ?? new() };
+                    ?? new() { Date = DateTime.Today, RecruitmentPlan = a };
                 planStatistic.Score = plan.PassingScore;
                 Task task = planStatistic.Id != 0 ? _plansStatisticRepository.UpdateAsync(planStatistic) : _plansStatisticRepository.AddAsync(planStatistic);
                 await task;

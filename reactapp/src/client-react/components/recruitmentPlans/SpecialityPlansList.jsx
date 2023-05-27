@@ -1,4 +1,4 @@
-﻿import SpecialityPlan from './SpecialityPlan.jsx';
+import SpecialityPlan from './SpecialityPlan.jsx';
 
 import Table from 'react-bootstrap/Table';
 

@@ -1,4 +1,4 @@
-﻿import SpecialitiesArchiveList from './SpecialitiesArchiveList.jsx';
+import SpecialitiesArchiveList from './SpecialitiesArchiveList.jsx';
 
 import Table from 'react-bootstrap/Table';
 

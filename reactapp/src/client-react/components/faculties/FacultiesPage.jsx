@@ -1,4 +1,4 @@
-﻿import FacultyCard from './FacultyCard.jsx';
+import FacultyCard from './FacultyCard.jsx';
 import FacultyCardPreloader from "./FacultyCardPreloader.jsx";
 
 import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";

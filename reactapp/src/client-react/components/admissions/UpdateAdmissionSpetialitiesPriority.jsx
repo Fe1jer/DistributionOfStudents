@@ -12,7 +12,7 @@ export default function UpdateAdmissionSpetialitiesPriority({ form, specialities
 
     const onChangeSpecialitiesPriority = (nameSpeciality, priority) => {
         var updateSpecialitiesPriorityTemp = updatedSpecialitiesPriority;
-        var item = updateSpecialitiesPriorityTemp.find(element => element.nameSpeciality == nameSpeciality);
+        var item = updateSpecialitiesPriorityTemp.find(element => element.nameSpeciality === nameSpeciality);
         var index = updateSpecialitiesPriorityTemp.indexOf(item);
         updateSpecialitiesPriorityTemp[index].priority = priority;
         setUpdatedSpecialitiesPriority(updateSpecialitiesPriorityTemp);

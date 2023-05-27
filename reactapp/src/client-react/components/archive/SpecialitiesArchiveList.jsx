@@ -1,4 +1,4 @@
-﻿import SpecialityArchive from './SpecialityArchive.jsx';
+import SpecialityArchive from './SpecialityArchive.jsx';
 
 export default function SpecialitiesArchiveList({ groupArchive }) {
     const _getCountOfSpecialities = () => {

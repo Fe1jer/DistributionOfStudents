@@ -1,4 +1,4 @@
-﻿import AdmissionsService from "../../../services/Admissions.service.js";
+import AdmissionsService from "../../../services/Admissions.service.js";
 import StatisticService from "../../../services/Statistic.service.js";
 
 import ModalWindowPreloader from "../../ModalWindowPreloader";

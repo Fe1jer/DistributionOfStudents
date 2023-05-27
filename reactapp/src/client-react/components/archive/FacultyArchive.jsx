@@ -1,4 +1,4 @@
-﻿import GroupOfSpecialitiesArchive from './GroupOfSpecialitiesArchive.jsx';
+import GroupOfSpecialitiesArchive from './GroupOfSpecialitiesArchive.jsx';
 
 import React from 'react';
 

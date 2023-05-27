@@ -1,10 +1,9 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function SpecialityArchive({ specialityArchive, number, countOfSpecialities, competition }) {
     const [isHaveTarget] = useState(!!specialityArchive.target);
-    console.log(specialityArchive);
     var competitionTd = null;
-    if (number == 0) {
+    if (number === 0) {
         competitionTd =
             (<td className="text-center" rowSpan={countOfSpecialities} >{competition}</td>);
     }

@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 
 export default function GroupsOfSpecialitiesList({ facultyShortName, groups, onClickDelete, onClickEdit, onClickCreate }) {
     var buttons = null;
-    if (groups.every(group => group.isCompleted == false)) {
+    if (groups.every(group => group.isCompleted === false)) {
         buttons = <th width="100" className="text-center align-middle">
             <Button variant="empty" className="p-0 text-success" onClick={onClickCreate}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle-fill suc" viewBox="0 0 16 16">
@@ -27,7 +27,7 @@ export default function GroupsOfSpecialitiesList({ facultyShortName, groups, onC
             </thead>
             <tbody>{
                 groups.map((item, index) =>
-                    <GroupOfSpecialities key={item.name + index} group={item} onClickDelete={onClickDelete} facultyShortName={facultyShortName} onClickDelete={onClickDelete} onClickEdit={onClickEdit} />
+                    <GroupOfSpecialities key={item.name + index} group={item} onClickDelete={onClickDelete} facultyShortName={facultyShortName} onClickEdit={onClickEdit} />
                 )}
             </tbody>
         </Table>

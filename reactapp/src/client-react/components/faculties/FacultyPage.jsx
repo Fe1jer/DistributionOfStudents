@@ -1,4 +1,4 @@
-﻿import SpecialitiesList from '../specialities/SpecialitiesList.jsx';
+import SpecialitiesList from '../specialities/SpecialitiesList.jsx';
 import SpecialityPlansList from '../recruitmentPlans/SpecialityPlansList.jsx';
 import GroupsOfSpecialities from '../groupsOfSpecialities/GroupsOfSpecialities.jsx';
 

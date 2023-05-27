@@ -1,4 +1,4 @@
-﻿import SidebarMenu from "./SidebarMenu";
+import SidebarMenu from "./SidebarMenu";
 import Search from "./Searh";
 import Form from 'react-bootstrap/Form';
 

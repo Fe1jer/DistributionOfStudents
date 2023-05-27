@@ -1,4 +1,4 @@
-﻿import SpecialityPlansList from './SpecialityPlansList.jsx';
+import SpecialityPlansList from './SpecialityPlansList.jsx';
 
 import { Link } from 'react-router-dom'
 import React from 'react';

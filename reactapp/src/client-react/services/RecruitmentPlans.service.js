@@ -17,7 +17,7 @@ const httpGet = () => {
         });
 };
 const httpGetById = (id) => {
-    return fetch(`${config.api}/${id}`, {
+    return fetch(`${config.api}${id}`, {
         ...config.options,
     })
         .then((response) => handleResponse(response))
