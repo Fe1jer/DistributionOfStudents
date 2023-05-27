@@ -3,14 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributionOfStudents", "DistributionOfStudents\DistributionOfStudents.csproj", "{1EC0B3BC-960C-4E0C-BF64-F23A2BC63CB6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{18C1A7C7-7AF5-41B6-B67C-80E73E3B8130}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "webapi", "webapi\webapi.csproj", "{4FC03E7C-806E-4C49-ABBD-7AE49A3C4A97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "webapi", "webapi\webapi.csproj", "{4FC03E7C-806E-4C49-ABBD-7AE49A3C4A97}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "reactapp", "reactapp\reactapp.esproj", "{881BD22D-90A8-4C38-A073-381407D9033D}"
 EndProject
@@ -20,10 +18,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1EC0B3BC-960C-4E0C-BF64-F23A2BC63CB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1EC0B3BC-960C-4E0C-BF64-F23A2BC63CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1EC0B3BC-960C-4E0C-BF64-F23A2BC63CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1EC0B3BC-960C-4E0C-BF64-F23A2BC63CB6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4FC03E7C-806E-4C49-ABBD-7AE49A3C4A97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4FC03E7C-806E-4C49-ABBD-7AE49A3C4A97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FC03E7C-806E-4C49-ABBD-7AE49A3C4A97}.Release|Any CPU.ActiveCfg = Release|Any CPU
