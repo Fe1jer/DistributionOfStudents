@@ -8,17 +8,13 @@ namespace webapi.Data.DBInitialization
 {
     public class ApplicationDbContextInit
     {
-        public async static Task InitDbContextAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
+        public async static Task InitDbContextAsync(ApplicationDbContext context)
         {
             /*context.Database.EnsureDeleted(); //Удалить базу данных
             context.Database.EnsureCreated(); //Создать базу данных, если она не существует на компьютере*/
-            if (!await roleManager.Roles.AnyAsync())
+            if (!await context.Users.AnyAsync())
             {
-                await CreateRoles(roleManager);
-            }
-            if (!await userManager.Users.AnyAsync())
-            {
-                await CreateUsers(userManager);
+                CreateUsers(context);
             }
             if (!await context.Subjects.AnyAsync())
             {
@@ -109,37 +105,33 @@ namespace webapi.Data.DBInitialization
             context.SaveChanges();
         }
 
-        private async static Task CreateRoles(RoleManager<IdentityRole> roleManager)
-        {
-            await roleManager.CreateAsync(new IdentityRole() { Name = "admission committee" });
-            await roleManager.CreateAsync(new IdentityRole() { Name = "admin" });
-        }
-
-        private async static Task CreateUsers(UserManager<User> userManager)
+        private static void CreateUsers(ApplicationDbContext context)
         {
             User admin = new()
             {
-                Email = "admin@gmail.com",
                 UserName = "admin@gmail.com",
                 Name = "Admin",
                 Surname = "Admin",
                 Patronymic = "Admin",
-                Img = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScY-9qDVs2yQiXkeEHGQfvxEPLWHh-o53ZuQ&usqp=CAU"
+                Role = "admin",
+                PasswordHash = "AKVHBKnvwoBBWBmIGLB66gOt9NlLgrXRd4GiJUSTUlGHcCRmIb9mA5tIQfTMiyyDzg==",
+                Img = "/img/Users/bntu.jpg"
             };
-            await userManager.CreateAsync(admin, "adminPass_1");
-            await userManager.AddToRoleAsync(admin, "admin");
+            context.Users.Add(admin);
+            context.SaveChanges();
 
-            User admissioncommittee = new()
+            User commission = new()
             {
-                Email = "admissioncommittee@gmail.com",
-                UserName = "admissioncommittee@gmail.com",
-                Name = "admissioncommittee",
-                Surname = "admissioncommittee",
-                Patronymic = "admissioncommittee",
-                Img = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScY-9qDVs2yQiXkeEHGQfvxEPLWHh-o53ZuQ&usqp=CAU"
+                UserName = "commission@gmail.com",
+                Name = "commission",
+                Surname = "commission",
+                Patronymic = "commission",
+                Role = "commission",
+                PasswordHash = "ABuwUovX/rNKRmOdBuSHjWgZ/ZqAy29/aQAX4RjhyWRSv3lrTO0IKSEtkmcdMRY1nA==",
+                Img = "/img/Users/bntu.jpg"
             };
-            await userManager.CreateAsync(admissioncommittee, "admissionCommittee_1");
-            await userManager.AddToRoleAsync(admissioncommittee, "admission committee");
+            context.Users.Add(commission);
+            context.SaveChanges();
         }
     }
 }

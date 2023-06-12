@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using webapi.Data.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace webapi.Controllers.Api
 {
@@ -90,11 +92,11 @@ namespace webapi.Controllers.Api
             {
                 return NotFound();
             }
-
             return speciality;
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PutSpeciality(int id, Speciality speciality)
         {
             if (id != speciality.Id)
@@ -133,6 +135,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPost("{facultyName}")]
+        [Authorize(Roles = "commission")]
         public async Task<ActionResult<Speciality>> PostSpeciality(string facultyName, Speciality speciality)
         {
             Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName);
@@ -154,6 +157,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteSpeciality(int id)
         {
             Speciality? specialty = await _specialtiesRepository.GetByIdAsync(id);

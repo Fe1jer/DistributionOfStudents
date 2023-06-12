@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Services;
 using webapi.Data.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace webapi.Controllers.Api
 {
@@ -137,11 +139,11 @@ namespace webapi.Controllers.Api
             plans.ForEach(i => i.Speciality.Faculty = new());
             plans.ForEach(i => i.Speciality.RecruitmentPlans = null);
             plans.ForEach(i => i.Speciality.GroupsOfSpecialties = null);
-
             return plans;
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PutRecruitmentPlan(int id, ChangeRecruitmentPlanItemVM model)
         {
             if (id != model.PlanId)
@@ -167,6 +169,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPut("{facultyName}/{year}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<PlansForSpecialityVM> plansForSpecialities)
         {
             if (ModelState.IsValid)
@@ -192,6 +195,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPost("{facultyName}/{year}")]
+        [Authorize(Roles = "commission")]
         public async Task<ActionResult<RecruitmentPlan>> PostFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<PlansForSpecialityVM> plansForSpecialities)
         {
             if (ModelState.IsValid)
@@ -209,6 +213,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpDelete("{facultyName}/{year}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteRecruitmentPlan(string facultyName, int year)
         {
             IEnumerable<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));

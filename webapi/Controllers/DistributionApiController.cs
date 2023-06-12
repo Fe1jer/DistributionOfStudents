@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Interfaces.Services;
 using webapi.Data.Models;
@@ -43,6 +45,7 @@ namespace webapi.Controllers
         }
 
         [HttpGet("{facultyName}/{groupId}")]
+        [Authorize(Roles = "commission")]
         public async Task<ActionResult<object>> GetDistribution(string facultyName, int groupId)
         {
             List<RecruitmentPlan> plans;
@@ -78,6 +81,7 @@ namespace webapi.Controllers
         }
 
         [HttpPost("{facultyName}/{groupId}/CreateDistribution")]
+        [Authorize(Roles = "commission")]
         public async Task<ActionResult<object>> CreateDistribution(string facultyName, int groupId, List<PlanForDistributionVM> models)
         {
             if (ModelState.IsValid)
@@ -122,6 +126,7 @@ namespace webapi.Controllers
         }
 
         [HttpPost("{facultyName}/{groupId}/ConfirmDistribution")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, bool notify, List<PlanForDistributionVM> models)
         {
             try
@@ -157,6 +162,7 @@ namespace webapi.Controllers
         }
 
         [HttpDelete("{facultyName}/{groupId}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteDistribution(string facultyName, int groupId)
         {
             GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyName).IncludeAdmissions().IncludeSpecialties());

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Models;
 using webapi.Data.Specifications;
@@ -71,6 +73,7 @@ namespace webapi.Controllers.Api
         // PUT: api/ApiSubjects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PutSubject(int id, Subject subject)
         {
             if (id != subject.Id)
@@ -103,6 +106,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPost]
+        [Authorize(Roles = "commission")]
         public async Task<ActionResult<Subject>> PostSubject([FromBody] Subject subject)
         {
             if (await _subjectsRepository.GetAllAsync() == null)
@@ -120,6 +124,7 @@ namespace webapi.Controllers.Api
 
         // DELETE: api/ApiSubjects/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteSubject(int id)
         {
             if (await _subjectsRepository.GetAllAsync() == null)

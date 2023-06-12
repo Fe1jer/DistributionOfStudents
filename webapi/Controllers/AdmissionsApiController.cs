@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Models;
@@ -90,6 +91,7 @@ namespace webapi.Controllers
         // PUT: api/AdmissionsApi/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PutAdmission(int id, CreateChangeAdmissionVM model)
         {
             if (ModelState.IsValid)
@@ -155,6 +157,7 @@ namespace webapi.Controllers
         // POST: api/AdmissionsApi
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{groupId}")]
+        [Authorize(Roles = "commission")]
         public async Task<ActionResult<Admission>> PostAdmission(int groupId, CreateChangeAdmissionVM model)
         {
             if (ModelState.IsValid)
@@ -207,6 +210,7 @@ namespace webapi.Controllers
 
         // DELETE: api/AdmissionsApi/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteAdmission(int id)
         {
             Admission? admission = await _admissionsRepository.GetByIdAsync(id, new AdmissionsSpecification());

@@ -5,6 +5,8 @@ using webapi.ViewModels.Faculties;
 using Microsoft.AspNetCore.Mvc;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace webapi.Controllers.Api
 {
@@ -38,6 +40,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPut("{shortName}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PutFaculty(string shortName, [FromForm] CreateChangeFacultyVM model)
         {
             try
@@ -98,6 +101,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpPost]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> PostFaculty([FromForm] CreateChangeFacultyVM model)
         {
             try
@@ -144,6 +148,7 @@ namespace webapi.Controllers.Api
         }
 
         [HttpDelete("{shortName}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteFaculty(string shortName)
         {
             Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(shortName);

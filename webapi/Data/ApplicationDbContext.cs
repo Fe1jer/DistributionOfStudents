@@ -1,11 +1,11 @@
 ﻿using webapi.Data.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace webapi.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
+    public class ApplicationDbContext : DbContext
     {
+        public DbSet<User> Users { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Speciality> Specialities { get; set; }
         public DbSet<Student> Students { get; set; }
@@ -22,6 +22,7 @@ namespace webapi.Data
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
+            Users = Set<User>();
             Faculties = Set<Faculty>();
             Specialities = Set<Speciality>();
             Students = Set<Student>();

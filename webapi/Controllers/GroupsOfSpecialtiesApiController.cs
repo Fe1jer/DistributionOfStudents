@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Models;
 using webapi.Data.Specifications;
@@ -47,6 +49,7 @@ namespace webapi.Controllers
         }
 
         [HttpPost("{facultyName}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> CreateGroup(string facultyName, CreateChangeGroupOfSpecVM model)
         {
             if (ModelState.IsValid)
@@ -67,6 +70,7 @@ namespace webapi.Controllers
         }
 
         [HttpPut("{facultyName}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> EditGroup(string facultyName, CreateChangeGroupOfSpecVM model)
         {
             if (ModelState.IsValid)
@@ -107,6 +111,7 @@ namespace webapi.Controllers
         }
 
         [HttpDelete("{facultyName}/{id}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteGroup(string facultyName, int id)
         {
             GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(id, new GroupsOfSpecialitiesSpecification());
