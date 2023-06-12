@@ -18,9 +18,18 @@ import FacultiesArchivePage from "./archive/FacultiesArchivePage.jsx"
 import StudentsPage from "./students/StudentsPage.jsx"
 import SubjectsPage from "./subjects/SubjectsPage.jsx"
 
-import { Route, Routes, Outlet } from 'react-router-dom'
+import Login from "./Login.jsx"
+
+import { Route, Routes, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { history } from "../../_helpers/history.js"
+import PrivateRoute from "./PrivateRoute.jsx"
 
 export default function Content() {
+    // init custom history object to allow navigation from 
+    // anywhere in the react app (inside or outside components)
+    history.navigate = useNavigate();
+    history.location = useLocation();
+
     return (
         <Routes>
             <Route exact path="/" element={<HomePage />} />
@@ -29,12 +38,12 @@ export default function Content() {
                 <Route path=":shortName" element={<Null />} >
                     <Route index element={<FacultyPage />} />
                     <Route path="RecruitmentPlans" element={<Null />} >
-                        <Route path=":lastYear/Create" element={<CreateFacultyPlansPage />} />
-                        <Route path=":year/Edit" element={<EditFacultyPlansPage />} />
+                        <Route path=":lastYear/Create" element={<PrivateRoute><CreateFacultyPlansPage /></PrivateRoute>} />
+                        <Route path=":year/Edit" element={<PrivateRoute><EditFacultyPlansPage /></PrivateRoute>} />
                     </Route>
                     <Route path=":groupId" element={<Null />} >
                         <Route index element={<GroupOfSpecialityPage />} />
-                        <Route path="Distribution/Create" element={<CreateDistributionPage />} />
+                        <Route path="Distribution/Create" element={<PrivateRoute><CreateDistributionPage /></PrivateRoute>} />
                     </Route>
                 </Route>
             </Route>
@@ -46,7 +55,8 @@ export default function Content() {
                 <Route exact path=":year" element={<ArchiveFormsPage />} />
                 <Route path=":year/:form" element={<FacultiesArchivePage />} />
             </Route>
-            <Route path="*" element={<h2>Ресурс не найден</h2>}/>
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<h2>Ресурс не найден</h2>} />
         </Routes>
     );
 }

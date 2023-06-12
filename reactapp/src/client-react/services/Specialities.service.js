@@ -1,105 +1,35 @@
+import { fetchWrapper } from "../../_helpers/fetch-wrapper";
+
 const config = {
     api: '/api/SpecialitiesApi/',
-    options: {
-        headers: { 'content-type': 'application/json' },
-    },
 };
 
 const httpGetFacultySpecialities = (facultyName) => {
-    return fetch(`${config.api}FacultySpecialities/${facultyName}`, {
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response.json())
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
+    return fetchWrapper.get(`${config.api}FacultySpecialities/${facultyName}`)
 };
 
 const httpGetFacultyDisabledSpecialities = (facultyName) => {
-    return fetch(`${config.api}FacultyDisabledSpecialities/${facultyName}`, {
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response.json())
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
+    return fetchWrapper.get(`${config.api}FacultyDisabledSpecialities/${facultyName}`)
 };
 
 const httpGetGroupSpecialities = (groupId) => {
-    return fetch(`${config.api}GroupSpecialities/${groupId}`, {
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response.json())
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
+    return fetchWrapper.get(`${config.api}GroupSpecialities/${groupId}`)
 };
 
 const httpGetById = (id) => {
-    return fetch(`${config.api}${id}`, {
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response.json())
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
+    return fetchWrapper.get(`${config.api}${id}`)
 };
 
 const httpPost = (facultyName, data) => {
-    return fetch(`${config.api}${facultyName}`, {
-        method: 'post',
-        body: data ? JSON.stringify(data) : null,
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response)
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
+    return fetchWrapper.post(`${config.api}${facultyName}`, JSON.stringify(data))
 };
 
 const httpPut = (id, data) => {
-    return fetch(`${config.api}${id}`, {
-        method: 'put',
-        body: data ? JSON.stringify(data) : null,
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response)
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
+    return fetchWrapper.put(`${config.api}${id}`, JSON.stringify(data))
 };
 
 const httpDelete = (id) => {
-    return fetch(`${config.api}${id}`, {
-        method: 'delete',
-        ...config.options,
-    })
-        .then((response) => handleResponse(response))
-        .then((response) => response)
-        .catch((error) => {
-            console.error(error.message);
-            throw Error(error);
-        });
-};
-
-const handleResponse = async (response) => {
-    if (response.status === 200) {
-        return response;
-    } else {
-        throw Error(response.json() | 'error');
-    }
+    return fetchWrapper.delete(`${config.api}${id}`)
 };
 
 const exportedObject = {
