@@ -6,6 +6,7 @@ import ModalWindowPlansDelete from "../recruitmentPlans/ModalWindows/ModalWindow
 
 import TablePreloader from "../TablePreloader.jsx";
 
+import CreateButton from '../adminButtons/CreateButton.jsx';
 import FacultiesService from "../../services/Faculties.service.js";
 import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 import SpecialitiesService from "../../services/Specialities.service";
@@ -13,10 +14,11 @@ import SpecialitiesService from "../../services/Specialities.service";
 import Placeholder from 'react-bootstrap/Placeholder';
 
 import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function FacultyPage() {
+    const navigate = useNavigate();
     const params = useParams();
     const shortName = params.shortName;
     useDocumentTitle(shortName);
@@ -79,11 +81,7 @@ export default function FacultyPage() {
                 <hr />
                 <h4>
                     План приёма на {facultyPlansYear} год
-                    <Link className="text-success ms-2" to={"/Faculties/" + shortName + "/RecruitmentPlans/" + facultyPlansYear + "/Create"}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle-fill suc" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                        </svg>
-                    </Link>
+                    <CreateButton className="ms-2" onClick={() => navigate("/Faculties/" + shortName + "/RecruitmentPlans/" + facultyPlansYear + "/Create")} />
                 </h4>
             </React.Suspense>;
             if (facultyPlansYear) {

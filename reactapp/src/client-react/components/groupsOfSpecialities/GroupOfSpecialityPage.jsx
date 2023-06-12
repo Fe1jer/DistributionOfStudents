@@ -1,34 +1,36 @@
-import DistributedRecruitmentPlansList from "../distribution/DistributedRecruitmentPlansList.jsx";
-import DistributedPlan from "../distribution/DistributedPlan.jsx";
 import Admissions from "../admissions/Admissions.jsx";
+import DistributedPlan from "../distribution/DistributedPlan.jsx";
+import DistributedRecruitmentPlansList from "../distribution/DistributedRecruitmentPlansList.jsx";
 
-import ModalWindowDeleteDitribution from "../distribution/ModalWindows/ModalWindowDelete.jsx";
+import ModalWindowDeleteDistribution from "../distribution/ModalWindows/ModalWindowDelete.jsx";
 
 import GroupsOfSpecialitiesService from '../../services/GroupsOfSpecialities.service.js';
 import RecruitmentPlansService from "../../services/RecruitmentPlans.service.js";
 import StatisticService from "../../services/Statistic.service.js";
 
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
 import Placeholder from 'react-bootstrap/Placeholder';
+import Row from 'react-bootstrap/Row';
 
 import TablePreloader from "../TablePreloader.jsx";
 
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, } from 'chart.js';
+import { CategoryScale, Chart as ChartJS, Legend, LineElement, LinearScale, PointElement, Title, Tooltip } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import getData from '../../../js/showStatistic';
 
-import { getTodayTimeNull } from "../../../../src/js/datePicker.js"
-import { Link, useParams } from 'react-router-dom'
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router-dom';
+import { getTodayTimeNull } from "../../../../src/js/datePicker.js";
 import useDocumentTitle from "../useDocumentTitle.jsx";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function GroupOfSpecialityPage() {
     const [groupName, setGroupName] = useState("Группа специальностей");
     useDocumentTitle(groupName);
+    const authUser = useSelector(x => x.auth.user);
     const params = useParams();
     const facultyShortName = params.shortName;
     const groupId = params.groupId;
@@ -120,13 +122,20 @@ export default function GroupOfSpecialityPage() {
         </Row>;
     }
     const _showContent = () => {
+        var disButton, deleteDisButton;
+        if (authUser && authUser.role === "commission") {
+            disButton = <Link type="button" to="./Distribution/Create" className={'btn btn-sm btn-outline-success ms-2 ' + canDistribution}>
+                Распределить
+            </Link>;
+            deleteDisButton = <Button variant="outline-danger" size="sm" className="ms-2" onClick={() => onClickDeleteDistribution()}>
+                Расформировать
+            </Button>;
+        }
         if (!group.isCompleted && plans.length > 0) {
             return <React.Suspense>
                 <h4 className="d-flex">
                     Заявки абитуриентов
-                    <Link type="button" to="./Distribution/Create" className={'btn btn-sm btn-outline-success ' + canDistribution + ' ms-2'}>
-                        Распределить
-                    </Link>
+                    {disButton}
                 </h4>
                 <Admissions groupId={groupId} plans={plans} onLoadGroup={loadData} />
                 {_showStatistics()}
@@ -136,10 +145,8 @@ export default function GroupOfSpecialityPage() {
             return <React.Suspense>
                 <h4 className="d-flex">
                     Зачисленные студенты
-                    <ModalWindowDeleteDitribution show={deleteDistributionShow} handleClose={handleDeleteDistributionClose} onLoadGroup={loadData} groupId={groupId} facultyShortName={facultyShortName} />
-                    <Button variant="outline-danger" size="sm" className="ms-2" onClick={() => onClickDeleteDistribution()}>
-                        Расформировать
-                    </Button>
+                    <ModalWindowDeleteDistribution show={deleteDistributionShow} handleClose={handleDeleteDistributionClose} onLoadGroup={loadData} groupId={groupId} facultyShortName={facultyShortName} />
+                    {deleteDisButton}
                 </h4>{
                     plans.map((plan, index) =>
                         <React.Suspense key={plan.speciality.directionName ?? plan.speciality.fullName}>
@@ -147,6 +154,7 @@ export default function GroupOfSpecialityPage() {
                             {index !== plans.length - 1 ? <hr /> : null}
                         </React.Suspense>
                     )}
+                {_showStatistics()}
             </React.Suspense>;
         }
     }
