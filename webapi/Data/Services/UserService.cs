@@ -7,11 +7,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Interfaces.Services;
 using webapi.Data.Models;
 using webapi.Helpers;
 using webapi.ViewModels;
-using webapi.Data.Interfaces.Services;
-using webapi.Data.Interfaces.Repositories;
+using webapi.ViewModels.Users;
 
 public class UserService : IUserService
 {
@@ -26,13 +27,38 @@ public class UserService : IUserService
 
     public async Task<object?> Authenticate(LoginVM model)
     {
-        User ? _user = await _userRepository.GetByNameAsync(model.Username);
+        User? _user = await _userRepository.GetByNameAsync(model.Username);
         if (_user == null)
             return null;
         if (!VerifyHashedPassword(_user.PasswordHash, model.Password))
             return null;
 
         return new { jwtToken = GenerateJwtToken(_user), user = _user };
+    }
+
+    public async Task<User?> Registration(CreateUserVM model)
+    {
+        if (await _userRepository.GetByNameAsync(model.UserName) == null) return null;
+
+        User user = new()
+        {
+            Surname = model.Surname,
+            Name = model.Name,
+            Patronymic = model.Patronymic,
+            UserName = model.UserName,
+            PasswordHash = GetHashPassword(model.Password),
+            Role = "commission",
+            Img = "\\img\\Users\\bntu.jpg"
+        };
+
+        if (model.FileImg != null)
+        {
+            string path = "\\img\\Users\\" + user.UserName + "_" + model.FileImg.FileName;
+            user.Img = IFileService.UploadFile(model.FileImg, path);
+        }
+        await _userRepository.AddAsync(user);
+
+        return user;
     }
 
     private static string GetHashPassword(string password)
