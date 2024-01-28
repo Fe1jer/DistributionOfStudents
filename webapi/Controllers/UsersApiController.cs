@@ -103,7 +103,7 @@ public class UsersApiController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<User>> PostSubject([FromBody] CreateUserVM model)
+    public async Task<ActionResult<User>> PostSubject([FromForm] CreateUserVM model)
     {
         if (await _userRepository.GetAllAsync() == null)
         {

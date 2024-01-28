@@ -4,13 +4,15 @@ using webapi.Data.Specifications.Base;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using webapi.Data.Interfaces.Repositories;
+using System.Data;
 
 namespace webapi.Data.Repositories.Base
 {
     public class Repository<T> : IRepository<T> where T : Entity
     {
         protected ApplicationDbContext Context { get; set; }
-        private DbSet<T> EntitySet => Context.Set<T>();
+        protected DbSet<T> EntitySet => Context.Set<T>();
+        protected IDbConnection Connection => Context.Database.GetDbConnection();
 
         public Repository(ApplicationDbContext appDBContext)
         {

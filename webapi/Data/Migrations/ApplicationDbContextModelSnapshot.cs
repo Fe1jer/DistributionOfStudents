@@ -34,7 +34,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("SpecialitiesId");
 
-                    b.ToTable("GroupOfSpecialtiesSpeciality");
+                    b.ToTable("GroupOfSpecialtiesSpeciality", (string)null);
                 });
 
             modelBuilder.Entity("GroupOfSpecialtiesSubject", b =>
@@ -49,7 +49,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("SubjectsId");
 
-                    b.ToTable("GroupOfSpecialtiesSubject");
+                    b.ToTable("GroupOfSpecialtiesSubject", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.Admission", b =>
@@ -96,7 +96,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Admissions");
+                    b.ToTable("Admissions", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.EnrolledStudent", b =>
@@ -119,7 +119,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("EnrolledStudents");
+                    b.ToTable("EnrolledStudents", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.Faculty", b =>
@@ -144,7 +144,7 @@ namespace webapi.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Faculties");
+                    b.ToTable("Faculties", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.FormOfEducation", b =>
@@ -169,7 +169,7 @@ namespace webapi.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FormsOfEducation");
+                    b.ToTable("FormsOfEducation", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.GroupOfSpecialitiesStatistic", b =>
@@ -193,7 +193,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("GroupOfSpecialtiesId");
 
-                    b.ToTable("GroupsOfSpecialitiesStatistic");
+                    b.ToTable("GroupsOfSpecialitiesStatistic", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.GroupOfSpecialties", b =>
@@ -227,7 +227,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("FormOfEducationId");
 
-                    b.ToTable("GroupsOfSpecialties");
+                    b.ToTable("GroupsOfSpecialties", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.RecruitmentPlan", b =>
@@ -262,7 +262,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("SpecialityId");
 
-                    b.ToTable("RecruitmentPlans");
+                    b.ToTable("RecruitmentPlans", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.RecruitmentPlanStatistic", b =>
@@ -286,7 +286,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("RecruitmentPlanId");
 
-                    b.ToTable("RecruitmentPlandStatistic");
+                    b.ToTable("RecruitmentPlandStatistic", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.Speciality", b =>
@@ -336,7 +336,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Specialities");
+                    b.ToTable("Specialities", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.SpecialityPriority", b =>
@@ -362,7 +362,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("RecruitmentPlanId");
 
-                    b.ToTable("SpecialtyPriorities");
+                    b.ToTable("SpecialtyPriorities", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.Student", b =>
@@ -390,7 +390,7 @@ namespace webapi.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.StudentScore", b =>
@@ -416,7 +416,7 @@ namespace webapi.Data.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("StudentScores");
+                    b.ToTable("StudentScores", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.Subject", b =>
@@ -433,7 +433,7 @@ namespace webapi.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("webapi.Data.Models.User", b =>
@@ -474,7 +474,7 @@ namespace webapi.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("GroupOfSpecialtiesSpeciality", b =>

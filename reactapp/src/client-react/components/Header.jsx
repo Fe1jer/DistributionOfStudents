@@ -8,6 +8,7 @@ import NavLink from 'react-bootstrap/NavLink';
 import { LinkContainer } from 'react-router-bootstrap';
 import Search from "./Searh";
 import SidebarMenu from "./SidebarMenu";
+import ModalWindowProfile from './users/ModalWindows/ModalWindowProfile';
 
 import { authActions } from '../../_store';
 
@@ -23,6 +24,14 @@ export default function Header() {
     const logout = () => dispatch(authActions.logout());
     const navigate = useNavigate();
     const [searhText, setSearhText] = useState("");
+    const [profileShow, setProfileShow] = useState(false);
+
+    const handleProfileClose = () => {
+        setProfileShow(false);
+    };
+    const onClickShowProfileUser = () => {
+        setProfileShow(true);
+    }
 
     const _showAuthLink = () => {
         if (!authUser) {
@@ -32,15 +41,14 @@ export default function Header() {
         }
         else {
             return <Dropdown>
+                <ModalWindowProfile show={profileShow} handleClose={handleProfileClose} />
                 <Dropdown.Toggle className="text-light p-0" as={NavLink} data-bs-toggle="dropdown" >
                     <img src={authUser.img} alt="avatar" width="40" height="40" style={{ borderRadius: '50%' }} />
                 </Dropdown.Toggle>
                 <Dropdown.Menu renderOnMount className="text-small">
                     <Dropdown.ItemText className="d-inline-flex">Приветствуем<b className="ps-1">{authUser.name}</b></Dropdown.ItemText>
                     <Dropdown.Divider />
-                    <LinkContainer to="#">
-                        <Dropdown.Item>Профиль</Dropdown.Item>
-                    </LinkContainer>
+                    <Dropdown.Item onClick={() => onClickShowProfileUser()}>Профиль</Dropdown.Item>
                     <LinkContainer to="#">
                         <Dropdown.Item>Настройки</Dropdown.Item>
                     </LinkContainer>
@@ -61,9 +69,9 @@ export default function Header() {
     return (
         <header>
             {/*Sidebar*/}
-            <nav id="sidebarMenu" className="d-lg-block sidebar collapse bg-white">
+            <Nav id="sidebarMenu" className="d-lg-block sidebar collapse bg-white">
                 <SidebarMenu />
-            </nav>
+            </Nav>
             {/*Sidebar*/}
             {/*Navbar*/}
             <Navbar className="fixed-top shadow-sm" expand="lg" variant="light" bg="success">

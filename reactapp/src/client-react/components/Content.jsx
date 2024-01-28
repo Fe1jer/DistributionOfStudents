@@ -18,11 +18,14 @@ import FacultiesArchivePage from "./archive/FacultiesArchivePage.jsx"
 import StudentsPage from "./students/StudentsPage.jsx"
 import SubjectsPage from "./subjects/SubjectsPage.jsx"
 
+import UsersPage from "./users/UsersPage.jsx"
+
 import Login from "./Login.jsx"
 
 import { Route, Routes, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { history } from "../../_helpers/history.js"
 import PrivateRoute from "./PrivateRoute.jsx"
+import AdminRoute from "./AdminRoute.jsx"
 
 export default function Content() {
     // init custom history object to allow navigation from 
@@ -57,6 +60,7 @@ export default function Content() {
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<h2>Ресурс не найден</h2>} />
+            <Route path="Admin/Users" element={<AdminRoute><UsersPage /></AdminRoute>} />
         </Routes>
     );
 }

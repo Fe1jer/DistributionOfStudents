@@ -4,6 +4,7 @@ import $ from "jquery";
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
+import * as React from 'react';
 
 export default function SidebarMenu() {
     const location = useLocation();
@@ -26,12 +27,28 @@ export default function SidebarMenu() {
     const _showAdminButtons = () => {
         if (authUser && authUser.role === "admin") {
             return (
-                <ListGroup.Item as={Link} action to="#" id="Users" className="py-2 ripple">
+                <ListGroup.Item as={Link} action to="/Admin/Users" id="Users" className="py-2 ripple">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" className="fas fa-chart-pie fa-fw me-2" viewBox="0 0 16 16">
                         <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-9 8c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4Zm9.886-3.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382l.045-.148ZM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
                     </svg>
                     <span>Пользователи</span>
                 </ListGroup.Item>
+            );
+        }
+    }
+
+    const _showCommissionButtons = () => {
+        if (authUser && authUser.role === "commission") {
+            return (
+                <React.Suspense>
+                    <ListGroup.Item as={Link} action to="/Subjects" id="Subjects" className="py-2 ripple">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" className="fas fa-chart-pie fa-fw me-2" viewBox="0 0 16 16">
+                            <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917l-7.5-3.5Z" />
+                            <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466 4.176 9.032Z" />
+                        </svg>
+                        <span>Предметы</span>
+                    </ListGroup.Item>
+                </React.Suspense>
             );
         }
     }
@@ -67,13 +84,7 @@ export default function SidebarMenu() {
                     </svg>
                     <span>Абитуриенты</span>
                 </ListGroup.Item>
-                <ListGroup.Item as={Link} action to="/Subjects" id="Subjects" className="py-2 ripple">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" className="fas fa-chart-pie fa-fw me-2" viewBox="0 0 16 16">
-                        <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917l-7.5-3.5Z" />
-                        <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466 4.176 9.032Z" />
-                    </svg>
-                    <span>Предметы</span>
-                </ListGroup.Item>
+                {_showCommissionButtons()}
                 <ListGroup.Item as={Link} action to="/Archive" id="Archive" className="py-2 ripple">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" className="fas fa-chart-pie fa-fw me-2" viewBox="0 0 16 16">
                         <path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z" />

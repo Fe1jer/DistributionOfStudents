@@ -115,7 +115,7 @@ namespace webapi.Data.DBInitialization
                 Patronymic = "Admin",
                 Role = "admin",
                 PasswordHash = "AKVHBKnvwoBBWBmIGLB66gOt9NlLgrXRd4GiJUSTUlGHcCRmIb9mA5tIQfTMiyyDzg==",
-                Img = "/img/Users/bntu.jpg"
+                Img = "\\img\\Users\\bntu.jpg"
             };
             context.Users.Add(admin);
             context.SaveChanges();
@@ -128,7 +128,7 @@ namespace webapi.Data.DBInitialization
                 Patronymic = "commission",
                 Role = "commission",
                 PasswordHash = "ABuwUovX/rNKRmOdBuSHjWgZ/ZqAy29/aQAX4RjhyWRSv3lrTO0IKSEtkmcdMRY1nA==",
-                Img = "/img/Users/bntu.jpg"
+                Img = "\\img\\Users\\bntu.jpg"
             };
             context.Users.Add(commission);
             context.SaveChanges();

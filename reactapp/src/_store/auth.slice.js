@@ -41,7 +41,7 @@ function createReducers() {
 }
 
 function createExtraActions() {
-    const baseUrl = `api/users`;
+    const baseUrl = `api/UsersApi`;
 
     return {
         login: login()
@@ -50,7 +50,7 @@ function createExtraActions() {
     function login() {
         return createAsyncThunk(
             `${name}/login`,
-            async ({ username, password }) => await fetchWrapper.post(`${baseUrl}/authenticate`, JSON.stringify({ username: username, password, rememberMe: false }), { 'content-type': 'application/json' })
+            async ({ username, password }) => await fetchWrapper.post(`${baseUrl}/authenticate`, JSON.stringify({ username: username, password, rememberMe: false }))
         );
     }
 }

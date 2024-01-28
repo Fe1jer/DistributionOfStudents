@@ -38,7 +38,7 @@ public class UserService : IUserService
 
     public async Task<User?> Registration(CreateUserVM model)
     {
-        if (await _userRepository.GetByNameAsync(model.UserName) == null) return null;
+        if (await _userRepository.GetByNameAsync(model.UserName) != null) return null;
 
         User user = new()
         {

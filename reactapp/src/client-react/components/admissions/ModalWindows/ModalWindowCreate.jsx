@@ -30,7 +30,10 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
     }
     const defaultAdmission = {
         id: 0,
-        dateOfApplication: getNow()
+        dateOfApplication: getNow(),
+        isTargeted: false,
+        isWithoutEntranceExams: false,
+        isOutOfCompetition: false,
     }
     defaultAdmission.student = defaultStudent;
 

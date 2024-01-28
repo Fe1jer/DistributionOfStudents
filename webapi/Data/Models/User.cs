@@ -6,7 +6,6 @@ namespace webapi.Data.Models
 {
     public class User : Entity
     {
-        [JsonIgnore]
         [Display(Name = "Имя пользователя")]
         [DataType(DataType.Text)]
         public string UserName { get; set; } = String.Empty;

@@ -24,7 +24,7 @@ export default function Login() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // form validation rules 
+    // form validation rules
     const validationSchema = Yup.object().shape({
         username: Yup.string().required('Введите имя пользователя'),
         password: Yup.string().required('Введите пароль').min(6, "Длина пароля не менее 6 символов")
@@ -40,7 +40,7 @@ export default function Login() {
     }
 
     return (
-        <Col md={{ span: 4, offset: 4 }} className="pt-5">
+        <Col lg={{ span: 6, offset: 3 }} xxl={{ span: 4, offset: 4 }} sm={{ span: 8, offset: 2 }} className="pt-5">
             <Card>
                 <Card.Header><h4 className="d-inline">Вход</h4> (только для приёмной комиссии)</Card.Header>
                 <Card.Body>

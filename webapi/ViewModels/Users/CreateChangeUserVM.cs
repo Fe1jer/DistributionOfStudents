@@ -41,7 +41,6 @@ namespace webapi.ViewModels.Users
             Name = user.Name;
             Surname = user.Surname;
             Patronymic = user.Patronymic;
-            Img = user.Img;
         }
         public int Id { get; set; }
 
@@ -56,9 +55,6 @@ namespace webapi.ViewModels.Users
         [Display(Name = "Отчество")]
         [DataType(DataType.Text)]
         public string Patronymic { get; set; } = String.Empty;
-
-        [Display(Name = "Изображение")]
-        public string Img { get; set; } = String.Empty;
 
         [Display(Name = "Изображение")]
         [ValidateImg]
