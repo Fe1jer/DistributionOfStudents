@@ -1,7 +1,7 @@
 namespace Shared.Helpers;
 
+using BLL.DTO.User;
 using BLL.Services.Interfaces;
-using DAL.Postgres.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -47,9 +47,9 @@ public class JwtMiddleware
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var userId = int.Parse(jwtToken.Claims.First(x => x.Type.Equals("name")).Value);
+            Guid userId = new(jwtToken.Claims.First(x => x.Type.Equals("name")).Value);
 
-            User? user = await userService.GetByIdAsync(userId);
+            UserDTO? user = await userService.GetAsync(userId);
             if (user != null)
             {
                 context.Items["User"] = user;

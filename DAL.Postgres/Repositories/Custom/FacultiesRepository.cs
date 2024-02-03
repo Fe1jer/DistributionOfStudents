@@ -3,6 +3,7 @@ using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Base;
 using DAL.Postgres.Repositories.Interfaces.Custom;
 using DAL.Postgres.Specifications.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom
 {
@@ -11,30 +12,25 @@ namespace DAL.Postgres.Repositories.Custom
         public FacultiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
         {
         }
-
-        public async Task DeleteAsync(Guid id)
+        public async Task<int> GetCountByUrlAsync(string url, Guid excludeId)
         {
-            Faculty? faculty = await GetByIdAsync(id);
-            if (faculty != null)
-            {
-                await DeleteAsync(faculty);
-            }
+            return await EntitySet.CountAsync(p => p.ShortName.Equals(url, StringComparison.OrdinalIgnoreCase) && p.Id != excludeId);
         }
 
-        public async Task<Faculty?> GetByShortNameAsync(string name)
+        public async Task<Faculty?> GetByUrlAsync(string url)
         {
-            return (await GetAllAsync()).FirstOrDefault(i => i.ShortName.ToLower() == name.ToLower());
+            return await EntitySet.SingleOrDefaultAsync(i => i.ShortName.Equals(url, StringComparison.OrdinalIgnoreCase));
         }
 
-        public async Task<Faculty?> GetByShortNameAsync(string name, ISpecification<Faculty> specification)
+        public async Task<Faculty?> GetByUrlAsync(string url, ISpecification<Faculty> specification)
         {
-            Faculty? faculty = await GetByShortNameAsync(name);
-            if (faculty != null)
+            Faculty? entity = await GetByUrlAsync(url);
+            if (entity != null)
             {
-                return await GetByIdAsync(faculty.Id, specification);
+                return await GetByIdAsync(entity.Id, specification);
             }
 
-            return faculty;
+            return entity;
         }
     }
 }

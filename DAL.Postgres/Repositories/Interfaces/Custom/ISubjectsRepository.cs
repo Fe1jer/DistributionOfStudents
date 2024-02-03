@@ -1,15 +1,9 @@
 ﻿using DAL.Postgres.Entities;
-using DAL.Postgres.Specifications.Base;
+using DAL.Postgres.Repositories.Interfaces.Base;
 
 namespace DAL.Postgres.Repositories.Interfaces.Custom
 {
-    public interface ISubjectsRepository
+    public interface ISubjectsRepository : IRepository<Subject>
     {
-        Task<Subject?> GetByIdAsync(Guid subjectId);
-        Task<List<Subject>> GetAllAsync();
-        Task<List<Subject>> GetAllAsync(ISpecification<Subject> specification);
-        Task AddAsync(Subject subject);
-        Task UpdateAsync(Subject subject);
-        Task DeleteAsync(Guid id);
     }
 }

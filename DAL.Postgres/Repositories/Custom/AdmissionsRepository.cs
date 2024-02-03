@@ -3,6 +3,8 @@ using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Base;
 using DAL.Postgres.Repositories.Interfaces.Custom;
 using DAL.Postgres.Specifications.Base;
+using Shared.Filters.Base;
+using System.Linq;
 
 namespace DAL.Postgres.Repositories.Custom
 {
@@ -21,22 +23,20 @@ namespace DAL.Postgres.Repositories.Custom
             }
         }
 
-        public async Task<List<Admission>> SearchByStudentsAsync(string? searchText, ISpecification<Admission> specification)
+        public async Task<(List<Admission> rows, int count)> GetByFilterAsync(DefaultFilter filter, ISpecification<Admission> specification)
         {
             var admissions = await GetAllAsync(specification);
-            if (searchText != null)
+            int count = admissions.Count;
+            if (filter.Search != null)
             {
-                List<string> searchWords = searchText.Split(" ").ToList();
+                IEnumerable<string> searchWords = filter.Search.Split(" ");
                 foreach (string word in searchWords)
                 {
-                    admissions = admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
-                        .Union(admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
-                        .Union(admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
-                        .ToList();
+                    admissions = admissions.Where(i => string.Join(" ", i.Student.Name, i.Student.Surname, i.Student.Patronymic).Contains(word.ToLower())).ToList();
                 }
             }
 
-            return admissions;
+            return (admissions.Skip(filter.Skip).Take(filter.PageLimit).ToList(), count);
         }
     }
 }

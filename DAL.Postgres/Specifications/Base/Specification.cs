@@ -44,7 +44,7 @@ namespace DAL.Postgres.Specifications.Base
             Includes.Add(includeExpression);
         }
 
-        protected void AddWhere(Expression<Func<T, bool>> selectExpression)
+        public void AddWhere(Expression<Func<T, bool>> selectExpression)
         {
             WhereExpressions.Add(selectExpression);
         }

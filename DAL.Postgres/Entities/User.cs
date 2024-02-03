@@ -10,6 +10,6 @@ namespace DAL.Postgres.Entities
         public string Surname { get; set; } = String.Empty;
         public string Patronymic { get; set; } = String.Empty;
         public string Role { get; set; } = String.Empty;
-        public string Img { get; set; } = String.Empty;
+        public string Img { get; set; } = "\\img\\Users\\bntu.jpg";
     }
 }

@@ -1,154 +1,79 @@
-﻿using webapi.Data.Models;
-using webapi.Data.Specifications;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
-using webapi.Data.Interfaces.Repositories;
+﻿using BLL.DTO.Specialities;
+using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
+using Microsoft.AspNetCore.Mvc;
+using webapi.ViewModels.Specialities;
 
 namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SpecialitiesApiController : ControllerBase
+    public class SpecialitiesApiController : BaseController
     {
         private readonly ILogger<SpecialitiesApiController> _logger;
-        private readonly IFacultiesRepository _facultiesRepository;
-        private readonly ISpecialitiesRepository _specialtiesRepository;
-        private readonly IGroupsOfSpecialitiesRepository _groupsOfSpecialtiesRepository;
+        private readonly ISpecialitiesService _service;
 
-        public SpecialitiesApiController(ILogger<SpecialitiesApiController> logger, IFacultiesRepository facultiesRepository,
-            ISpecialitiesRepository specialtiesRepository, IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository)
+        public SpecialitiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<SpecialitiesApiController> logger, ISpecialitiesService service) : base(accessor, generator)
         {
             _logger = logger;
-            _facultiesRepository = facultiesRepository;
-            _specialtiesRepository = specialtiesRepository;
-            _groupsOfSpecialtiesRepository = groupsOfSpecialtiesRepository;
+            _service = service;
         }
 
-        [HttpGet("FacultySpecialities/{facultyName}")]
-        public async Task<ActionResult<IEnumerable<Speciality>>> GetFacultySpecialities(string facultyName)
-        {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties());
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            if (faculty.Specialities == null)
-            {
-                return NotFound();
-            }
+        [HttpGet("FacultySpecialities/{facultyUrl}")]
+        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultySpecialities(string facultyUrl) 
+            => Mapper.Map<List<SpecialityViewModel>>(await _service.GetByFacultyAsync(facultyUrl));
 
-            faculty.Specialities.ForEach(i => i.Faculty = new());
-            faculty.Specialities.ForEach(i => i.GroupsOfSpecialties = null);
-            faculty.Specialities.ForEach(i => i.RecruitmentPlans = null);
-            return faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
-        }
-
-        [HttpGet("FacultyDisabledSpecialities/{facultyName}")]
-        public async Task<ActionResult<IEnumerable<Speciality>>> GetFacultyDisabledSpecialities(string facultyName)
-        {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeDisabledSpecialties());
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            if (faculty.Specialities == null)
-            {
-                return NotFound();
-            }
-
-            faculty.Specialities.ForEach(i => i.Faculty = new());
-            faculty.Specialities.ForEach(i => i.GroupsOfSpecialties = null);
-            faculty.Specialities.ForEach(i => i.RecruitmentPlans = null);
-            return faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
-        }
+        [HttpGet("FacultyDisabledSpecialities/{facultyUrl}")]
+        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultyDisabledSpecialities(string facultyUrl) 
+            => Mapper.Map<List<SpecialityViewModel>>(await _service.GetByFacultyAsync(facultyUrl, true));
 
         [HttpGet("GroupSpecialities/{groupId}")]
-        public async Task<ActionResult<IEnumerable<Speciality>>> GetGroupSpecialities(int groupId)
-        {
-            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties());
-            if (group == null)
-            {
-                return NotFound();
-            }
-            if (group.Specialities == null)
-            {
-                return NotFound();
-            }
-
-            group.Specialities.ForEach(i => i.Faculty = new());
-            group.Specialities.ForEach(i => i.GroupsOfSpecialties = null);
-            group.Specialities.ForEach(i => i.RecruitmentPlans = null);
-            return group.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToArray();
-        }
+        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetGroupSpecialities(Guid groupId)
+            => Mapper.Map<List<SpecialityViewModel>>(await _service.GetByGroupAsync(groupId));
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Speciality>> GetSpeciality(int id)
+        public async Task<ActionResult<SpecialityViewModel>> GetSpeciality(Guid id)
         {
-            Speciality? speciality = await _specialtiesRepository.GetByIdAsync(id);
-            if (speciality == null)
-            {
-                return NotFound();
-            }
-            return speciality;
+            SpecialityViewModel model = Mapper.Map<SpecialityViewModel>(await _service.GetAsync(id));
+
+            return model != null ? model : NotFound();
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> PutSpeciality(int id, Speciality speciality)
+        public async Task<IActionResult> PutSpeciality(SpecialityViewModel model)
         {
-            if (id != speciality.Id)
+            try
             {
-                return BadRequest();
-            }
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(speciality.Faculty.ShortName);
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            if (ModelState.IsValid)
-            {
-                try
+                if (ModelState.IsValid)
                 {
-                    speciality.Faculty = faculty;
-                    await _specialtiesRepository.UpdateAsync(speciality);
-                    _logger.LogInformation("Изменена специальность - {SpecialityName}", speciality.FullName);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await SpecialtyExists(speciality.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                    var dto = Mapper.Map<SpecialityDTO>(model);
+                    dto = await _service.SaveAsync(dto);
 
-                return Ok();
+                    _logger.LogInformation("Изменена специальность - {SpecialityName}", dto.FullName);
+
+                    return Ok();
+                }
+            }
+            catch
+            {
+                _logger.LogError("Произошла ошибка при изменении специальности - {SpecialityName}", model.FullName);
             }
 
             return BadRequest(ModelState);
         }
 
-        [HttpPost("{facultyName}")]
+        [HttpPost("{facultyId}")]
         [Authorize(Roles = "commission")]
-        public async Task<ActionResult<Speciality>> PostSpeciality(string facultyName, Speciality speciality)
+        public async Task<ActionResult<SpecialityViewModel>> PostSpeciality(Guid facultyId, SpecialityViewModel model)
         {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(facultyName);
-
-            if (faculty == null)
-            {
-                return NotFound();
-            }
             if (ModelState.IsValid)
             {
-                speciality.Faculty = faculty;
-                await _specialtiesRepository.AddAsync(speciality);
-                _logger.LogInformation("Создана специальность - {SpecialityName}", speciality.FullName);
+                model.FacultyId = facultyId;
+                var dto = Mapper.Map<SpecialityDTO>(model);
+                dto = await _service.SaveAsync(dto);
+
+                _logger.LogInformation("Создана специальность - {SpecialityName}", dto.FullName);
 
                 return Ok();
             }
@@ -158,22 +83,17 @@ namespace webapi.Controllers.Api
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> DeleteSpeciality(int id)
+        public async Task<IActionResult> DeleteSpeciality(Guid id)
         {
-            Speciality? specialty = await _specialtiesRepository.GetByIdAsync(id);
-            if (specialty != null)
+            try
             {
-                await _specialtiesRepository.DeleteAsync(id);
-                _logger.LogInformation("Специальность - {SpecialityName} - была удалена", specialty.FullName);
+                await _service.DeleteAsync(id);
             }
-
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Удаление специальности");
+            }
             return Ok();
-        }
-
-        private async Task<bool> SpecialtyExists(int id)
-        {
-            var spec = await _specialtiesRepository.GetAllAsync();
-            return spec.Any(e => e.Id == id);
         }
     }
 }

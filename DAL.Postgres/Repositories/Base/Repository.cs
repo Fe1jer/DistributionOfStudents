@@ -4,6 +4,7 @@ using DAL.Postgres.Repositories.Interfaces.Base;
 using DAL.Postgres.Specifications;
 using DAL.Postgres.Specifications.Base;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 
@@ -18,12 +19,6 @@ namespace DAL.Postgres.Repositories.Base
         public Repository(ApplicationDbContext appDBContext)
         {
             Context = appDBContext;
-        }
-
-        public async Task AddAsync(T entity)
-        {
-            await Context.AddAsync(entity);
-            await Context.SaveChangesAsync();
         }
 
         public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
@@ -51,12 +46,17 @@ namespace DAL.Postgres.Repositories.Base
         {
             var all = await GetAllAsync(specification);
 
-            return all.FirstOrDefault(it => it.Id == id);
+            return all.SingleOrDefault(it => it.Id == id);
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task InsertOrUpdateAsync(T entity)
         {
-            Context.Entry(entity).State = EntityState.Modified;
+            if (entity.IsNew)
+                await Context.AddAsync(entity);
+            else
+            {
+                Context.Entry(entity).State = EntityState.Modified;
+            }
             await Context.SaveChangesAsync();
         }
 

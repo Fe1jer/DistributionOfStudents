@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DAL.Postgres.Entities.Base;
+using Microsoft.AspNetCore.Http;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -7,6 +8,15 @@ namespace BLL.Services.Interfaces
 {
     public interface IFileService
     {
+        public static string UploadWithPreviewsFile(IFormFile file, string path)
+        {
+            // creates all directories and subdirectories, creates in path
+            path = UploadFile(file, path);
+            ResizeAndCrop(path, 300, 170);
+
+            return path;
+        }
+
         public static string UploadFile(IFormFile file, string path)
         {
             // creates all directories and subdirectories, creates in path
@@ -22,14 +32,12 @@ namespace BLL.Services.Interfaces
             return path;
         }
 
-        private static void SaveAsJpeg(string path)
+        public static void DeleteWithPreviewsFile(string path)
         {
-            Bitmap bitmap;
-            using (var i = Image.FromFile($"wwwroot{path}"))
-            {
-                bitmap = new Bitmap(i);
-            }
-            bitmap.Save($"wwwroot{path}", ImageFormat.Jpeg);
+            DeleteFile(path);
+
+            string[] deletePath = path.Split('.');
+            DeleteFile(deletePath[0] + "_300x170." + deletePath[1]);
         }
 
         public static void DeleteFile(string path)
@@ -40,7 +48,17 @@ namespace BLL.Services.Interfaces
             }
         }
 
-        public static void Resize(string srcPath, int width, int height)
+        private static void SaveAsJpeg(string path)
+        {
+            Bitmap bitmap;
+            using (var i = Image.FromFile($"wwwroot{path}"))
+            {
+                bitmap = new Bitmap(i);
+            }
+            bitmap.Save($"wwwroot{path}", ImageFormat.Jpeg);
+        }
+
+        private static void Resize(string srcPath, int width, int height)
         {
             Image image = Image.FromFile($"wwwroot{srcPath}");
             Image resultImage = Resize(image, width, height);
@@ -48,7 +66,7 @@ namespace BLL.Services.Interfaces
             resultImage.Save($"wwwroot{pathname[0] + "_" + width + "x" + height + "." + pathname[1]}", ImageFormat.Jpeg);
         }
 
-        public static void ResizeAndCrop(string srcPath, int width, int height)
+        private static void ResizeAndCrop(string srcPath, int width, int height)
         {
             Image image = Image.FromFile($"wwwroot{srcPath}");
             Image resultImage = ResizeAndCrop(image, width, height);

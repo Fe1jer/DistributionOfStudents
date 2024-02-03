@@ -1,23 +1,24 @@
 ﻿using ChartJSCore.Models;
-using webapi.Data.Models;
-using webapi.Data.Specifications;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Emit;
 using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Models;
 using webapi.Data.Services;
+using webapi.Data.Specifications;
 
 namespace webapi.Controllers.Api
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StatisticApiController : ControllerBase
+    public class StatisticApiController : BaseController
     {
         private readonly IGroupsOfSpecialitiesRepository _groupsRepository;
         private readonly IGroupsOfSpecialitiesStatisticRepository _groupsStatisticRepository;
         private readonly IRecruitmentPlansStatisticRepository _plansStatisticRepository;
         private readonly IRecruitmentPlansRepository _plansRepository;
 
-        public StatisticApiController(IRecruitmentPlansStatisticRepository plansStatisticRepository, IRecruitmentPlansRepository plansRepository,
-            IGroupsOfSpecialitiesStatisticRepository groupsStatisticRepository, IGroupsOfSpecialitiesRepository groupsRepository)
+        public StatisticApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<AdmissionsApiController> logger, IRecruitmentPlansStatisticRepository plansStatisticRepository, IRecruitmentPlansRepository plansRepository,
+            IGroupsOfSpecialitiesStatisticRepository groupsStatisticRepository, IGroupsOfSpecialitiesRepository groupsRepository) : base(accessor, generator)
         {
             _plansStatisticRepository = plansStatisticRepository;
             _groupsStatisticRepository = groupsStatisticRepository;

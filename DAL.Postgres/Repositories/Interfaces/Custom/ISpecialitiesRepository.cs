@@ -1,15 +1,14 @@
 ﻿using DAL.Postgres.Entities;
+using DAL.Postgres.Repositories.Interfaces.Base;
 using DAL.Postgres.Specifications.Base;
 
 namespace DAL.Postgres.Repositories.Interfaces.Custom
 {
-    public interface ISpecialitiesRepository
+    public interface ISpecialitiesRepository : IRepository<Speciality>
     {
-        Task<Speciality?> GetByIdAsync(Guid specialityId);
-        Task<List<Speciality>> GetAllAsync();
-        Task<List<Speciality>> GetAllAsync(ISpecification<Speciality> specification);
-        Task AddAsync(Speciality speciality);
-        Task UpdateAsync(Speciality speciality);
-        Task DeleteAsync(Guid id);
+        Task<Speciality?> GetByUrlAsync(string url);
+        Task<List<Speciality>> GetByFacultyAsync(string facultyUrl, bool isDisable);
+        Task<Speciality?> GetByUrlAsync(string url, ISpecification<Speciality> specification);
+        Task<int> GetCountByUrlAsync(string url, Guid excludeId);
     }
 }

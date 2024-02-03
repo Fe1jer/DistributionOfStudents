@@ -5,6 +5,7 @@ namespace DAL.Postgres.Entities
     public class RecruitmentPlan : Entity
     {
         public Speciality Speciality { get; set; } = new();
+        public Guid SpecialityId { get; set; }
         public int Count { get; set; }
         public int Target { get; set; }
         public int TargetPassingScore { get; set; }

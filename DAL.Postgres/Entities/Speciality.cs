@@ -15,6 +15,7 @@ namespace DAL.Postgres.Entities
         public string? SpecializationCode { get; set; }
         public bool IsDisabled { get; set; }
         public Faculty Faculty { get; set; } = new();
+        public Guid FacultyId { get; set; }
         public List<GroupOfSpecialities>? GroupsOfSpecialties { get; set; }
         public List<RecruitmentPlan>? RecruitmentPlans { get; set; }
     }

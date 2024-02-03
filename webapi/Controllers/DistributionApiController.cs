@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Reflection.Emit;
 using webapi.Data.Interfaces.Repositories;
 using webapi.Data.Interfaces.Services;
 using webapi.Data.Models;
@@ -12,15 +13,15 @@ namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DistributionApiController : ControllerBase
+    public class DistributionApiController : BaseController
     {
         private readonly ILogger<DistributionApiController> _logger;
         private readonly IGroupsOfSpecialitiesRepository _groupsRepository;
         private readonly IRecruitmentPlansRepository _plansRepository;
         private readonly IStudentsRepository _studentRepository;
 
-        public DistributionApiController(ILogger<DistributionApiController> logger, IGroupsOfSpecialitiesRepository groupsRepository,
-            IRecruitmentPlansRepository plansRepository, IStudentsRepository studentRepository)
+        public DistributionApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<AdmissionsApiController> logger, ILogger<DistributionApiController> logger, IGroupsOfSpecialitiesRepository groupsRepository,
+            IRecruitmentPlansRepository plansRepository, IStudentsRepository studentRepository) : base(accessor, generator)
         {
             _logger = logger;
             _groupsRepository = groupsRepository;
@@ -82,7 +83,7 @@ namespace webapi.Controllers
 
         [HttpPost("{facultyName}/{groupId}/CreateDistribution")]
         [Authorize(Roles = "commission")]
-        public async Task<ActionResult<object>> CreateDistribution(string facultyName, int groupId, List<PlanForDistributionVM> models)
+        public async Task<ActionResult<object>> CreateDistribution(string facultyName, int groupId, List<PlanForDistributionViewModel> models)
         {
             if (ModelState.IsValid)
             {
@@ -127,7 +128,7 @@ namespace webapi.Controllers
 
         [HttpPost("{facultyName}/{groupId}/ConfirmDistribution")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, bool notify, List<PlanForDistributionVM> models)
+        public async Task<IActionResult> ConfirmDistribution(string facultyName, int groupId, bool notify, List<PlanForDistributionViewModel> models)
         {
             try
             {
@@ -214,10 +215,10 @@ namespace webapi.Controllers
             return distributedPlans;
         }
 
-        private async Task<List<RecruitmentPlan>> GetPlansFromModelAsync(IEnumerable<PlanForDistributionVM> models, string facultyName, GroupOfSpecialties group)
+        private async Task<List<RecruitmentPlan>> GetPlansFromModelAsync(IEnumerable<PlanForDistributionViewModel> models, string facultyName, GroupOfSpecialties group)
         {
             List<RecruitmentPlan> plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-            foreach (PlanForDistributionVM distributedPlan in models)
+            foreach (PlanForDistributionViewModel distributedPlan in models)
             {
                 RecruitmentPlan? plan = await _plansRepository.GetByIdAsync(distributedPlan.PlanId, new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
                 if (plan != null)

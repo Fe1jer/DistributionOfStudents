@@ -23,6 +23,12 @@ namespace DAL.Postgres.Specifications
             return this;
         }
 
+        public SpecialitiesSpecification SortByCode()
+        {
+            AddOrdering(sp => sp.DirectionCode ?? sp.Code);
+            return this;
+        }
+
         public SpecialitiesSpecification WithoutTracking()
         {
             IsNoTracking = true;
@@ -32,6 +38,13 @@ namespace DAL.Postgres.Specifications
         public SpecialitiesSpecification WithTracking()
         {
             IsNoTracking = false;
+            return this;
+        }
+
+        public SpecialitiesSpecification IncludeRecruitmentPlans()
+        {
+            AddInclude("RecruitmentPlans.FormOfEducation");
+
             return this;
         }
     }

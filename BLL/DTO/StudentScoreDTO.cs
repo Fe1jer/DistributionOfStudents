@@ -1,4 +1,5 @@
 ﻿using BLL.DTO.Base;
+using BLL.DTO.Subjects;
 
 namespace BLL.DTO
 {

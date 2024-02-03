@@ -1,4 +1,4 @@
-﻿using BLL.DTO;
+﻿using BLL.DTO.RecruitmentPlans;
 
 namespace BLL.Services.Interfaces
 {

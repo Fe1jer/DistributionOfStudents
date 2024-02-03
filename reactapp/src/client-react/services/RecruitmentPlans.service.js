@@ -10,13 +10,13 @@ const httpGet = () => {
 const httpGetById = (id) => {
     return fetchWrapper.get(`${config.api}${id}`)
 };
-const httpGetFacultyRecruitmentPlans = (facultyShortName, year) => {
+const httpGetFacultyPlans = (facultyShortName, year) => {
     return fetchWrapper.get(`${config.api}${facultyShortName}/${year}`)
 };
-const httpGetGroupRecruitmentPlans = (facultyShortName, groupId) => {
-    return fetchWrapper.get(`${config.api}${facultyShortName}/${groupId}/GroupRecruitmentPlans`)
+const httpGetGrouptPlans = (facultyShortName, groupId) => {
+    return fetchWrapper.get(`${config.api}${facultyShortName}/${groupId}/GroupPlans`)
 };
-const httpGetFacultyLastYearRecruitmentPlas = (facultyShortName) => {
+const httpGetLastFacultyPlans = (facultyShortName) => {
     return fetchWrapper.get(`${config.api}${facultyShortName}/lastYear`)
 };
 const httpPost = (facultyShortName, year, data) => {
@@ -33,7 +33,7 @@ const httpDelete = (facultyShortName, year) => {
 };
 
 const exportedObject = {
-    httpGet, httpGetById, httpGetFacultyRecruitmentPlans, httpGetGroupRecruitmentPlans, httpGetFacultyLastYearRecruitmentPlas, httpPost, httpPut, httpPutById, httpDelete
+    httpGet, httpGetById, httpGetFacultyPlans, httpGetGrouptPlans, httpGetLastFacultyPlans, httpPost, httpPut, httpPutById, httpDelete
 };
 
 export default exportedObject;

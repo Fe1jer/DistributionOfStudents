@@ -1,12 +1,11 @@
-﻿using webapi.Data.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace webapi.ViewModels.GroupsOfSpecialities
 {
     public class DetailsGroupOfSpecialitiesVM
     {
         public DetailsGroupOfSpecialitiesVM() { }
-        public DetailsGroupOfSpecialitiesVM(GroupOfSpecialties group, List<RecruitmentPlan> plans, float competition = 0)
+        public DetailsGroupOfSpecialitiesVM(GroupOfSpecialities group, List<RecruitmentPlan> plans, float competition = 0)
         {
             GroupOfSpecialties = group;
             RecruitmentPlans = plans;
@@ -32,6 +31,6 @@ namespace webapi.ViewModels.GroupsOfSpecialities
         public GroupOfSpecialties GroupOfSpecialties { get; set; } = new();
 
         [Display(Name = "Специальности")]
-        public List<RecruitmentPlan> RecruitmentPlans { get; set; } = new();
+        public List<RecruitmentPlanViewModel> RecruitmentPlans { get; set; } = new();
     }
 }

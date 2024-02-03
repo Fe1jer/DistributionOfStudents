@@ -1,32 +1,32 @@
 ﻿namespace webapi.Controllers;
 
+using BLL.DTO.User;
+using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using webapi.Data.Interfaces.Repositories;
-using webapi.Data.Interfaces.Services;
-using webapi.Data.Models;
 using webapi.ViewModels;
 using webapi.ViewModels.Users;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UsersApiController : ControllerBase
+public class UsersApiController : BaseController
 {
-    private readonly IUserService _userService;
-    private readonly IUserRepository _userRepository;
+    private readonly ILogger<UsersApiController> _logger;
+    private readonly IUserService _service;
 
-    public UsersApiController(IUserService userService, IUserRepository userRepository)
+    public UsersApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<UsersApiController> logger, IUserService userService) : base(accessor, generator)
     {
-        _userService = userService;
-        _userRepository = userRepository;
+        _logger = logger;
+        _service = userService;
     }
 
     [HttpPost("authenticate")]
-    public async Task<IActionResult> AuthenticateAsync(LoginVM model)
+    public async Task<IActionResult> AuthenticateAsync(LoginViewModel model)
     {
-        var response = await _userService.Authenticate(model);
+        var dto = Mapper.Map<LoginDTO>(model);
+        var response = await _service.Authenticate(dto);
 
         if (response == null)
             return BadRequest(new { message = "Неверные данные пользователя" });
@@ -36,66 +36,36 @@ public class UsersApiController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> GetAllAsync() => Ok(await _userRepository.GetAllAsync());
+    public async Task<IActionResult> GetAllAsync() => Ok(await _service.GetAllAsync());
 
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<ActionResult<User>> GetUser(int id)
+    public async Task<ActionResult<UserViewModel>> GetUser(Guid id)
     {
-        User? user = await _userRepository.GetByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-        return user;
+        UserViewModel model = Mapper.Map<UserViewModel>(await _service.GetAsync(id));
+
+        return model != null ? model : NotFound();
     }
 
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> PutUser(int id, [FromForm] ChangeUserVM model)
+    public async Task<IActionResult> PutUser(Guid id, [FromForm] UserViewModel model)
     {
-        if (id != model.Id)
+        try
         {
-            return BadRequest();
+            if (ModelState.IsValid)
+            {
+                var dto = Mapper.Map<UserDTO>(model);
+                dto = await _service.SaveAsync(dto);
+
+                _logger.LogInformation("Изменена специальность - {User}", dto?.UserName);
+
+                return Ok();
+            }
         }
-
-        if (ModelState.IsValid)
+        catch
         {
-            User? _user = await _userRepository.GetByIdAsync(id);
-            if (_user == null)
-                return BadRequest();
-
-            try
-            {
-                _user.Surname = model.Surname;
-                _user.Name = model.Name;
-                _user.Patronymic = model.Patronymic;
-
-                if (model.FileImg != null)
-                {
-                    string path = "\\img\\Users\\" + _user.UserName + "_" + model.FileImg.FileName;
-                    if (_user.Img != "\\img\\Users\\bntu.jpg")
-                    {
-                        IFileService.DeleteFile(_user.Img);
-                    }
-                    _user.Img = IFileService.UploadFile(model.FileImg, path);
-                }
-
-                await _userRepository.UpdateAsync(_user);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await UsersExists(model.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return Ok();
+            _logger.LogError("Произошла ошибка при изменении специальности - {User}", model.UserName);
         }
 
         return BadRequest(ModelState);
@@ -103,15 +73,12 @@ public class UsersApiController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<User>> PostSubject([FromForm] CreateUserVM model)
+    public async Task<ActionResult<UserViewModel>> PostUser([FromForm] UserViewModel model)
     {
-        if (await _userRepository.GetAllAsync() == null)
-        {
-            return Problem("Entity set 'ApplicationDbContext.Users' is null.");
-        }
         if (ModelState.IsValid)
         {
-            var response = await _userService.Registration(model);
+            var dto = Mapper.Map<RegisterDTO>(model);
+            var response = await _service.Registration(dto);
 
             if (response == null)
                 return BadRequest(new { message = "Имя пользователя занято" });
@@ -124,23 +91,16 @@ public class UsersApiController : ControllerBase
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> DeleteSubject(int id)
+    public async Task<IActionResult> DeleteSubject(Guid id)
     {
-        if (await _userRepository.GetAllAsync() == null)
+        try
         {
-            return Problem("Entity set 'ApplicationDbContext.Users' is null.");
+            await _service.DeleteAsync(id);
         }
-        User? user = await _userRepository.GetByIdAsync(id);
-        if (user != null)
+        catch (Exception e)
         {
-            await _userRepository.DeleteAsync(id);
+            _logger.LogError(e, "Удаление пользователя");
         }
-
         return Ok();
-    }
-
-    private async Task<bool> UsersExists(int id)
-    {
-        return (await _userRepository.GetAllAsync()).Any(e => e.Id == id);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BLL.DTO.Base;
+using BLL.DTO.RecruitmentPlans;
 
 namespace BLL.DTO
 {

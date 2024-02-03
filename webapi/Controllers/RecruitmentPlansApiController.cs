@@ -1,158 +1,82 @@
-﻿using webapi.Data.Models;
-using webapi.Data.Specifications;
-using webapi.ViewModels.RecruitmentPlans;
-using Microsoft.AspNetCore.Mvc;
-using webapi.Data.Interfaces.Repositories;
-using webapi.Data.Services;
-using webapi.Data.Interfaces.Services;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.DTO.GroupsOfSpecialities;
+using BLL.DTO.RecruitmentPlans;
+using BLL.Services;
+using BLL.Services.Interfaces;
+using DAL.Postgres.Repositories.Interfaces.Custom;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using webapi.ViewModels.Faculties;
+using webapi.ViewModels.GroupsOfSpecialities;
+using webapi.ViewModels.RecruitmentPlans;
 
 namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RecruitmentPlansApiController : ControllerBase
+    public class RecruitmentPlansApiController : BaseController
     {
         private readonly ILogger<RecruitmentPlansApiController> _logger;
-        private readonly IRecruitmentPlansRepository _plansRepository;
-        private readonly IFacultiesRepository _facultyRepository;
-        private readonly ISpecialitiesRepository _specialityRepository;
-        private readonly IFormsOfEducationRepository _formsOfEducationRepository;
-        private readonly IGroupsOfSpecialitiesRepository _groupsRepository;
+        private readonly IRecruitmentPlansService _service;
 
-        public RecruitmentPlansApiController(ILogger<RecruitmentPlansApiController> logger, IFacultiesRepository facultyRepository, IRecruitmentPlansRepository plansRepository,
-            ISpecialitiesRepository specialityRepository, IFormsOfEducationRepository formsOfEducationRepository, IGroupsOfSpecialitiesRepository groupsRepository)
+        public RecruitmentPlansApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<RecruitmentPlansApiController> logger, IRecruitmentPlansService service) : base(accessor, generator)
         {
             _logger = logger;
-            _plansRepository = plansRepository;
-            _facultyRepository = facultyRepository;
-            _specialityRepository = specialityRepository;
-            _formsOfEducationRepository = formsOfEducationRepository;
-            _groupsRepository = groupsRepository;
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DetailsFacultyRecruitmentPlans>>> GetFacultiesRecruitmentPlans()
-        {
-            List<DetailsFacultyRecruitmentPlans> model = new();
-            IEnumerable<Faculty> faculties = await _facultyRepository.GetAllAsync(new FacultiesSpecification().IncludeRecruitmentPlans());
-            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification());
-            int year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
-
-            foreach (Faculty faculty in faculties)
-            {
-                DetailsFacultyRecruitmentPlans plans = new(faculty, GetFacultyPlans(faculty, year), year);
-
-                model.Add(plans);
-            }
-
-            return model;
-        }
+        public async Task<ActionResult<IEnumerable<DetailsFacultyPlansViewModel>>> GetFacultiesPlans()
+            => Mapper.Map<List<DetailsFacultyPlansViewModel>>(await _service.GetLastFacultiesPlansAsync());
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RecruitmentPlan>> GetRecruitmentPlan(int id)
+        public async Task<ActionResult<RecruitmentPlanViewModel>> GetRecruitmentPlan(Guid id)
         {
-            RecruitmentPlan? plan = await _plansRepository.GetByIdAsync(id, new RecruitmentPlansSpecification().IncludeSpecialty());
+            RecruitmentPlanViewModel model = Mapper.Map<RecruitmentPlanViewModel>(await _service.GetAsync(id));
 
-            if (plan == null)
-            {
-                return NotFound();
-            }
-
-            plan.Speciality.RecruitmentPlans = null;
-            return plan;
+            return model != null ? model : NotFound();
         }
 
         [HttpGet("{facultyName}/{year}")]
-        public async Task<ActionResult<IEnumerable<PlansForSpecialityVM>>> GetFacultyRecruitmentPlans(string facultyName, int year)
-        {
-            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
-            List<PlansForSpecialityVM> plansForSpecialities = new();
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            if (faculty.Specialities != null)
-            {
-                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
-                foreach (Speciality speciality in faculty.Specialities)
-                {
-                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
-                    plansForSpecialities.Add(new(speciality));
-                }
-            }
-
-            return plansForSpecialities;
-        }
+        public async Task<ActionResult<IEnumerable<SpecialityPlansViewModel>>> GetFacultyPlans(string facultyName, int year)
+            => Mapper.Map<List<SpecialityPlansViewModel>>(await _service.GetByFacultyAsync(facultyName, year));
 
         [HttpGet("{facultyName}/lastYear")]
-        public async Task<ActionResult<object>> GetFacultyLastYearRecruitmentPlans(string facultyName)
+        public async Task<ActionResult<DetailsFacultyPlansViewModel>> GetFacultyLastYearRecruitmentPlans(string facultyName)
+            => Mapper.Map<DetailsFacultyPlansViewModel>(await _service.GetLastByFacultyAsync(facultyName));
+
+        [HttpGet("{facultyName}/{groupId}/GroupPlans")]
+        public async Task<ActionResult<IEnumerable<RecruitmentPlanViewModel>>> GetGroupPlans([FromServices] IAdmissionsService admissionsService,
+            [FromServices] IGroupsOfSpecialitiesService groupsService, string facultyName, Guid groupId)
         {
-            Faculty? faculty = await _facultyRepository.GetByShortNameAsync(facultyName, new FacultiesSpecification().IncludeSpecialties().IncludeRecruitmentPlans());
-            List<PlansForSpecialityVM> plansForSpecialities = new();
-            int year = 0;
-
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            if (faculty.Specialities != null)
-            {
-                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
-                List<RecruitmentPlan> allPlans = _plansRepository.GetAllAsync(new RecruitmentPlansSpecification()).Result.Where(p => p.Speciality.Faculty.ShortName == facultyName).ToList();
-                year = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
-                foreach (Speciality speciality in faculty.Specialities)
-                {
-                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
-                    plansForSpecialities.Add(new(speciality));
-                }
-            }
-
-            return new { year, plansForSpecialities };
-        }
-
-        [HttpGet("{facultyName}/{groupId}/GroupRecruitmentPlans")]
-        public async Task<ActionResult<IEnumerable<RecruitmentPlan>>> GetGroupRecruitmentPlans(string facultyName, int groupId)
-        {
-            GroupOfSpecialties? group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties().IncludeAdmissions());
+            GroupOfSpecialitiesDTO? group = await groupsService.GetAsync(groupId);
 
             if (group == null)
             {
                 return NotFound();
             }
 
-            List<RecruitmentPlan> plans;
+            List<RecruitmentPlanDTO> plans = await _service.GetByGroupAsync(groupId);
+
             if (!group.IsCompleted)
             {
-                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group));
-                IDistributionService distributionService = new DistributionService(plans, group.Admissions);
+                List<AdmissionDTO> admissions = await admissionsService.GetByGroupAsync(groupId);
+                IDistributionService distributionService = new DistributionService(plans, admissions);
                 plans = distributionService.GetPlansWithEnrolledStudents();
             }
-            else
-            {
-                plans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyName).WhereGroup(group));
-            }
-            plans.ForEach(i => (i.EnrolledStudents ?? new()).ForEach(s => s.Student.Admissions = null));
-            plans.ForEach(i => i.Speciality.Faculty = new());
-            plans.ForEach(i => i.Speciality.RecruitmentPlans = null);
-            plans.ForEach(i => i.Speciality.GroupsOfSpecialties = null);
-            return plans;
+
+            return Mapper.Map<List<RecruitmentPlanViewModel>>(plans);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> PutRecruitmentPlan(int id, ChangeRecruitmentPlanItemVM model)
+        public async Task<IActionResult> PutRecruitmentPlan(Guid id, RecruitmentPlanViewModel model)
         {
-            if (id != model.PlanId)
-            {
-                return BadRequest();
-            }
             if (ModelState.IsValid)
             {
-                RecruitmentPlan? plan =  await _plansRepository.GetByIdAsync(id);
+                RecruitmentPlanDTO plan = await _service.GetAsync(id);
                 if (plan == null)
                 {
                     return NotFound();
@@ -160,7 +84,8 @@ namespace webapi.Controllers.Api
                 plan.Count = model.Count;
                 plan.Target = model.Target;
 
-                await _plansRepository.UpdateAsync(plan);
+                await _service.SaveAsync(plan);
+
                 _logger.LogInformation("План приёма на - {SpecialityName} - обновлён", plan.Speciality.FullName);
 
                 return Ok();
@@ -170,23 +95,13 @@ namespace webapi.Controllers.Api
 
         [HttpPut("{facultyName}/{year}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<PlansForSpecialityVM> plansForSpecialities)
+        public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<SpecialityPlansViewModel> plansForSpecialities)
         {
             if (ModelState.IsValid)
             {
-                IEnumerable<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
-                IEnumerable<RecruitmentPlan> changedPlans = await CreateFacultyPlans(plansForSpecialities, year);
-                IEnumerable<RecruitmentPlan> diff = allPlans.Except(changedPlans);
+                var updateDto = Mapper.Map<List<SpecialityPlansDTO>>(plansForSpecialities);
+                await _service.SaveAsync(updateDto, facultyName, year);
 
-                foreach (RecruitmentPlan plan in diff)
-                {
-                    await _plansRepository.DeleteAsync(plan.Id);
-                }
-                foreach (RecruitmentPlan plan in changedPlans)
-                {
-                    Task task = plan.Id > 0 ? _plansRepository.UpdateAsync(plan) : _plansRepository.AddAsync(plan);
-                    await task;
-                }
                 _logger.LogInformation("План приёма на - {FacultyName} - за {Year} обновлён", facultyName, year);
 
                 return Ok();
@@ -196,15 +111,13 @@ namespace webapi.Controllers.Api
 
         [HttpPost("{facultyName}/{year}")]
         [Authorize(Roles = "commission")]
-        public async Task<ActionResult<RecruitmentPlan>> PostFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<PlansForSpecialityVM> plansForSpecialities)
+        public async Task<IActionResult> PostFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<SpecialityPlansViewModel> plansForSpecialities)
         {
             if (ModelState.IsValid)
             {
-                IEnumerable<RecruitmentPlan> plans = await CreateFacultyPlans(plansForSpecialities, year);
-                foreach (RecruitmentPlan plan in plans)
-                {
-                    await _plansRepository.AddAsync(plan);
-                }
+                var updateDto = Mapper.Map<List<SpecialityPlansDTO>>(plansForSpecialities);
+                await _service.SaveAsync(updateDto, facultyName, year);
+
                 _logger.LogInformation("План приёма на - {FacultyName} - за {Year} создан", facultyName, year);
 
                 return Ok();
@@ -216,121 +129,16 @@ namespace webapi.Controllers.Api
         [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteRecruitmentPlan(string facultyName, int year)
         {
-            IEnumerable<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereYear(year));
-
-            foreach (RecruitmentPlan plan in allPlans)
+            try
             {
-                await _plansRepository.DeleteAsync(plan.Id);
+                await _service.DeleteAsync(facultyName, year);
+                _logger.LogInformation("План приёма на - {FacultyName} - за {Year} год удалён", facultyName, year);
             }
-            _logger.LogInformation("План приёма на - {FacultyName} - за {Year} год удалён", facultyName, year);
-
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Удаление плана набора");
+            }
             return Ok();
-        }
-
-        private static List<PlansForSpecialityVM> GetFacultyPlans(Faculty faculty, int year)
-        {
-            List<PlansForSpecialityVM> facultyPlans = new();
-
-            if (faculty.Specialities != null)
-            {
-                faculty.Specialities = faculty.Specialities.OrderBy(sp => sp.DirectionCode ?? sp.Code).ToList();
-                foreach (Speciality speciality in faculty.Specialities)
-                {
-                    speciality.RecruitmentPlans = (speciality.RecruitmentPlans ?? new()).Where(p => p.FormOfEducation.Year == year).ToList();
-                    facultyPlans.Add(new(speciality));
-                }
-            }
-
-            return facultyPlans;
-        }
-
-        private async Task<IEnumerable<RecruitmentPlan>> CreateFacultyPlans(IEnumerable<PlansForSpecialityVM> facultyPlans, int year)
-        {
-            List<RecruitmentPlan> recruitmentPlans = new();
-
-            if (facultyPlans != null)
-            {
-                RecruitmentPlan plan;
-                foreach (PlansForSpecialityVM plans in facultyPlans)
-                {
-                    Speciality? speciality = await _specialityRepository.GetByIdAsync(plans.SpecialityId);
-                    if (speciality != null)
-                    {
-                        if (plans.DailyFullBudget > 0)
-                        {
-                            plan = await CreatePlan(plans.DailyFullBudget, true, true, true, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.DailyFullPaid > 0)
-                        {
-                            plan = await CreatePlan(plans.DailyFullPaid, true, true, false, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.DailyAbbreviatedBudget > 0)
-                        {
-                            plan = await CreatePlan(plans.DailyAbbreviatedBudget, true, false, true, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.DailyAbbreviatedPaid > 0)
-                        {
-                            plan = await CreatePlan(plans.DailyAbbreviatedPaid, true, false, false, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.EveningFullBudget > 0)
-                        {
-                            plan = await CreatePlan(plans.EveningFullBudget, false, true, true, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.EveningFullPaid > 0)
-                        {
-                            plan = await CreatePlan(plans.EveningFullPaid, false, true, false, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.EveningAbbreviatedBudget > 0)
-                        {
-                            plan = await CreatePlan(plans.EveningAbbreviatedBudget, false, false, true, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                        if (plans.EveningAbbreviatedPaid > 0)
-                        {
-                            plan = await CreatePlan(plans.EveningAbbreviatedPaid, false, false, false, year, speciality);
-                            recruitmentPlans.Add(plan);
-                        }
-                    }
-                }
-            }
-
-            return recruitmentPlans;
-        }
-
-        public async Task<RecruitmentPlan> CreatePlan(int count, bool isDailyForm, bool isFullTime, bool isBudget, int year, Speciality speciality)
-        {
-            FormOfEducation form = new()
-            {
-                IsDailyForm = isDailyForm,
-                IsBudget = isBudget,
-                IsFullTime = isFullTime,
-                Year = year,
-            };
-            RecruitmentPlan plan = (await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification().WhereForm(form).WhereSpeciality(speciality.Id))).SingleOrDefault() ?? new();
-            form = await GetOrCreateFormFromDB(form);
-            plan.Count = count;
-            plan.FormOfEducation = form;
-            plan.Speciality = speciality;
-
-            return plan;
-        }
-
-        private async Task<FormOfEducation> GetOrCreateFormFromDB(FormOfEducation form)
-        {
-            FormOfEducation formOfEducation = _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.SingleOrDefault() ?? form;
-
-            if (formOfEducation.Id == 0)
-            {
-                await _formsOfEducationRepository.AddAsync(form);
-            }
-
-            return _formsOfEducationRepository.GetAllAsync(new FormOfEducationSpecification().WhereForm(form)).Result.Single();
         }
     }
 }

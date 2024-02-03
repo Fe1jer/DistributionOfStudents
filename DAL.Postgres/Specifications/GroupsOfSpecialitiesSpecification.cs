@@ -33,8 +33,8 @@ namespace DAL.Postgres.Specifications
         {
 #nullable disable
             AddInclude(f => f.Subjects);
-
 #nullable restore
+
             return this;
         }
 

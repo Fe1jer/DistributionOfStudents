@@ -1,16 +1,11 @@
 ﻿using DAL.Postgres.Entities;
+using DAL.Postgres.Repositories.Interfaces.Base;
 using DAL.Postgres.Specifications.Base;
 
 namespace DAL.Postgres.Repositories.Interfaces.Custom
 {
-    public interface IGroupsOfSpecialitiesRepository
+    public interface IGroupsOfSpecialitiesRepository : IRepository<GroupOfSpecialities>
     {
-        Task<GroupOfSpecialities?> GetByIdAsync(Guid groupOfSpecialtiesId);
-        Task<GroupOfSpecialities?> GetByIdAsync(Guid id, ISpecification<GroupOfSpecialities> specification);
-        Task<List<GroupOfSpecialities>> GetAllAsync();
-        Task<List<GroupOfSpecialities>> GetAllAsync(ISpecification<GroupOfSpecialities> specification);
-        Task AddAsync(GroupOfSpecialities groupOfSpecialties);
-        Task UpdateAsync(GroupOfSpecialities groupOfSpecialties);
-        Task DeleteAsync(Guid id);
+        Task<List<GroupOfSpecialities>> GetByFacultyAsync(string facultyUrl, int year);
     }
 }

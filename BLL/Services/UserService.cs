@@ -1,32 +1,32 @@
 namespace BLL.Services;
 
+using BLL.DTO;
 using BLL.DTO.User;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
-using DAL.Postgres.Repositories.Interfaces.Custom;
+using DAL.Postgres.Repositories.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Helpers;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-public class UserService : IUserService
+public class UserService : BaseService, IUserService
 {
-    private readonly IUserRepository _userRepository;
     private readonly JWTSettings _setting;
 
-    public UserService(IUserRepository userRepository, IOptions<JWTSettings> options)
+    public UserService(IUnitOfWork unitOfWork, IOptions<JWTSettings> options) : base(unitOfWork)
     {
-        _userRepository = userRepository;
         _setting = options.Value;
     }
 
     public async Task<object?> Authenticate(LoginDTO model)
     {
-        User? _user = await _userRepository.GetByNameAsync(model.Username);
+        User? _user = await _unitOfWork.Users.GetByUrlAsync(model.Username);
         if (_user == null)
             return null;
         if (!VerifyHashedPassword(_user.PasswordHash, model.Password))
@@ -35,29 +35,81 @@ public class UserService : IUserService
         return new { jwtToken = GenerateJwtToken(_user), user = _user };
     }
 
-    public async Task<User?> Registration(RegisterDTO model)
+    public async Task<UserDTO?> Registration(RegisterDTO model)
     {
-        if (await _userRepository.GetByNameAsync(model.UserName) != null) return null;
+        if (await _unitOfWork.Users.GetByUrlAsync(model.UserName) != null) return null;
 
-        User user = new()
-        {
-            Surname = model.Surname,
-            Name = model.Name,
-            Patronymic = model.Patronymic,
-            UserName = model.UserName,
-            PasswordHash = GetHashPassword(model.Password),
-            Role = "commission",
-            Img = "\\img\\Users\\bntu.jpg"
-        };
+        User entity = Mapper.Map<User>(model);
+        entity.PasswordHash = GetHashPassword(model.Password);
+        entity.Role = "commission";
 
         if (model.FileImg != null)
         {
-            string path = "\\img\\Users\\" + user.UserName + "_" + model.FileImg.FileName;
-            user.Img = IFileService.UploadFile(model.FileImg, path);
+            string path = "\\img\\Users\\" + entity.UserName + "_" + model.FileImg.FileName;
+            entity.Img = IFileService.UploadFile(model.FileImg, path);
         }
-        await _userRepository.AddAsync(user);
+        await _unitOfWork.Users.InsertOrUpdateAsync(entity);
 
-        return user;
+        return Mapper.Map<UserDTO>(entity);
+    }
+
+    public async Task<List<UserDTO>> GetAllAsync()
+    {
+        var result = await _unitOfWork.Users.GetAllAsync();
+        return Mapper.Map<List<UserDTO>>(result);
+    }
+
+    public async Task<UserDTO> GetAsync(Guid id)
+    {
+        var entity = await _unitOfWork.Users.GetByIdAsync(id);
+        return Mapper.Map<UserDTO>(entity);
+    }
+
+    public async Task<UserDTO> GetAsync(string userName)
+    {
+        var entity = await _unitOfWork.Users.GetByUrlAsync(userName);
+        return Mapper.Map<UserDTO>(entity);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var toDelete = await _unitOfWork.Users.GetByIdAsync(id);
+        await _unitOfWork.Users.DeleteAsync(toDelete);
+        _unitOfWork.Commit();
+    }
+
+    public async Task<UserDTO?> SaveAsync(UserDTO model)
+    {
+        User? entity;
+        if (model.IsNew)
+        {
+            if (await _unitOfWork.Users.GetByUrlAsync(model.UserName) != null) return null;
+            entity = Mapper.Map<User>(model);
+            entity.Role = "commission";
+        }
+        else
+        {
+            entity = await _unitOfWork.Users.GetByIdAsync(model.Id);
+            Mapper.Map(model, entity);
+        }
+        if (!string.IsNullOrEmpty(model.Password))
+        {
+            entity.PasswordHash = GetHashPassword(model.Password);
+        }
+        if (model.FileImg != null)
+        {
+            string path = "\\img\\Users\\" + entity.UserName + "_" + model.FileImg.FileName;
+            if (entity.Img != "\\img\\Users\\bntu.jpg")
+            {
+                IFileService.DeleteFile(entity.Img);
+            }
+            entity.Img = IFileService.UploadFile(model.FileImg, path);
+        }
+
+        await _unitOfWork.Users.InsertOrUpdateAsync(entity);
+        _unitOfWork.Commit();
+
+        return Mapper.Map<UserDTO>(entity);
     }
 
     private static string GetHashPassword(string password)
@@ -139,8 +191,8 @@ public class UserService : IUserService
             Subject = new ClaimsIdentity(
                 new Claim[]
                 {
-                        new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
-                        new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString()),
+                        new(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
+                        new(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString()),
                 }
             ),
             Expires = DateTime.Now.AddMinutes(1),

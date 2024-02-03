@@ -8,17 +8,18 @@ namespace DAL.Postgres.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        private IAdmissionsRepository _admissions;
-        private IFacultiesRepository _faculties;
-        private IFormsOfEducationRepository _formsOfEducation;
-        private ISpecialitiesRepository _specialities;
-        private IGroupsOfSpecialitiesRepository _groupsOfSpecialities;
-        private IGroupsOfSpecialitiesStatisticRepository _groupsOfSpecialitiesStatistic;
-        private IRecruitmentPlansRepository _recruitmentPlans;
-        private IRecruitmentPlansStatisticRepository _recruitmentPlansStatistic;
-        private IStudentsRepository _students;
-        private ISubjectsRepository _subjects;
-        private IUserRepository _users;
+        private IAdmissionsRepository? _admissions;
+        private IFacultiesRepository? _faculties;
+        private IFormsOfEducationRepository? _formsOfEducation;
+        private ISpecialitiesRepository? _specialities;
+        private IGroupsOfSpecialitiesRepository? _groupsOfSpecialities;
+        private IGroupsOfSpecialitiesStatisticRepository? _groupsOfSpecialitiesStatistic;
+        private IRecruitmentPlansRepository? _recruitmentPlans;
+        private IRecruitmentPlansStatisticRepository? _recruitmentPlansStatistic;
+        private IStudentsRepository? _students;
+        private ISubjectsRepository? _subjects;
+        private IUserRepository? _users;
+        private bool disposed = false;
 
         public UnitOfWork(ApplicationDbContext context) => _context = context;
 
@@ -41,7 +42,24 @@ namespace DAL.Postgres.Repositories
 
         public void Dispose()
         {
-            _context.Dispose();
+            Cleanup(true);
+            GC.SuppressFinalize(this);
+        }
+        private void Cleanup(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    _context.Dispose();
+                }
+            }
+            disposed = true;
+        }
+
+        ~UnitOfWork()
+        {
+            Cleanup(false);
         }
     }
 }

@@ -2,7 +2,7 @@
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Base;
 using DAL.Postgres.Repositories.Interfaces.Custom;
-using DAL.Postgres.Specifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom
 {
@@ -10,20 +10,10 @@ namespace DAL.Postgres.Repositories.Custom
     {
         public UserRepository(ApplicationDbContext appDBContext) : base(appDBContext) { }
 
-        public async Task DeleteAsync(Guid id)
-        {
-            User? user = await GetByIdAsync(id);
-            if (user != null)
-            {
-                await DeleteAsync(user);
-            }
-        }
 
-        public async Task<User?> GetByNameAsync(string username)
+        public async Task<User?> GetByUrlAsync(string username)
         {
-            List<User> users = await GetAllAsync(new UsersSpecification().WhereUserName(username));
-
-            return users.FirstOrDefault();
+            return await EntitySet.SingleOrDefaultAsync(i => i.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

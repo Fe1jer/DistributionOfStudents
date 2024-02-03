@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
 using BLL.DTO;
+using BLL.DTO.GroupsOfSpecialities;
+using BLL.DTO.RecruitmentPlans;
+using BLL.DTO.Specialities;
+using BLL.DTO.Subjects;
 using BLL.DTO.User;
 using DAL.Postgres.Entities;
 

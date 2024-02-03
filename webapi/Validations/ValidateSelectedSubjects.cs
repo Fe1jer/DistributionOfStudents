@@ -1,5 +1,5 @@
-﻿using webapi.ViewModels.GroupsOfSpecialities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using webapi.ViewModels.GroupsOfSpecialities;
 
 namespace webapi.Validations
 {

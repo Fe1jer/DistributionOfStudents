@@ -1,20 +1,8 @@
-﻿using webapi.Data.Models;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
-
+﻿using System.ComponentModel.DataAnnotations;
 namespace webapi.ViewModels.Students
 {
     public class DetailsStudentVM
     {
-        public DetailsStudentVM() { }
-        public DetailsStudentVM(string fullName, string facultyName, GroupOfSpecialties group)
-        {
-            FullName = fullName;
-            FacultyName = facultyName;
-            GroupName = group.Name;
-            GroupId = group.Id;
-        }
-
         [Display(Name = "ФИО")]
         public string FullName { get; set; } = string.Empty;
 

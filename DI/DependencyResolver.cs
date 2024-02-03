@@ -29,7 +29,6 @@ namespace DependencyResolver
             services.AddTransient<ISpecialitiesService, SpecialitiesService>();
             services.AddTransient<ISubjectsService, SubjectsService>();
             services.AddTransient<IRecruitmentPlansService, RecruitmentPlansService>();
-            services.AddTransient<IFormsOfEducationService, FormsOfEducationService>();
             services.AddTransient<IGroupsOfSpecialitiesStatisticService, GroupsOfSpecialitiesStatisticService>();
             services.AddTransient<IRecruitmentPlansStatisticService, RecruitmentPlansStatisticService>();
 

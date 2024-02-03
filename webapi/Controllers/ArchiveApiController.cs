@@ -1,23 +1,24 @@
-﻿using webapi.Data.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Emit;
+using webapi.Data.Interfaces.Repositories;
+using webapi.Data.Interfaces.Services;
+using webapi.Data.Models;
 using webapi.Data.Services;
 using webapi.Data.Specifications;
 using webapi.ViewModels.Archive;
 using webapi.ViewModels.GroupsOfSpecialities;
-using Microsoft.AspNetCore.Mvc;
-using webapi.Data.Interfaces.Repositories;
-using webapi.Data.Interfaces.Services;
 
 namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArchiveApiController : ControllerBase
+    public class ArchiveApiController : BaseController
     {
         private readonly IRecruitmentPlansRepository _plansRepository;
         private readonly IGroupsOfSpecialitiesRepository _groupsRepository;
         private readonly IFacultiesRepository _facultiesRepository;
 
-        public ArchiveApiController(IRecruitmentPlansRepository plansRepository, IGroupsOfSpecialitiesRepository groupsRepository, IFacultiesRepository facultiesRepository)
+        public ArchiveApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<AdmissionsApiController> logger, IRecruitmentPlansRepository plansRepository, IGroupsOfSpecialitiesRepository groupsRepository, IFacultiesRepository facultiesRepository) : base(accessor, generator)
         {
             _plansRepository = plansRepository;
             _groupsRepository = groupsRepository;
