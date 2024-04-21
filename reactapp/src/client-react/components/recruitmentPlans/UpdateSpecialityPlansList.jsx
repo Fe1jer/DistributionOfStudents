@@ -24,7 +24,7 @@ export default function UpdateSpecialityPlansList({ plans, errors, onChange }) {
         </thead>
         <tbody>{
             plans.map((item, index) =>
-                <UpdateSpecialityPlan key={item.specialityName} index={index} specialityPlan={item} errors={errors[index] ?? {}} handleChange={onChange} />
+                <UpdateSpecialityPlan key={item.fullName} index={index} specialityPlan={item} errors={errors[index] ?? {}} handleChange={onChange} />
             )}
         </tbody>
     </Table>;

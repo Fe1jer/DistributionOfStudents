@@ -2,7 +2,7 @@
 using BLL.Mappers;
 using DAL.Postgres.Repositories.Interfaces;
 
-namespace BLL.Services
+namespace BLL.Services.Base
 {
     public class BaseService
     {

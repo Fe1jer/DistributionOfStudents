@@ -1,12 +1,13 @@
 ﻿using BLL.DTO.Base;
 using BLL.DTO.GroupsOfSpecialities;
+using BLL.DTO.Students;
 
 namespace BLL.DTO
 {
     public class AdmissionDTO : EntityDTO
     {
         public StudentDTO Student { get; set; } = new();
-        public GroupOfSpecialitiesDTO GroupOfSpecialties { get; set; } = new();
+        public GroupOfSpecialitiesDTO GroupOfSpecialties { get; set; } = null!;
         public DateTime DateOfApplication { get; set; }
         public List<SpecialityPriorityDTO> SpecialityPriorities { get; set; } = new();
         public string? PassportID { get; set; }
@@ -21,7 +22,7 @@ namespace BLL.DTO
         {
             get
             {
-                return StudentScores.Sum(i => i.Score) + Student.GPS;
+                return StudentScores.Sum(i => i.Score) + Student.GPA;
             }
         }
     }

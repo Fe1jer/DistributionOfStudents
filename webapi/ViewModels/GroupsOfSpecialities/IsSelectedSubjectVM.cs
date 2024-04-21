@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using webapi.Data.Models;
+using webapi.ViewModels.General;
 
 namespace webapi.ViewModels.GroupsOfSpecialities
 {
-    public class IsSelectedSubjectVM
+    public class IsSelectedSubjectVM : BaseViewModel
     {
-        public int Id { get; set; }
 
         [Display(Name = "Предмет")]
         public string Name { get; set; } = string.Empty;

@@ -1,9 +1,8 @@
 ﻿using BLL.DTO.Base;
 using BLL.DTO.Specialities;
 using Microsoft.AspNetCore.Http;
-using System.Runtime.Serialization.Formatters;
 
-namespace BLL.DTO
+namespace BLL.DTO.Faculties
 {
     public class FacultyDTO : EntityDTO
     {

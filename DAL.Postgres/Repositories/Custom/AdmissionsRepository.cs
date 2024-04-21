@@ -4,7 +4,6 @@ using DAL.Postgres.Repositories.Base;
 using DAL.Postgres.Repositories.Interfaces.Custom;
 using DAL.Postgres.Specifications.Base;
 using Shared.Filters.Base;
-using System.Linq;
 
 namespace DAL.Postgres.Repositories.Custom
 {

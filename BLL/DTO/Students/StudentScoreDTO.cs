@@ -1,11 +1,11 @@
 ﻿using BLL.DTO.Base;
 using BLL.DTO.Subjects;
 
-namespace BLL.DTO
+namespace BLL.DTO.Students
 {
     public class StudentScoreDTO : EntityDTO
     {
-        public SubjectDTO Subject { get; set; } = new();
+        public SubjectDTO Subject { get; set; } = null!;
         public int Score { get; set; }
     }
 }

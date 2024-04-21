@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 export default function UpdateSpecialityPlan({ specialityPlan, errors, handleChange, index }) {
     return (    
         <tr className="align-middle">
-            <td>{specialityPlan.specialityName}</td>
+            <td>{specialityPlan.fullName}</td>
             <td><Form.Control type="number" name={"plans[" + index + "].dailyFullBudget"} value={specialityPlan.dailyFullBudget}
                 onChange={handleChange}
                 isInvalid={!!errors.dailyFullBudget} /></td>

@@ -1,9 +1,7 @@
 ﻿using BLL.DTO;
-using BLL.DTO.GroupsOfSpecialities;
 using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Shared.Filters.Base;
 using webapi.ViewModels.Admissions;
 

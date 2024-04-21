@@ -8,7 +8,7 @@ namespace BLL.Services.Interfaces
         Task<RecruitmentPlanDTO> GetAsync(Guid id);
         Task<List<FacultyRecruitmentPlanDTO>> GetLastFacultiesPlansAsync();
         Task<FacultyRecruitmentPlanDTO> GetLastByFacultyAsync(string facultyUrl);
-        Task<List<RecruitmentPlanDTO>> GetByFacultyAsync(string facultyUrl, int year);
+        Task<List<SpecialityPlansDTO>> GetByFacultyAsync(string facultyUrl, int year);
         Task<List<RecruitmentPlanDTO>> GetByGroupAsync(Guid groupId);
         Task DeleteAsync(string facultyUrl, int year);
         Task DeleteAsync(Guid id);

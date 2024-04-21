@@ -12,14 +12,14 @@ namespace DAL.Postgres.Repositories.Custom
         public FacultiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
         {
         }
-        public async Task<int> GetCountByUrlAsync(string url, Guid excludeId)
+        public async Task<int> GetCountByUrlAsync(string newUrl, string oldUrl)
         {
-            return await EntitySet.CountAsync(p => p.ShortName.Equals(url, StringComparison.OrdinalIgnoreCase) && p.Id != excludeId);
+            return await EntitySet.CountAsync(p => p.ShortName == newUrl && p.ShortName != oldUrl);
         }
 
         public async Task<Faculty?> GetByUrlAsync(string url)
         {
-            return await EntitySet.SingleOrDefaultAsync(i => i.ShortName.Equals(url, StringComparison.OrdinalIgnoreCase));
+            return await EntitySet.SingleOrDefaultAsync(i => i.ShortName == url);
         }
 
         public async Task<Faculty?> GetByUrlAsync(string url, ISpecification<Faculty> specification)

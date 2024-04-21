@@ -7,7 +7,7 @@ namespace DAL.Postgres.Entities
         public string Name { get; set; } = String.Empty;
         public string Surname { get; set; } = String.Empty;
         public string Patronymic { get; set; } = String.Empty;
-        public int GPS { get; set; }
+        public int GPA { get; set; }
         public List<Admission>? Admissions { get; set; }
     }
 }

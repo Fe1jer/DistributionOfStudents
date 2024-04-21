@@ -1,7 +1,7 @@
 namespace BLL.Services;
 
-using BLL.DTO;
 using BLL.DTO.User;
+using BLL.Services.Base;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;

@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using webapi.Data.Models;
+using webapi.ViewModels.General;
 
 namespace webapi.ViewModels.GroupsOfSpecialities
 {
-    public class IsSelectedSpecialityInGroupVM
+    public class IsSelectedSpecialityInGroupVM : BaseViewModel
     {
-        public Guid Id { get; set; }
 
         [Display(Name = "Специальность")]
-        public string FulName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
 
 
         [Display(Name = "Состоит ли в группе")]

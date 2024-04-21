@@ -55,9 +55,9 @@ namespace DAL.Postgres.Repositories.Base
                 await Context.AddAsync(entity);
             else
             {
+                EntitySet.Attach(entity);
                 Context.Entry(entity).State = EntityState.Modified;
             }
-            await Context.SaveChangesAsync();
         }
 
         public async Task<List<T>> GetAllAsync(ISpecification<T> specification)

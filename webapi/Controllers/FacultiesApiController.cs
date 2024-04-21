@@ -1,4 +1,4 @@
-﻿using BLL.DTO;
+﻿using BLL.DTO.Faculties;
 using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,8 @@ namespace webapi.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DetailsFacultyViewModel>>> GetFaculties() => Mapper.Map<List<DetailsFacultyViewModel>>(await _service.GetAllAsync());
+        public async Task<ActionResult<IEnumerable<DetailsFacultyViewModel>>> GetFaculties() =>
+            Mapper.Map<List<DetailsFacultyViewModel>>(await _service.GetAllAsync());
 
         [HttpGet("{shortName}")]
         public async Task<ActionResult<DetailsFacultyViewModel>> GetFaculty(string shortName)
@@ -38,7 +39,7 @@ namespace webapi.Controllers.Api
             {
                 try
                 {
-                    if (await _service.CheckUrlIsUniqueAsync(shortName, model.Id))
+                    if (await _service.CheckUrlIsUniqueAsync(model.ShortName, shortName))
                     {
                         var dto = Mapper.Map<FacultyDTO>(model);
                         dto = await _service.SaveAsync(dto);
@@ -82,7 +83,7 @@ namespace webapi.Controllers.Api
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Изменение факультета");
+                _logger.LogError(e, "Добавление факультета");
 
             }
             return BadRequest(ModelState);
@@ -90,11 +91,11 @@ namespace webapi.Controllers.Api
 
         [HttpDelete("{shortName}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> DeleteFaculty(Guid id)
+        public async Task<IActionResult> DeleteFaculty(string shortName)
         {
             try
             {
-                await _service.DeleteAsync(id);
+                await _service.DeleteAsync(shortName);
             }
             catch (Exception e)
             {

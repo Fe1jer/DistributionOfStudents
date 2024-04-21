@@ -66,9 +66,9 @@ namespace DAL.Postgres.Specifications
             return this;
         }
 
-        public RecruitmentPlansSpecification WhereFaculty(string facultyName)
+        public RecruitmentPlansSpecification WhereFaculty(string facultyUrl)
         {
-            AddWhere(i => i.Speciality.Faculty.ShortName == facultyName);
+            AddWhere(i => i.Speciality.Faculty.ShortName == facultyUrl);
 
             return this;
         }

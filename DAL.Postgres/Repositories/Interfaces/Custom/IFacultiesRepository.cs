@@ -8,6 +8,6 @@ namespace DAL.Postgres.Repositories.Interfaces.Custom
     {
         Task<Faculty?> GetByUrlAsync(string url);
         Task<Faculty?> GetByUrlAsync(string url, ISpecification<Faculty> specification);
-        Task<int> GetCountByUrlAsync(string url, Guid excludeId);
+        Task<int> GetCountByUrlAsync(string newUrl, string oldUrl);
     }
 }

@@ -4,7 +4,7 @@ export const RecruitmentPlansValidationSchema = yup.object().shape({
     year: yup.number().min(0).required(),
     plans: yup.array().of(
         yup.object().shape({
-            specialityName: yup.string().required(),
+            fullName: yup.string().required(),
             dailyFullBudget: yup.number().min(0).required(),
             dailyFullPaid: yup.number().min(0).required(),
             dailyAbbreviatedBudget: yup.number().min(0).required(),
@@ -18,7 +18,7 @@ export const RecruitmentPlansValidationSchema = yup.object().shape({
 });
 
 export const RecruitmentPlanValidationSchema = yup.object().shape({
-    planId: yup.number().min(0).required(),
+    id: yup.string().uuid(),
     count: yup.number().min(0).required(),
     target: yup.number().min(0).required(),
 });

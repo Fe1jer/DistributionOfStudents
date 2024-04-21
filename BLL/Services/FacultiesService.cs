@@ -1,4 +1,5 @@
-﻿using BLL.DTO;
+﻿using BLL.DTO.Faculties;
+using BLL.Services.Base;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;
@@ -17,14 +18,14 @@ namespace BLL.Services
             return Mapper.Map<List<FacultyDTO>>(result);
         }
 
-        public async Task<bool> CheckUrlIsUniqueAsync(string url, Guid id)
+        public async Task<bool> CheckUrlIsUniqueAsync(string newUrl, string oldUrl)
         {
-            return (await _unitOfWork.Faculties.GetCountByUrlAsync(url, id)) == 0;
+            return (await _unitOfWork.Faculties.GetCountByUrlAsync(newUrl, oldUrl)) == 0;
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(string url)
         {
-            var toDelete = await _unitOfWork.Faculties.GetByIdAsync(id);
+            var toDelete = await _unitOfWork.Faculties.GetByUrlAsync(url);
             await _unitOfWork.Faculties.DeleteAsync(toDelete);
             _unitOfWork.Commit();
         }

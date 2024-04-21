@@ -1,4 +1,4 @@
-﻿namespace webapi.ViewModels
+﻿namespace webapi.ViewModels.General
 {
     public abstract class BaseViewModel
     {

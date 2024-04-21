@@ -1,6 +1,7 @@
 ﻿using BLL.DTO.GroupsOfSpecialities;
 using BLL.DTO.Specialities;
 using BLL.DTO.Subjects;
+using BLL.Services.Base;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;

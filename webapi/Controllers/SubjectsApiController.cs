@@ -28,7 +28,12 @@ namespace webapi.Controllers.Api
 
         // GET: api/ApiSubjects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SubjectViewModel>> GetSubject(Guid id) => Mapper.Map<SubjectViewModel>(await _service.GetAsync(id));
+        public async Task<ActionResult<SubjectViewModel>> GetSubject(Guid id)
+        {
+            SubjectViewModel model = Mapper.Map<SubjectViewModel>(await _service.GetAsync(id));
+
+            return model != null ? model : NotFound();
+        }
 
         // PUT: api/ApiSubjects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

@@ -7,7 +7,7 @@ namespace DAL.Postgres.Specifications
     public class SpecialitiesSpecification : Specification<Speciality>
     {
 
-        public SpecialitiesSpecification() : base()
+        public SpecialitiesSpecification()
         {
         }
 
@@ -17,9 +17,16 @@ namespace DAL.Postgres.Specifications
         {
         }
 
+        public SpecialitiesSpecification WhereFaculty(string facultyUrl)
+        {
+            AddWhere(i => i.Faculty.ShortName == facultyUrl);
+
+            return this;
+        }
+
         public SpecialitiesSpecification SortBySpecialties()
         {
-            AddOrdering(sp => int.Parse(string.Join("", sp.Code.Where(c => char.IsDigit(c)))));
+            AddOrdering(sp => int.Parse(string.Join("", sp.Code.Where(char.IsDigit))));
             return this;
         }
 
@@ -43,6 +50,14 @@ namespace DAL.Postgres.Specifications
 
         public SpecialitiesSpecification IncludeRecruitmentPlans()
         {
+            AddInclude("RecruitmentPlans.FormOfEducation");
+
+            return this;
+        }
+
+        public SpecialitiesSpecification IncludeRecruitmentPlans(int year)
+        {
+            AddInclude(i => i.RecruitmentPlans.Where(p => p.FormOfEducation.Year == year));
             AddInclude("RecruitmentPlans.FormOfEducation");
 
             return this;

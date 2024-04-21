@@ -5,7 +5,7 @@ namespace BLL.DTO
 {
     public class SpecialityPriorityDTO : EntityDTO
     {
-        public RecruitmentPlanDTO RecruitmentPlan { get; set; } = new();
+        public RecruitmentPlanDTO RecruitmentPlan { get; set; } = null!;
         public int Priority { get; set; }
     }
 }

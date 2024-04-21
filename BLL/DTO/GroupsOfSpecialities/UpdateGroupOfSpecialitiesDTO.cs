@@ -11,7 +11,7 @@ namespace BLL.DTO.GroupsOfSpecialities
         public DateTime StartDate { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public bool IsCompleted { get; set; }
-        public FormOfEducationDTO FormOfEducation { get; set; } = new();
+        public FormOfEducationDTO FormOfEducation { get; set; } = null!;
         public List<SelectedSubjectDTO>? Subjects { get; set; }
         public List<SelectedSpecialityDTO>? Specialities { get; set; }
     }

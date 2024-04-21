@@ -11,7 +11,7 @@ namespace BLL.Services.Interfaces
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("Распределение БНТУ", "electroshopf@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("Распределение БНТУ", "distributionbntu@gmail.com"));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = subject;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Text)

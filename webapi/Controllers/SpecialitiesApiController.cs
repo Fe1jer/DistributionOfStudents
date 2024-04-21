@@ -20,11 +20,11 @@ namespace webapi.Controllers.Api
         }
 
         [HttpGet("FacultySpecialities/{facultyUrl}")]
-        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultySpecialities(string facultyUrl) 
+        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultySpecialities(string facultyUrl)
             => Mapper.Map<List<SpecialityViewModel>>(await _service.GetByFacultyAsync(facultyUrl));
 
         [HttpGet("FacultyDisabledSpecialities/{facultyUrl}")]
-        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultyDisabledSpecialities(string facultyUrl) 
+        public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultyDisabledSpecialities(string facultyUrl)
             => Mapper.Map<List<SpecialityViewModel>>(await _service.GetByFacultyAsync(facultyUrl, true));
 
         [HttpGet("GroupSpecialities/{groupId}")]

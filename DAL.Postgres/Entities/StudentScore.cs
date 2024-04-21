@@ -4,7 +4,7 @@ namespace DAL.Postgres.Entities
 {
     public class StudentScore : Entity
     {
-        public Subject Subject { get; set; } = new();
+        public Subject Subject { get; set; } = null!;
         public int Score { get; set; }
     }
 }

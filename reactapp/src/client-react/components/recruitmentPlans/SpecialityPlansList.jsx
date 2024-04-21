@@ -34,7 +34,7 @@ export default function SpecialityPlansList({ facultyShortName, year, plans, onC
             </thead>
             <tbody>{
                 plans.map((item) =>
-                    <SpecialityPlan key={item.specialityName} specialityPlan={item} />
+                    <SpecialityPlan key={item.fullName} specialityPlan={item} />
                 )}
             </tbody>
         </Table>

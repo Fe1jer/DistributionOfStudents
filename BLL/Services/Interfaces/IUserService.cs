@@ -1,6 +1,4 @@
-﻿using BLL.DTO;
-using BLL.DTO.User;
-using DAL.Postgres.Entities;
+﻿using BLL.DTO.User;
 
 namespace BLL.Services.Interfaces
 {

@@ -1,15 +1,11 @@
 ﻿using DAL.Postgres.Entities;
+using DAL.Postgres.Repositories.Interfaces.Base;
 
 namespace DAL.Postgres.Repositories.Interfaces.Custom
 {
-    public interface IGroupsOfSpecialitiesStatisticRepository
+    public interface IGroupsOfSpecialitiesStatisticRepository : IRepository<GroupOfSpecialitiesStatistic>
     {
         Task<GroupOfSpecialitiesStatistic?> GetByGroupAndDateAsync(Guid groupId, DateTime date);
-        Task<GroupOfSpecialitiesStatistic?> GetByIdAsync(Guid statisticId);
-        Task<List<GroupOfSpecialitiesStatistic>> GetAllAsync();
         Task<List<GroupOfSpecialitiesStatistic>> GetAllAsync(Guid groupId);
-        Task AddAsync(GroupOfSpecialitiesStatistic statistic);
-        Task UpdateAsync(GroupOfSpecialitiesStatistic statistic);
-        Task DeleteAsync(Guid id);
     }
 }

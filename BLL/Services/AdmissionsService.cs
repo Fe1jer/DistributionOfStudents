@@ -1,19 +1,11 @@
 ﻿using BLL.DTO;
-using BLL.DTO.GroupsOfSpecialities;
-using BLL.DTO.Specialities;
-using BLL.DTO.Subjects;
+using BLL.DTO.Students;
+using BLL.Services.Base;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;
 using DAL.Postgres.Specifications;
-using Org.BouncyCastle.Asn1.IsisMtt.X509;
 using Shared.Filters.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace BLL.Services
 {

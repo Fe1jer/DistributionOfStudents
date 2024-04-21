@@ -16,7 +16,7 @@ export default function SelectedGroupSubjects({ onChange, errors, subjects }) {
                     <Form.Check key={item.subject} className="mb-1"
                         name={"selectedSubjects[" + index + "].isSelected"}
                         type="checkbox"
-                        id={item.subject}
+                        id={item.subjectId}
                         label={item.subject}
                         checked={item.isSelected}
                         onChange={onChange}

@@ -1,206 +1,125 @@
 ﻿using BLL.DTO;
 using BLL.DTO.RecruitmentPlans;
+using BLL.DTO.Students;
+using BLL.Extensions;
+using BLL.Services.Base;
 using BLL.Services.Interfaces;
+using DAL.Postgres.Entities;
+using DAL.Postgres.Repositories.Interfaces;
+using DAL.Postgres.Specifications;
+
 
 namespace BLL.Services
 {
-    public class DistributionService : IDistributionService
+    public class DistributionService : BaseService, IDistributionService
     {
-        private readonly List<RecruitmentPlanDTO> _recruitmentPlans;
-        private readonly List<AdmissionDTO> _admissions;
-        private readonly Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> _distributedStudents;
-
-        public DistributionService(List<RecruitmentPlanDTO> recruitmentPlans, List<AdmissionDTO>? admissions)
+        public DistributionService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _recruitmentPlans = recruitmentPlans;
-            _admissions = admissions ?? new();
-            _distributedStudents = new();
+        }
 
-            _recruitmentPlans.ForEach(plan => _distributedStudents.Add(plan, new List<AdmissionDTO>()));
-            if (_recruitmentPlans.All(i => i.EnrolledStudents == null))
+        public async Task<Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>>> GetAsync(string facultyUrl, Guid groupId)
+        {
+            var distribution = await GetDistribution(facultyUrl, groupId);
+
+            return distribution.GetPlansWithEnrolledStudents();
+        }
+
+        public async Task<float> GetCompetitionAsync(string facultyUrl, Guid groupId)
+        {
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
+            List<RecruitmentPlanDTO> planDtos = Mapper.Map<List<RecruitmentPlanDTO>>(plans);
+            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+
+            return (float)Math.Round(planDtos.Distribution(addmissionDtos).Competition(addmissionDtos), 2);
+        }
+
+        public async Task<bool> ExistsEnrolledStudentsAsync(string facultyUrl, Guid groupId)
+        {
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties());
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyUrl).WhereGroup(group));
+
+            return plans.Exists(i => i.EnrolledStudents?.Count > 0);
+        }
+
+        public async Task SaveAsync(string facultyUrl, Guid groupId, List<PlanForDistributionDTO> models, bool notify)
+        {
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
+            group.IsCompleted = true;
+            await _unitOfWork.GroupsOfSpecialities.InsertOrUpdateAsync(group);
+
+            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+            List<RecruitmentPlanDTO> plans = await GetPlansFromModelsAsync(models, facultyUrl, group);
+            var distribution = plans.Distribution(addmissionDtos);
+
+            foreach (var plan in distribution.GetPlansWithPassingScores().Keys)
             {
-                DistridutionPlans(_recruitmentPlans, GetCloneOfAdmissions());
+                RecruitmentPlan? entity = await _unitOfWork.RecruitmentPlans.GetByIdAsync(plan.Id);
+                Mapper.Map(plan, entity);
+                await _unitOfWork.RecruitmentPlans.InsertOrUpdateAsync(entity);
             }
-            else
+
+            if (notify) distribution.NotifyEnrolledStudents(addmissionDtos);
+            throw new NotImplementedException();
+        }
+
+        public async Task<Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>>> CreateAsync(string facultyUrl, Guid groupId, List<PlanForDistributionDTO> models)
+        {
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
+            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group?.Admissions);
+            List<RecruitmentPlanDTO> plans = await GetPlansFromModelsAsync(models, facultyUrl, group);
+
+            return plans.Distribution(addmissionDtos).GetPlansWithEnrolledStudents();
+        }
+
+        public async Task DeleteAsync(string facultyUrl, Guid groupId)
+        {
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyUrl).IncludeAdmissions().IncludeSpecialties());
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().IncludeEnrolledStudents().WhereFaculty(facultyUrl).WhereGroup(group));
+
+            group.IsCompleted = false;
+            await _unitOfWork.GroupsOfSpecialities.InsertOrUpdateAsync(group);
+            foreach (RecruitmentPlan plan in plans)
             {
-                DistridutionControversialPlans();
+                plan.PassingScore = 0;
+                plan.EnrolledStudents = null;
+                await _unitOfWork.RecruitmentPlans.InsertOrUpdateAsync(plan);
             }
+            _unitOfWork.Commit();
         }
 
-        private List<AdmissionDTO> GetCloneOfAdmissions()
+        private async Task<Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>>> GetDistribution(string facultyUrl, Guid groupId)
         {
-            return _admissions.Select(i => new AdmissionDTO
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
+            List<RecruitmentPlanDTO> planDtos = Mapper.Map<List<RecruitmentPlanDTO>>(plans);
+            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+
+            return planDtos.Distribution(addmissionDtos);
+        }
+
+        private async Task<List<RecruitmentPlanDTO>> GetPlansFromModelsAsync(IEnumerable<PlanForDistributionDTO> models, string facultyUrl, GroupOfSpecialities group)
+        {
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
+            foreach (PlanForDistributionDTO distributedPlan in models)
             {
-                SpecialityPriorities = i.SpecialityPriorities.OrderBy(p => p.Priority).ToList(),
-                StudentScores = i.StudentScores,
-                Student = i.Student,
-                Email = i.Email,
-                IsOutOfCompetition = i.IsOutOfCompetition,
-                IsTargeted = i.IsTargeted,
-                IsWithoutEntranceExams = i.IsWithoutEntranceExams
-            }).ToList();
-        }
-
-        private void DistridutionControversialPlans()
-        {
-            List<RecruitmentPlanDTO> controversialPlans = GetControversialPlans(_recruitmentPlans.ToList(), out List<AdmissionDTO> freeAdmissions);
-            DistridutionPlans(controversialPlans, freeAdmissions);
-        }
-
-        private List<RecruitmentPlanDTO> GetControversialPlans(List<RecruitmentPlanDTO> plans, out List<AdmissionDTO> freeAdmissions)
-        {
-            freeAdmissions = GetCloneOfAdmissions();
-            foreach (RecruitmentPlanDTO plan in plans.OrderByDescending(i => i.PassingScore).ToList())
-            {
-                if (plan.EnrolledStudents != null && plan.EnrolledStudents.Count != 0 && plan.Count <= plan.EnrolledStudents.Count)
+                RecruitmentPlan? plan = await _unitOfWork.RecruitmentPlans.GetByIdAsync(distributedPlan.Id, new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
+                if (plan is not null)
                 {
-                    freeAdmissions.RemoveAll(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id));
-                    freeAdmissions.ForEach(admission => admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan.Id == plan.Id));
-                    plans.Remove(plan);
-                }
-            }
-
-            return plans;
-        }
-
-        public float Competition
-        {
-            get
-            {
-                float allPlans = _recruitmentPlans.Sum(i => i.Count);
-                if (allPlans == 0)
-                {
-                    return 0;
-                }
-                return _admissions.Count / allPlans;
-            }
-        }
-
-        public bool AreControversialStudents()
-        {
-            return _recruitmentPlans.Any(i => (i.EnrolledStudents ?? new()).Count > i.Count);
-        }
-
-        public List<RecruitmentPlanDTO> GetPlansWithEnrolledStudents()
-        {
-            GetPlansWithPassingScores();
-            foreach (KeyValuePair<RecruitmentPlanDTO, List<AdmissionDTO>> keyValuePair in _distributedStudents)
-            {
-                if (keyValuePair.Key.EnrolledStudents == null || keyValuePair.Key.EnrolledStudents.Count == 0)
-                {
-                    keyValuePair.Key.EnrolledStudents = keyValuePair.Value.Select(i => new EnrolledStudentDTO { Student = i.Student }).ToList();
-                }
-            }
-            return _recruitmentPlans;
-        }
-
-        public List<RecruitmentPlanDTO> GetPlansWithPassingScores()
-        {
-            foreach (KeyValuePair<RecruitmentPlanDTO, List<AdmissionDTO>> keyValuePair in _distributedStudents)
-            {
-                if (keyValuePair.Key.EnrolledStudents == null || keyValuePair.Key.Count == 0)
-                {
-                    keyValuePair.Key.TargetPassingScore = keyValuePair.Key.Target == 0 || keyValuePair.Key.Target > keyValuePair.Value.Where(s => s.IsTargeted).Count() ? 0 :
-                        keyValuePair.Value.Where(s => s.IsTargeted).OrderByDescending(i => i.Score).Take(keyValuePair.Key.Target).Min(a => a.Score);
-
-                    keyValuePair.Key.PassingScore = keyValuePair.Key.Count > keyValuePair.Value.Count ? 0 :
-                        keyValuePair.Value.Where(s => !(s.IsTargeted && s.Score >= keyValuePair.Key.TargetPassingScore)
-                        && !s.IsWithoutEntranceExams && !s.IsOutOfCompetition).Min(a => a.Score);
-                }
-            }
-
-            return _recruitmentPlans;
-        }
-
-        private void DistridutionPlans(List<RecruitmentPlanDTO> plans, List<AdmissionDTO> freeAdmissions)
-        {
-            List<AdmissionDTO> tempDistributedAdmissions = new();
-
-            for (int i = 0; i < plans.Count; i++)
-            {
-                GetPlansWithPassingScores();
-                foreach (RecruitmentPlanDTO plan in plans.OrderByDescending(i => i.PassingScore))
-                {
-                    tempDistributedAdmissions = _distributedStudents[plan].ToList();
-                    AddPriorityAdmissonsToPlan(plan, freeAdmissions);
-                    DistridutionToPlan(plan, freeAdmissions);
-                    freeAdmissions.AddRange(tempDistributedAdmissions.Except(_distributedStudents[plan]));
-                }
-            }
-        }
-
-        private void DistridutionToPlan(RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
-        {
-            if (_distributedStudents[plan].Count > plan.Count)
-            {
-                int targetPassingScore = 0, generalPassingScore = 0;
-                List<AdmissionDTO> targetAdmissions = new(), generalAdmissions = new();
-
-                if (plan.Target != 0)
-                {
-                    targetAdmissions = _distributedStudents[plan].Where(s => s.IsTargeted).OrderByDescending(i => i.Score).Take(plan.Target).ToList();
-                    targetPassingScore = targetAdmissions.Count == 0 ? 0 : targetAdmissions.Min(i => i.Score);
-                    targetAdmissions = _distributedStudents[plan].Where(s => s.IsTargeted && s.Score >= targetPassingScore).ToList();
-                }
-                generalAdmissions = _distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
-                    .OrderByDescending(i => i.IsWithoutEntranceExams).ThenByDescending(i => i.IsOutOfCompetition).ThenByDescending(i => i.Score)
-                    .Take(plan.Count - targetAdmissions.Count).ToList();
-                generalPassingScore = generalAdmissions.Count == 0 ? 0 : generalAdmissions.Last().Score;
-                generalAdmissions = _distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
-                    .Where(s => s.IsWithoutEntranceExams || s.IsOutOfCompetition || s.Score >= generalPassingScore).ToList();
-
-                freeAdmissions.AddRange(_distributedStudents[plan].Except(targetAdmissions).Except(generalAdmissions));
-                _distributedStudents[plan].RemoveAll(i => freeAdmissions.Contains(i));
-            }
-        }
-
-        private void AddPriorityAdmissonsToPlan(RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
-        {
-            foreach (AdmissionDTO admission in freeAdmissions.Where(i => i.SpecialityPriorities.Any()).Where(i => i.SpecialityPriorities[0].RecruitmentPlan == plan))
-            {
-                _distributedStudents[plan].Add(admission);
-                admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan == plan);
-            }
-            freeAdmissions.RemoveAll(i => _distributedStudents[plan].Contains(i));
-        }
-
-        public void NotifyEnrolledStudents()
-        {
-            List<AdmissionDTO> allAdmissions = GetCloneOfAdmissions();
-            foreach (RecruitmentPlanDTO plan in _recruitmentPlans)
-            {
-                if (plan.EnrolledStudents != null)
-                {
-                    foreach (AdmissionDTO admission in allAdmissions.Where(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id)))
+                    plan.EnrolledStudents = new();
+                    foreach (IsDistributedStudentDTO distributedStudent in distributedPlan.DistributedStudents.Where(i => i.IsDistributed))
                     {
-                        if (admission.Email != null)
+                        Student? student = await _unitOfWork.Students.GetByIdAsync(distributedStudent.StudentId);
+                        if (student is not null)
                         {
-                            string studentFullName = admission.Student.Name + " " + admission.Student.Patronymic;
-                            string specialityName = plan.Speciality.DirectionName ?? plan.Speciality.FullName;
-                            string message = studentFullName + ", вы зачислены на \"" + plan.Speciality.Faculty.FullName + "\""
-                                + " на специальность \"" + specialityName + "\"";
-
-                            IEmailService.SendEmailAsync(admission.Email, "Вы зачислены", message);
+                            plan.EnrolledStudents.Add(new EnrolledStudent() { Student = student });
                         }
                     }
-                    allAdmissions.RemoveAll(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id));
+                    plans = plans.Select(i => i.Id != plan.Id ? i : plan).ToList();
                 }
             }
-            foreach (AdmissionDTO admission in allAdmissions)
-            {
-                if (admission.Email != null)
-                {
-                    string studentFullName = admission.Student.Name + " " + admission.Student.Patronymic;
-                    string message = studentFullName + ", вы не были зачислены на следующие специальности:\n";
 
-                    foreach (SpecialityPriorityDTO specialityPriority in admission.SpecialityPriorities)
-                    {
-                        string specialityName = specialityPriority.RecruitmentPlan.Speciality.DirectionName ?? specialityPriority.RecruitmentPlan.Speciality.FullName;
-                        message += "- " + specialityName + "\n";
-                    }
-                    IEmailService.SendEmailAsync(admission.Email, "Вы не были зачислены", message);
-                }
-            }
+            return Mapper.Map<List<RecruitmentPlanDTO>>(plans);
         }
     }
 }

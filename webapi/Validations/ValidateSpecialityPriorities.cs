@@ -10,7 +10,7 @@ namespace webapi.Validations
             List<SpecialityPriorityViewModel>? dt = (List<SpecialityPriorityViewModel>?)value;
             if (dt != null)
             {
-                if (dt.Any(i => i.Priority < 0))
+                if (dt.Exists(i => i.Priority < 0))
                 {
                     return new ValidationResult("Укажите верный порядок");
                 }

@@ -7,6 +7,6 @@ namespace webapi.ViewModels.Distribution
         [Display(Name = "Выбран для распределения на специальность")]
         public bool IsDistributed { get; set; }
 
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
     }
 }

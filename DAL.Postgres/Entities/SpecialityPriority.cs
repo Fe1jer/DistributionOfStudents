@@ -4,7 +4,7 @@ namespace DAL.Postgres.Entities
 {
     public class SpecialityPriority : Entity
     {
-        public RecruitmentPlan RecruitmentPlan { get; set; } = new();
+        public RecruitmentPlan RecruitmentPlan { get; set; } = null!;
         public int Priority { get; set; }
     }
 }

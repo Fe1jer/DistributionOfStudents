@@ -2,14 +2,14 @@ import * as yup from 'yup';
 
 export const GroupOfSpecialitiesValidationSchema = yup.object().shape({
     group: yup.object().shape({
-        id: yup.number(),
+        id: yup.string().uuid(),
         name: yup.string().required('Введите название'),
         startDate: yup.date().required('Неверная дата'),
         enrollmentDate: yup.date().required('Неверная дата'),
         description: yup.string().nullable(true),
         isCompleted: yup.boolean().default(false),
         formOfEducation: yup.object().shape({
-            id: yup.number(),
+            id: yup.string().uuid(),
             year: yup.number(),
             isDailyForm: yup.boolean().required(),
             isBudget: yup.boolean().required(),
@@ -19,7 +19,7 @@ export const GroupOfSpecialitiesValidationSchema = yup.object().shape({
     selectedSpecialities: yup.array().of(
         yup.object().shape({
             specialityName: yup.string().required(),
-            specialityId: yup.number().min(0).required(),
+            id: yup.string().uuid(),
             isSelected: yup.boolean().default(false)
         })
     ).test("at-least-one-true", 'Выберите хотя бы одну специальность', (obj) => {
@@ -28,7 +28,7 @@ export const GroupOfSpecialitiesValidationSchema = yup.object().shape({
     selectedSubjects: yup.array().of(
         yup.object().shape({
             subject: yup.string().required(),
-            subjectId: yup.number().min(0).required(),
+            id: yup.string().uuid(),
             isSelected: yup.boolean().default(false)
         })
     ).test("at-least-one-true", 'Выберите хотя бы один предмет', (obj) => {

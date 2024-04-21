@@ -3,7 +3,6 @@ using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Base;
 using DAL.Postgres.Repositories.Interfaces.Custom;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace DAL.Postgres.Repositories.Custom
 {
@@ -15,9 +14,9 @@ namespace DAL.Postgres.Repositories.Custom
 
         public async Task<Student?> GetByFullNameAsync(string name, string surname, string patronymic)
         {
-            return await EntitySet.FirstOrDefaultAsync(i => i.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-                                                            && i.Surname.Equals(surname, StringComparison.OrdinalIgnoreCase)
-                                                            && i.Patronymic.Equals(patronymic, StringComparison.OrdinalIgnoreCase));
+            return await EntitySet.FirstOrDefaultAsync(i => i.Name.ToLower() == name.ToLower()
+                                                            && i.Surname.ToLower() == surname.ToLower()
+                                                            && i.Patronymic.ToLower() == patronymic.ToLower());
         }
 
         public async Task<List<Student>> SearchAsync(string searchText)

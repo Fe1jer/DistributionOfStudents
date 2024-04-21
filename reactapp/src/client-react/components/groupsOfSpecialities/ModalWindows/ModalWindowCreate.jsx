@@ -21,14 +21,14 @@ export default function CreateModalWindow({ show, handleClose, onLoadGroups }) {
     const params = useParams();
     const facultyShortName = params.shortName;
     const defaultForm = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         year: 0,
         isDailyForm: true,
         isBudget: true,
         isFullTime: true
     }
     const defaultGroup = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         name: null,
         startDate: getToday(),
         enrollmentDate: getToday(),

@@ -1,5 +1,4 @@
-﻿using DAL.Postgres.Entities;
-using DAL.Postgres.Entities.Base;
+﻿using DAL.Postgres.Entities.Base;
 using DAL.Postgres.Specifications.Base;
 using System.Linq.Expressions;
 

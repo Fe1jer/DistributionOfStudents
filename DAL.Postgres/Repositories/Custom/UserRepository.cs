@@ -13,7 +13,7 @@ namespace DAL.Postgres.Repositories.Custom
 
         public async Task<User?> GetByUrlAsync(string username)
         {
-            return await EntitySet.SingleOrDefaultAsync(i => i.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return await EntitySet.SingleOrDefaultAsync(i => i.UserName == username);
         }
     }
 }

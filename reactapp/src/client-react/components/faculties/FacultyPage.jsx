@@ -52,7 +52,7 @@ export default function FacultyPage() {
         setSpecialities(specialitiesData);
     }
     const loadFacultyPlans = async () => {
-        const data = await RecruitmentPlansService.httpGetFacultyLastYearRecruitmentPlas(shortName);
+        const data = await RecruitmentPlansService.httpGetLastFacultyPlans(shortName);
         setFacultyPlans(data.plansForSpecialities);
         setFacultyPlansYear(data.year);
     }

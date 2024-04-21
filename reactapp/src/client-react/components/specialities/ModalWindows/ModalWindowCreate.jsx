@@ -16,7 +16,7 @@ export default function ModalWindowCreate({ show, handleClose, onLoadSpecialitie
     const params = useParams();
     const shortName = params.shortName;
     const defaultSpeciality = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         fullName: null,
         shortName: null,
         code: null,
@@ -34,8 +34,7 @@ export default function ModalWindowCreate({ show, handleClose, onLoadSpecialitie
         onCreateSpeciality(values);
     }
     const onCreateSpeciality = async (values) => {
-        values.faculty = faculty;
-        await SpecialitiesService.httpPost(shortName, values);
+        await SpecialitiesService.httpPost(faculty.id, values);
         handleClose();
         onLoadSpecialities();
     }

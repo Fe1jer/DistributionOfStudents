@@ -13,16 +13,13 @@ namespace DAL.Postgres.Specifications
 
             if (specification.Criteria != null)
             {
-                query = query.Where(specification.Criteria);
+                specification.WhereExpressions.Add(specification.Criteria);
             }
-
-            query = specification.Includes.Aggregate(query, (current, include) => current.Include(include));
-
-            var a = query.Expression.Type;
-            query = AddOrdering(query, specification);
-            query = specification.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
             query = specification.WhereExpressions.Aggregate(query, (current, expression) => current.Where(expression));
+            query = AddOrdering(query, specification);
             query = AddPagination(query, specification);
+            query = specification.Includes.Aggregate(query, (current, include) => current.Include(include));
+            query = specification.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
 
             if (specification.IsNoTracking)
             {
@@ -52,7 +49,7 @@ namespace DAL.Postgres.Specifications
 
             for (int i = 0; i < count; ++i)
             {
-                if (query is IOrderedQueryable<T> orderedQuery)
+                if (typeof(IOrderedQueryable<T>).IsAssignableFrom(query.Expression.Type) && query is IOrderedQueryable<T> orderedQuery)
                 {
                     query = orderedQuery.ThenBy(orderByExpressions[i]);
                 }
@@ -71,7 +68,7 @@ namespace DAL.Postgres.Specifications
 
             for (int i = 0; i < count; ++i)
             {
-                if (query is IOrderedQueryable<T> orderedQuery)
+                if (typeof(IOrderedQueryable<T>).IsAssignableFrom(query.Expression.Type) && query is IOrderedQueryable<T> orderedQuery)
                 {
                     query = orderedQuery.ThenByDescending(orderByDescendingExpressions[i]);
                 }

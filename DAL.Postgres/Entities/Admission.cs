@@ -4,8 +4,8 @@ namespace DAL.Postgres.Entities
 {
     public class Admission : Entity
     {
-        public Student Student { get; set; } = new();
-        public GroupOfSpecialities GroupOfSpecialties { get; set; } = new();
+        public Student Student { get; set; } = null!;
+        public GroupOfSpecialities GroupOfSpecialties { get; set; } = null!;
         public DateTime DateOfApplication { get; set; }
         public List<SpecialityPriority> SpecialityPriorities { get; set; } = new();
         public string? PassportID { get; set; }
@@ -20,7 +20,7 @@ namespace DAL.Postgres.Entities
         {
             get
             {
-                return StudentScores.Sum(i => i.Score) + Student.GPS;
+                return StudentScores.Sum(i => i.Score) + Student.GPA;
             }
         }
     }

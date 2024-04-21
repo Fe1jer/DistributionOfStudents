@@ -1,7 +1,7 @@
 import { fetchWrapper } from "../../_helpers/fetch-wrapper";
 
 const config = {
-    api: '/api/GroupsOfSpecialtiesApi/',
+    api: '/api/GroupsOfSpecialitiesApi/',
 };
 
 const httpGetFacultyGroups = (facultyShortName, year) => {

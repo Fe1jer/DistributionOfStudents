@@ -2,7 +2,6 @@
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Base;
 using DAL.Postgres.Repositories.Interfaces.Custom;
-using DAL.Postgres.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom

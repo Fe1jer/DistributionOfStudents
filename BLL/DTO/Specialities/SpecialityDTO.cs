@@ -1,6 +1,5 @@
 ﻿using BLL.DTO.Base;
-using BLL.DTO.GroupsOfSpecialities;
-using BLL.DTO.RecruitmentPlans;
+using BLL.DTO.Faculties;
 
 namespace BLL.DTO.Specialities
 {
@@ -16,9 +15,7 @@ namespace BLL.DTO.Specialities
         public string? SpecializationName { get; set; }
         public string? SpecializationCode { get; set; }
         public bool IsDisabled { get; set; }
-        public FacultyDTO Faculty { get; set; } = new();
+        public FacultyDTO? Faculty { get; set; }
         public Guid FacultyId { get; set; }
-        public List<GroupOfSpecialitiesDTO>? GroupsOfSpecialties { get; set; }
-        public List<RecruitmentPlanDTO>? RecruitmentPlans { get; set; }
     }
 }

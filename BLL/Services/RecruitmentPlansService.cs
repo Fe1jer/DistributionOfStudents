@@ -1,4 +1,5 @@
 ﻿using BLL.DTO.RecruitmentPlans;
+using BLL.Services.Base;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;
@@ -53,17 +54,17 @@ namespace BLL.Services
             return facultyPlan;
         }
 
-        public async Task<List<RecruitmentPlanDTO>> GetByFacultyAsync(string facultyUrl, int year)
+        public async Task<List<SpecialityPlansDTO>> GetByFacultyAsync(string facultyUrl, int year)
         {
-            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereYear(year));
+            List<Speciality> specialities = await _unitOfWork.Specialities.GetAllAsync(new SpecialitiesSpecification(i => !i.IsDisabled).WhereFaculty(facultyUrl).IncludeRecruitmentPlans(year));
 
-            return Mapper.Map<List<RecruitmentPlanDTO>>(plans);
+            return specialities.Select(i => new SpecialityPlansDTO(i)).ToList();
         }
 
         public async Task<List<RecruitmentPlanDTO>> GetByGroupAsync(Guid groupId)
         {
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification());
-            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereGroup(group));
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereGroup(group!));
 
             return Mapper.Map<List<RecruitmentPlanDTO>>(plans);
         }
@@ -71,7 +72,7 @@ namespace BLL.Services
         public async Task DeleteAsync(Guid id)
         {
             var toDelete = await _unitOfWork.RecruitmentPlans.GetByIdAsync(id);
-            await _unitOfWork.RecruitmentPlans.DeleteAsync(toDelete);
+            await _unitOfWork.RecruitmentPlans.DeleteAsync(toDelete!);
             _unitOfWork.Commit();
         }
 
@@ -100,7 +101,7 @@ namespace BLL.Services
                 Mapper.Map(model, entity);
             }
 
-            await _unitOfWork.RecruitmentPlans.InsertOrUpdateAsync(entity);
+            await _unitOfWork.RecruitmentPlans.InsertOrUpdateAsync(entity!);
             _unitOfWork.Commit();
 
             return Mapper.Map<RecruitmentPlanDTO>(entity);
@@ -109,7 +110,7 @@ namespace BLL.Services
         public async Task SaveAsync(List<SpecialityPlansDTO> plans, string facultyUrl, int year)
         {
             IEnumerable<RecruitmentPlan> allPlans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereYear(year));
-            IEnumerable<RecruitmentPlan> changedPlans = await CreateFacultyPlans(plans, year);
+            List<RecruitmentPlan> changedPlans = await CreateFacultyPlans(plans, year);
             IEnumerable<RecruitmentPlan> diff = allPlans.Except(changedPlans);
 
             foreach (RecruitmentPlan plan in diff)
@@ -124,50 +125,26 @@ namespace BLL.Services
             _unitOfWork.Commit();
         }
 
-        private async Task<IEnumerable<RecruitmentPlan>> CreateFacultyPlans(IEnumerable<SpecialityPlansDTO> facultyPlans, int year)
+        private async Task<List<RecruitmentPlan>> CreateFacultyPlans(IEnumerable<SpecialityPlansDTO> facultyPlans, int year)
         {
             List<RecruitmentPlan> recruitmentPlans = new();
 
             foreach (SpecialityPlansDTO plans in facultyPlans)
             {
-                if (plans.DailyFullBudget > 0)
+                var list = new[]
                 {
-                    RecruitmentPlan plan = await CreatePlan(plans.DailyFullBudget, true, true, true, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.DailyFullPaid > 0)
+                    new { Count = plans.DailyFullBudget, IsDailyForm = true, IsFullTime = true, IsBudget = true },
+                    new { Count = plans.DailyFullPaid, IsDailyForm = true, IsFullTime = true, IsBudget = false },
+                    new { Count = plans.DailyAbbreviatedBudget, IsDailyForm = true, IsFullTime = false, IsBudget = true },
+                    new { Count = plans.DailyAbbreviatedPaid, IsDailyForm = true, IsFullTime = false, IsBudget = false },
+                    new { Count = plans.EveningFullBudget, IsDailyForm = false, IsFullTime = true, IsBudget = true },
+                    new { Count = plans.EveningFullPaid, IsDailyForm = false, IsFullTime = true, IsBudget = false },
+                    new { Count = plans.EveningAbbreviatedBudget, IsDailyForm = false, IsFullTime = false, IsBudget = true },
+                    new { Count = plans.EveningAbbreviatedPaid, IsDailyForm = false, IsFullTime = false, IsBudget = false }
+                };
+                foreach (var planType in list.Where(i => i.Count > 0))
                 {
-                    RecruitmentPlan plan = await CreatePlan(plans.DailyFullPaid, true, true, false, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.DailyAbbreviatedBudget > 0)
-                {
-                    RecruitmentPlan plan = await CreatePlan(plans.DailyAbbreviatedBudget, true, false, true, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.DailyAbbreviatedPaid > 0)
-                {
-                    RecruitmentPlan plan = await CreatePlan(plans.DailyAbbreviatedPaid, true, false, false, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.EveningFullBudget > 0)
-                {
-                    RecruitmentPlan plan = await CreatePlan(plans.EveningFullBudget, false, true, true, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.EveningFullPaid > 0)
-                {
-                    RecruitmentPlan plan = await CreatePlan(plans.EveningFullPaid, false, true, false, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.EveningAbbreviatedBudget > 0)
-                {
-                    RecruitmentPlan plan = await CreatePlan(plans.EveningAbbreviatedBudget, false, false, true, year, plans.SpecialityId);
-                    recruitmentPlans.Add(plan);
-                }
-                if (plans.EveningAbbreviatedPaid > 0)
-                {
-                    RecruitmentPlan plan = await CreatePlan(plans.EveningAbbreviatedPaid, false, false, false, year, plans.SpecialityId);
+                    var plan = await CreatePlan(planType.Count, planType.IsDailyForm, planType.IsFullTime, planType.IsBudget, year, plans.SpecialityId);
                     recruitmentPlans.Add(plan);
                 }
             }
@@ -184,7 +161,7 @@ namespace BLL.Services
                 IsFullTime = isFullTime,
                 Year = year,
             };
-            RecruitmentPlan? plan = await _unitOfWork.RecruitmentPlans.GetBySpecialityAndFormAsync(specialityId, form) ?? new();
+            RecruitmentPlan plan = await _unitOfWork.RecruitmentPlans.GetBySpecialityAndFormAsync(specialityId, form) ?? new();
 
             plan.Count = count;
             plan.FormOfEducation = await _unitOfWork.FormsOfEducation.GetByFormAsync(form) ?? form;

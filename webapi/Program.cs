@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Helpers;
 using System.Text;
-using webapi.Data.Interfaces.Services;
-using webapi.Data.Services;
 
 namespace webapi
 {
@@ -19,14 +17,17 @@ namespace webapi
 
             Configure(app);
             builder.Services.InitDatabase();
+
+            app.Run();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public static void ConfigureServices(WebApplicationBuilder builder)
         {
             //MSSQL подключение
-            /*builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));*/
+            /*string connection = builder.Configuration.GetConnectionString("MssqlConnection");
+            builder.Services.RegisterApplicationServices(connection);*/
+
             string connection = builder.Configuration.GetConnectionString("NpgsqlConnection");
             builder.Services.RegisterApplicationServices(connection);
 
@@ -64,8 +65,6 @@ namespace webapi
             });
 
             builder.Services.AddSingleton<LinkGeneratorHelper>();
-            // configure DI for application services
-            builder.Services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,13 +86,13 @@ namespace webapi
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
             app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             // configure HTTP request pipeline
             {
@@ -106,8 +105,6 @@ namespace webapi
                 // custom jwt auth middleware
                 app.UseMiddleware<JwtMiddleware>();
             }
-
-            app.Run();
         }
     }
 }

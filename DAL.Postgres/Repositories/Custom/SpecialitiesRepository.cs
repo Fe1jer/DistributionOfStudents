@@ -5,7 +5,6 @@ using DAL.Postgres.Repositories.Interfaces.Custom;
 using DAL.Postgres.Specifications;
 using DAL.Postgres.Specifications.Base;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace DAL.Postgres.Repositories.Custom
 {
@@ -17,12 +16,12 @@ namespace DAL.Postgres.Repositories.Custom
 
         public async Task<int> GetCountByUrlAsync(string url, Guid excludeId)
         {
-            return await EntitySet.CountAsync(p => p.FullName.Equals(url, StringComparison.OrdinalIgnoreCase) && p.Id != excludeId);
+            return await EntitySet.CountAsync(p => p.FullName == url && p.Id != excludeId);
         }
 
         public async Task<Speciality?> GetByUrlAsync(string url)
         {
-            return await EntitySet.SingleOrDefaultAsync(p => p.FullName.Equals(url, StringComparison.OrdinalIgnoreCase));
+            return await EntitySet.SingleOrDefaultAsync(p => p.FullName == url);
         }
 
         public async Task<Speciality?> GetByUrlAsync(string url, ISpecification<Speciality> specification)
@@ -38,7 +37,7 @@ namespace DAL.Postgres.Repositories.Custom
 
         public Task<List<Speciality>> GetByFacultyAsync(string facultyUrl, bool isDisable)
         {
-            return GetAllAsync(new SpecialitiesSpecification(p => p.Faculty.ShortName.Equals(facultyUrl, StringComparison.OrdinalIgnoreCase) && p.IsDisabled == isDisable).SortByCode());
+            return GetAllAsync(new SpecialitiesSpecification(p => p.IsDisabled == isDisable).WhereFaculty(facultyUrl).SortByCode());
         }
 
         public async Task DeleteAsync(Guid id)

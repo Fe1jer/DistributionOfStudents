@@ -1,6 +1,4 @@
 ﻿using BLL.DTO.Base;
-using BLL.DTO.Specialities;
-using BLL.DTO.Subjects;
 
 namespace BLL.DTO.GroupsOfSpecialities
 {
@@ -11,9 +9,6 @@ namespace BLL.DTO.GroupsOfSpecialities
         public DateTime StartDate { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public bool IsCompleted { get; set; }
-        public FormOfEducationDTO FormOfEducation { get; set; } = new();
-        public List<SubjectDTO>? Subjects { get; set; }
-        public List<AdmissionDTO>? Admissions { get; set; }
-        public List<SpecialityDTO>? Specialities { get; set; }
+        public FormOfEducationDTO FormOfEducation { get; set; } = null!;
     }
 }

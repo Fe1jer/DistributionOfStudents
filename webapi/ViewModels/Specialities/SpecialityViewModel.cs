@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using webapi.ViewModels.General;
 
 namespace webapi.ViewModels.Specialities
 {
-    public class SpecialityViewModel
+    public class SpecialityViewModel : BaseViewModel
     {
         [DataType(DataType.Text)]
         [Required(ErrorMessage = "Введите название")]

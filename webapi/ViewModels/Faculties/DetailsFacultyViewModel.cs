@@ -1,6 +1,8 @@
-﻿namespace webapi.ViewModels.Faculties
+﻿using webapi.ViewModels.General;
+
+namespace webapi.ViewModels.Faculties
 {
-    public class DetailsFacultyViewModel
+    public class DetailsFacultyViewModel : BaseViewModel
     {
         public string FullName { get; set; } = string.Empty;
         public string ShortName { get; set; } = string.Empty;

@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using webapi.Validations;
+using webapi.ViewModels.General;
+using webapi.ViewModels.Students;
 
 namespace webapi.ViewModels.Admissions
 {
     public class AdmissionViewModel : BaseViewModel
     {
-        public StudentViewModel Student { get; set; } = new();
+        public StudentViewModel Student { get; set; } = null!;
 
         [Display(Name = "Подача заявки")]
         [DataType(DataType.DateTime)]

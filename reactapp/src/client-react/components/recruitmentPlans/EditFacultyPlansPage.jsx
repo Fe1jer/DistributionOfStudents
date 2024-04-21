@@ -25,7 +25,7 @@ export default function EditFacultyPlansPage() {
 
     const loadData = async () => {
         const faciltyData = FacultiesService.httpGetByShortName(facultyShortName);
-        const recruitmentsPlansData = RecruitmentPlansService.httpGetFacultyRecruitmentPlans(facultyShortName, year);
+        const recruitmentsPlansData = RecruitmentPlansService.httpGetFacultyPlans(facultyShortName, year);
 
         setFacultyName((await faciltyData).fullName);
         setPlans(await recruitmentsPlansData);

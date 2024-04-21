@@ -24,10 +24,11 @@ export default function ModalWindowEdit({ show, handleClose, onLoadFaculties, sh
     const onEditFaculty = async (values) => {
         try {
             const form = new FormData();
-            form.append("Faculty.FullName", values.fullName);
-            form.append("Faculty.ShortName", values.shortName);
-            form.append("Faculty.Img", values.img);
-            form.append("Img", values.fileImg);
+            form.append("Id", values.id);
+            form.append("FullName", values.fullName);
+            form.append("ShortName", values.shortName);
+            form.append("Img", values.img);
+            form.append("FileImg", values.fileImg);
             setModelErrors(null);
 
             await FacultiesService.httpPut(shortName, form);

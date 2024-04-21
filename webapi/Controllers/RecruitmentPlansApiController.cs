@@ -1,15 +1,10 @@
-﻿using AutoMapper;
-using BLL.DTO;
+﻿using BLL.DTO;
 using BLL.DTO.GroupsOfSpecialities;
 using BLL.DTO.RecruitmentPlans;
 using BLL.Services;
 using BLL.Services.Interfaces;
-using DAL.Postgres.Repositories.Interfaces.Custom;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using webapi.ViewModels.Faculties;
-using webapi.ViewModels.GroupsOfSpecialities;
 using webapi.ViewModels.RecruitmentPlans;
 
 namespace webapi.Controllers.Api
@@ -39,17 +34,17 @@ namespace webapi.Controllers.Api
             return model != null ? model : NotFound();
         }
 
-        [HttpGet("{facultyName}/{year}")]
-        public async Task<ActionResult<IEnumerable<SpecialityPlansViewModel>>> GetFacultyPlans(string facultyName, int year)
-            => Mapper.Map<List<SpecialityPlansViewModel>>(await _service.GetByFacultyAsync(facultyName, year));
+        [HttpGet("{facultyUrl}/{year}")]
+        public async Task<ActionResult<IEnumerable<SpecialityPlansViewModel>>> GetFacultyPlans(string facultyUrl, int year)
+            => Mapper.Map<List<SpecialityPlansViewModel>>(await _service.GetByFacultyAsync(facultyUrl, year));
 
-        [HttpGet("{facultyName}/lastYear")]
-        public async Task<ActionResult<DetailsFacultyPlansViewModel>> GetFacultyLastYearRecruitmentPlans(string facultyName)
-            => Mapper.Map<DetailsFacultyPlansViewModel>(await _service.GetLastByFacultyAsync(facultyName));
+        [HttpGet("{facultyUrl}/lastYear")]
+        public async Task<ActionResult<DetailsFacultyPlansViewModel>> GetFacultyLastYearRecruitmentPlans(string facultyUrl)
+            => Mapper.Map<DetailsFacultyPlansViewModel>(await _service.GetLastByFacultyAsync(facultyUrl));
 
-        [HttpGet("{facultyName}/{groupId}/GroupPlans")]
-        public async Task<ActionResult<IEnumerable<RecruitmentPlanViewModel>>> GetGroupPlans([FromServices] IAdmissionsService admissionsService,
-            [FromServices] IGroupsOfSpecialitiesService groupsService, string facultyName, Guid groupId)
+        [HttpGet("{facultyUrl}/{groupId}/GroupPlans")]
+        public async Task<ActionResult<IEnumerable<RecruitmentPlanViewModel>>> GetGroupPlans([FromServices] IGroupsOfSpecialitiesService groupsService,
+            [FromServices] IDistributionService distributionService, string facultyUrl, Guid groupId)
         {
             GroupOfSpecialitiesDTO? group = await groupsService.GetAsync(groupId);
 
@@ -62,9 +57,8 @@ namespace webapi.Controllers.Api
 
             if (!group.IsCompleted)
             {
-                List<AdmissionDTO> admissions = await admissionsService.GetByGroupAsync(groupId);
-                IDistributionService distributionService = new DistributionService(plans, admissions);
-                plans = distributionService.GetPlansWithEnrolledStudents();
+                var distribution = await distributionService.GetAsync(facultyUrl, groupId);
+                plans = distribution.Keys.ToList();
             }
 
             return Mapper.Map<List<RecruitmentPlanViewModel>>(plans);
@@ -93,46 +87,46 @@ namespace webapi.Controllers.Api
             return BadRequest(ModelState);
         }
 
-        [HttpPut("{facultyName}/{year}")]
+        [HttpPut("{facultyUrl}/{year}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<SpecialityPlansViewModel> plansForSpecialities)
+        public async Task<IActionResult> PutFacultyRecruitmentPlans(string facultyUrl, int year, IEnumerable<SpecialityPlansViewModel> plansForSpecialities)
         {
             if (ModelState.IsValid)
             {
                 var updateDto = Mapper.Map<List<SpecialityPlansDTO>>(plansForSpecialities);
-                await _service.SaveAsync(updateDto, facultyName, year);
+                await _service.SaveAsync(updateDto, facultyUrl, year);
 
-                _logger.LogInformation("План приёма на - {FacultyName} - за {Year} обновлён", facultyName, year);
+                _logger.LogInformation("План приёма на - {facultyUrl} - за {Year} обновлён", facultyUrl, year);
 
                 return Ok();
             }
             return BadRequest(ModelState);
         }
 
-        [HttpPost("{facultyName}/{year}")]
+        [HttpPost("{facultyUrl}/{year}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> PostFacultyRecruitmentPlans(string facultyName, int year, IEnumerable<SpecialityPlansViewModel> plansForSpecialities)
+        public async Task<IActionResult> PostFacultyRecruitmentPlans(string facultyUrl, int year, IEnumerable<SpecialityPlansViewModel> plansForSpecialities)
         {
             if (ModelState.IsValid)
             {
                 var updateDto = Mapper.Map<List<SpecialityPlansDTO>>(plansForSpecialities);
-                await _service.SaveAsync(updateDto, facultyName, year);
+                await _service.SaveAsync(updateDto, facultyUrl, year);
 
-                _logger.LogInformation("План приёма на - {FacultyName} - за {Year} создан", facultyName, year);
+                _logger.LogInformation("План приёма на - {facultyUrl} - за {Year} создан", facultyUrl, year);
 
                 return Ok();
             }
             return BadRequest(ModelState);
         }
 
-        [HttpDelete("{facultyName}/{year}")]
+        [HttpDelete("{facultyUrl}/{year}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> DeleteRecruitmentPlan(string facultyName, int year)
+        public async Task<IActionResult> DeleteRecruitmentPlan(string facultyUrl, int year)
         {
             try
             {
-                await _service.DeleteAsync(facultyName, year);
-                _logger.LogInformation("План приёма на - {FacultyName} - за {Year} год удалён", facultyName, year);
+                await _service.DeleteAsync(facultyUrl, year);
+                _logger.LogInformation("План приёма на - {facultyUrl} - за {Year} год удалён", facultyUrl, year);
             }
             catch (Exception e)
             {

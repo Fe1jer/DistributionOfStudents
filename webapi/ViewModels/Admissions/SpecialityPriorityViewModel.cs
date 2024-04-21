@@ -1,11 +1,10 @@
-﻿using webapi.Data.Models;
+﻿using webapi.ViewModels.General;
 
 namespace webapi.ViewModels.Admissions
 {
-    public class SpecialityPriorityViewModel
+    public class SpecialityPriorityViewModel : BaseViewModel
     {
-        public int PlanId { get; set; }
-        public string NameSpeciality { get; set; } = String.Empty;
+        public string SpecialityName { get; set; } = String.Empty;
         public int Priority { get; set; }
     }
 }

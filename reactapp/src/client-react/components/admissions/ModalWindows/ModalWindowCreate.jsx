@@ -25,11 +25,11 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
     const facultyShortName = params.shortName;
 
     const defaultStudent = {
-        id: 0, gps: 0,
+        id: "00000000-0000-0000-0000-000000000000", gps: 0,
         name: "", surname: "", patronymic: "",
     }
     const defaultAdmission = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         dateOfApplication: getNow(),
         isTargeted: false,
         isWithoutEntranceExams: false,

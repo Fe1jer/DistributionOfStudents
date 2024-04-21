@@ -19,7 +19,7 @@ namespace DAL.Postgres.Specifications
         public FacultiesSpecification IncludeSpecialties()
         {
 #nullable disable
-            AddInclude(f => f.Specialities.Where(s => !s.IsDisabled).OrderBy(s=>s.DirectionCode ?? s.Code));
+            AddInclude(f => f.Specialities.Where(s => !s.IsDisabled).OrderBy(s => s.DirectionCode ?? s.Code));
 #nullable restore
 
             return this;

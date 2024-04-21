@@ -11,19 +11,19 @@ namespace DAL.Postgres.DBInitialization
         {
             if (context != null)
             {
-                if (context.Users.Any())
+                if (!context.Users.Any())
                 {
                     CreateUsers(context);
                 }
-                if (context.Subjects.Any())
+                if (!context.Subjects.Any())
                 {
                     CreateSubjects(context);
                 }
-                if (context.FormsOfEducation.Any())
+                if (!context.FormsOfEducation.Any())
                 {
                     CreateFormsOfEducation(context);
                 }
-                if (context.Faculties.Any())
+                if (!context.Faculties.Any())
                 {
                     CreateFacultiesWithSpecialties(context);
                 }
@@ -114,7 +114,8 @@ namespace DAL.Postgres.DBInitialization
                 Surname = "Admin",
                 Patronymic = "Admin",
                 Role = "admin",
-                PasswordHash = "AKVHBKnvwoBBWBmIGLB66gOt9NlLgrXRd4GiJUSTUlGHcCRmIb9mA5tIQfTMiyyDzg==",
+                //adminDistribution
+                PasswordHash = "APlb1LzG7drutYVMOyH/efSmFw0fKRnU6R4hBXzi6fAeN2k99IsepVTCrPZvtMt3mg==",
                 Img = "\\img\\Users\\bntu.jpg"
             };
             context.Users.Add(admin);
@@ -127,7 +128,8 @@ namespace DAL.Postgres.DBInitialization
                 Surname = "commission",
                 Patronymic = "commission",
                 Role = "commission",
-                PasswordHash = "ABuwUovX/rNKRmOdBuSHjWgZ/ZqAy29/aQAX4RjhyWRSv3lrTO0IKSEtkmcdMRY1nA==",
+                //commissionDistribution
+                PasswordHash = "AH1/j12C/ytndGn2av/Mp8NJGkPHJygvpF8mMBNnR9E7xUWCcNPuKCBH7cnlOMIPIA==",
                 Img = "\\img\\Users\\bntu.jpg"
             };
             context.Users.Add(commission);

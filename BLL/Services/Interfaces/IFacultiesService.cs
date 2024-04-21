@@ -1,9 +1,4 @@
-﻿using BLL.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BLL.DTO.Faculties;
 
 namespace BLL.Services.Interfaces
 {
@@ -12,8 +7,8 @@ namespace BLL.Services.Interfaces
         Task<List<FacultyDTO>> GetAllAsync();
         Task<FacultyDTO> GetAsync(Guid id);
         Task<FacultyDTO> GetAsync(string url);
-        Task<bool> CheckUrlIsUniqueAsync(string url, Guid id);
-        Task DeleteAsync(Guid id);
+        Task<bool> CheckUrlIsUniqueAsync(string newUrl, string oldUrl);
+        Task DeleteAsync(string url);
         Task<FacultyDTO> SaveAsync(FacultyDTO model);
     }
 }

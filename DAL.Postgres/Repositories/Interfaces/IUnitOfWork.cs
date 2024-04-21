@@ -9,7 +9,7 @@ namespace DAL.Postgres.Repositories.Interfaces
         IFormsOfEducationRepository FormsOfEducation { get; }
         ISpecialitiesRepository Specialities { get; }
         IGroupsOfSpecialitiesRepository GroupsOfSpecialities { get; }
-        IGroupsOfSpecialitiesStatisticRepository IGroupsOfSpecialitiesStatistic { get; }
+        IGroupsOfSpecialitiesStatisticRepository GroupsOfSpecialitiesStatistic { get; }
         IRecruitmentPlansRepository RecruitmentPlans { get; }
         IRecruitmentPlansStatisticRepository RecruitmentPlansStatistic { get; }
         IStudentsRepository Students { get; }

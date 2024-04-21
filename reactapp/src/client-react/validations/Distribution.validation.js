@@ -3,12 +3,12 @@ import * as yup from 'yup';
 export const DistributionValidationSchema = yup.object({
     distributedPlans: yup.array().of(
         yup.object().shape({
-            planId: yup.number().min(0).required(),
+            id: yup.string().uuid(),
             passingScore: yup.number().min(0).required(),
             planCount: yup.number().min(0).required(),
             distributedStudents: yup.array().of(
                 yup.object().shape({
-                    studentId: yup.number().min(0).required(),
+                    id: yup.string().uuid(),
                     isDistributed: yup.boolean().required(),
                 }),
             ).test('values-test', 'Веберить верное количество абитуриентов', (value, validationContext) => {

@@ -16,7 +16,7 @@ export default function SelectedGroupSpecialities({ onChange, errors, specialiti
                     <Form.Check key={item.specialityName} className="mb-1"
                         name={"selectedSpecialities[" + index + "].isSelected"}
                         type="checkbox"
-                        id={item.specialityName}
+                        id={item.specialityId}
                         label={item.specialityName}
                         checked={item.isSelected}
                         onChange={onChange}

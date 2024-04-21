@@ -1,5 +1,4 @@
-﻿using DAL.Postgres.Entities.Base;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;

@@ -28,7 +28,7 @@ namespace DAL.Postgres.Repositories
         public IFormsOfEducationRepository FormsOfEducation => _formsOfEducation ??= new FormsOfEducationRepository(_context);
         public ISpecialitiesRepository Specialities => _specialities ??= new SpecialitiesRepository(_context);
         public IGroupsOfSpecialitiesRepository GroupsOfSpecialities => _groupsOfSpecialities ??= new GroupsOfSpecialitiesRepository(_context);
-        public IGroupsOfSpecialitiesStatisticRepository IGroupsOfSpecialitiesStatistic => _groupsOfSpecialitiesStatistic ??= new GroupsOfSpecialitiesStatisticRepository(_context);
+        public IGroupsOfSpecialitiesStatisticRepository GroupsOfSpecialitiesStatistic => _groupsOfSpecialitiesStatistic ??= new GroupsOfSpecialitiesStatisticRepository(_context);
         public IRecruitmentPlansRepository RecruitmentPlans => _recruitmentPlans ??= new RecruitmentPlansRepository(_context);
         public IRecruitmentPlansStatisticRepository RecruitmentPlansStatistic => _recruitmentPlansStatistic ??= new RecruitmentPlansStatisticRepository(_context);
         public IStudentsRepository Students => _students ??= new StudentsRepository(_context);
@@ -47,12 +47,9 @@ namespace DAL.Postgres.Repositories
         }
         private void Cleanup(bool disposing)
         {
-            if (!this.disposed)
+            if (!this.disposed && disposing)
             {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
+                _context.Dispose();
             }
             disposed = true;
         }

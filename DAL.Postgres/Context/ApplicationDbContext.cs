@@ -22,7 +22,6 @@ namespace DAL.Postgres.Context
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             Users = Set<User>();
             Faculties = Set<Faculty>();
             Specialities = Set<Speciality>();
@@ -37,6 +36,16 @@ namespace DAL.Postgres.Context
             FormsOfEducation = Set<FormOfEducation>();
             GroupsOfSpecialitiesStatistic = Set<GroupOfSpecialitiesStatistic>();
             RecruitmentPlandStatistic = Set<RecruitmentPlanStatistic>();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+            modelBuilder.HasDefaultSchema("public");
+
+            // Addd the Postgres Extension for UUID generation
+            modelBuilder.HasPostgresExtension("uuid-ossp");
         }
     }
 }
