@@ -8,6 +8,7 @@ namespace BLL.DTO
     {
         public StudentDTO Student { get; set; } = new();
         public GroupOfSpecialitiesDTO GroupOfSpecialties { get; set; } = null!;
+        public Guid GroupOfSpecialtiesId { get; set; }
         public DateTime DateOfApplication { get; set; }
         public List<SpecialityPriorityDTO> SpecialityPriorities { get; set; } = new();
         public string? PassportID { get; set; }

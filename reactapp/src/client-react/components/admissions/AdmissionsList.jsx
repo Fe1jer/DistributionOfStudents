@@ -19,7 +19,7 @@ export default function AdmissionsList({ admissions, plans, onClickDelete, onCli
             </thead>
             <tbody>{
                 admissions.map((item) =>
-                    <Admission key={item.student.surname + item.student.name + item.student.patronymic} admission={item} plans={plans}
+                    <Admission key={item.id} admission={item} plans={plans}
                         onClickDelete={onClickDelete} onClickEdit={onClickEdit} onClickDetails={onClickDetails} />
                 )}
             </tbody>

@@ -11,13 +11,13 @@ export default function Admission({ admission, plans, onClickDelete, onClickEdit
     return <tr className="align-middle">
         <td>
             <Button variant="empty" className="nav-link text-success p-0" onClick={() => onClickDetails(admission.id)}>
-                {admission.student.surname} {admission.student.name} {admission.student.patronymic}
+                {admission.student.fullName}
             </Button>
         </td>
         <td>{new Date(admission.dateOfApplication).toLocaleString("ru-ru")}</td>
         <td>{admission.score}</td>
         <td>{admission.specialityPriorities.sort((a, b) => a.priority - b.priority).map((item, index) =>
-            <AdmissionPriority key={admission.student.surname + admission.student.name + admission.student.patronymic + item.priority} admission={admission} specialityPriority={item} plans={plans} index={index} />)}
+            <AdmissionPriority key={admission.id + item.priority} admission={admission} specialityPriority={item} plans={plans} index={index} />)}
         </td>
         <td className="text-center">
             <div className="d-inline-flex">

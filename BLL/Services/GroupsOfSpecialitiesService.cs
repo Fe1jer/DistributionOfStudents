@@ -48,7 +48,7 @@ namespace BLL.Services
             }
             else
             {
-                entity = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(model.Id);
+                entity = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(model.Id, new GroupsOfSpecialitiesSpecification().IncludeSpecialties().IncludeSubjects());
                 Mapper.Map(model, entity);
             }
 

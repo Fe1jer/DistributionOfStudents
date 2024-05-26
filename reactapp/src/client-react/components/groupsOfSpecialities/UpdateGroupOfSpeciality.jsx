@@ -17,50 +17,50 @@ export default function UpdateGroupOfSpeciality({ onChangeModel, values, errors 
 
     useEffect(() => {
         const _setGroupName = () => {
-            const name = getNameByProps(values.group.formOfEducation.isDailyForm, values.group.formOfEducation.isBudget, values.group.formOfEducation.isFullTime);
-            formikProps.setFieldValue("group.name", name);
+            const name = getNameByProps(values.formOfEducation.isDailyForm, values.formOfEducation.isBudget, values.formOfEducation.isFullTime);
+            formikProps.setFieldValue("name", name);
         }
 
         _setGroupName();
-    }, [values.group.formOfEducation])
+    }, [values.formOfEducation])
 
     return (
         <React.Suspense>
             <Form.Group className="px-2">
                 <Form.Label className="mb-0">Название</Form.Label><sup>*</sup>
                 <Form.Control type="text"
-                    required name="group.name" value={values.group.name ?? ""} onChange={onChangeModel}
-                    isInvalid={errors.group ? !!errors.group.name : false} />
-                <Form.Control.Feedback type="invalid">{errors.group ? errors.group.name : null}</Form.Control.Feedback>
+                    required name="name" value={values.name ?? ""} onChange={onChangeModel}
+                    isInvalid={errors ? !!errors.name : false} />
+                <Form.Control.Feedback type="invalid">{errors ? errors.name : null}</Form.Control.Feedback>
             </Form.Group>
             <Row className="mt-2 px-2">
                 <Form.Group as={Col} sm="6">
                     <Form.Label className="mb-0">Начало</Form.Label><sup>*</sup>
                     <Form.Control type="date"
-                        required name="group.startDate" value={values.group.startDate.split('T')[0] ?? ""} onChange={onChangeModel}
-                        isInvalid={errors.group ? !!errors.group.startDate : false} />
-                    <Form.Control.Feedback type="invalid">{errors.group ? errors.group.startDate : null}</Form.Control.Feedback>
+                        required name="startDate" value={values.startDate.split('T')[0] ?? ""} onChange={onChangeModel}
+                        isInvalid={errors ? !!errors.startDate : false} />
+                    <Form.Control.Feedback type="invalid">{errors ? errors.startDate : null}</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group as={Col} sm="6">
                     <Form.Label className="mb-0">Окончание</Form.Label><sup>*</sup>
                     <Form.Control type="date"
-                        required name="group.enrollmentDate" value={values.group.enrollmentDate.split('T')[0] ?? ""} onChange={onChangeModel}
-                        isInvalid={errors.group ? !!errors.group.enrollmentDate : false} />
-                    <Form.Control.Feedback type="invalid">{errors.group ? errors.group.enrollmentDate : null}</Form.Control.Feedback>
+                        required name="enrollmentDate" value={values.enrollmentDate.split('T')[0] ?? ""} onChange={onChangeModel}
+                        isInvalid={errors ? !!errors.enrollmentDate : false} />
+                    <Form.Control.Feedback type="invalid">{errors ? errors.enrollmentDate : null}</Form.Control.Feedback>
                 </Form.Group>
                 <Row className="mt-3 px-2 align-items-end text-center">
                     <Form.Group as={Col} sm="4" className="slider-radio elegant">
                         <ToggleButton
                             id="isDaily" type="radio"
-                            checked={values.group.formOfEducation.isDailyForm}
-                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isDailyForm", true)}
+                            checked={values.formOfEducation.isDailyForm}
+                            onChange={() => formikProps.setFieldValue("formOfEducation.isDailyForm", true)}
                             variant="empty" bsPrefix="empty" >
                             Дневная
                         </ToggleButton>
                         <ToggleButton
                             id="isEvening" type="radio"
-                            checked={!values.group.formOfEducation.isDailyForm}
-                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isDailyForm", false)}
+                            checked={!values.formOfEducation.isDailyForm}
+                            onChange={() => formikProps.setFieldValue("formOfEducation.isDailyForm", false)}
                             variant="empty" bsPrefix="empty" >
                             Заочная
                         </ToggleButton>
@@ -68,15 +68,15 @@ export default function UpdateGroupOfSpeciality({ onChangeModel, values, errors 
                     <Form.Group as={Col} sm="4" className="slider-radio elegant">
                         <ToggleButton
                             id="isBudget" type="radio"
-                            checked={values.group.formOfEducation.isBudget}
-                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isBudget", true)}
+                            checked={values.formOfEducation.isBudget}
+                            onChange={() => formikProps.setFieldValue("formOfEducation.isBudget", true)}
                             variant="empty" bsPrefix="empty" >
                             Бюджет
                         </ToggleButton>
                         <ToggleButton
                             id="isPaid" type="radio"
-                            checked={!values.group.formOfEducation.isBudget}
-                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isBudget", false)}
+                            checked={!values.formOfEducation.isBudget}
+                            onChange={() => formikProps.setFieldValue("formOfEducation.isBudget", false)}
                             variant="empty" bsPrefix="empty">
                             Платное
                         </ToggleButton>
@@ -84,15 +84,15 @@ export default function UpdateGroupOfSpeciality({ onChangeModel, values, errors 
                     <Form.Group as={Col} sm="4" className="slider-radio elegant">
                         <ToggleButton
                             id="isFullTime" type="radio"
-                            checked={values.group.formOfEducation.isFullTime}
-                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isFullTime", true)}
+                            checked={values.formOfEducation.isFullTime}
+                            onChange={() => formikProps.setFieldValue("formOfEducation.isFullTime", true)}
                             variant="empty" bsPrefix="empty" >
                             Полный
                         </ToggleButton>
                         <ToggleButton
                             id="isAbbreviated" type="radio"
-                            checked={!values.group.formOfEducation.isFullTime}
-                            onChange={() => formikProps.setFieldValue("group.formOfEducation.isFullTime", false)}
+                            checked={!values.formOfEducation.isFullTime}
+                            onChange={() => formikProps.setFieldValue("formOfEducation.isFullTime", false)}
                             variant="empty" bsPrefix="empty" >
                             Сокращённый
                         </ToggleButton>
@@ -101,10 +101,10 @@ export default function UpdateGroupOfSpeciality({ onChangeModel, values, errors 
             </Row>
             <Row>
                 <Col xl="4">
-                    <SelectedGroupSubjects errors={errors ? errors.selectedSubjects : null} subjects={values.selectedSubjects} onChange={onChangeModel} />
+                    <SelectedGroupSubjects errors={errors ? errors.subjects : null} subjects={values.subjects} onChange={onChangeModel} />
                 </Col >
                 <Col xl="8">
-                    <SelectedGroupSpecialities errors={errors ? errors.selectedSpecialities : null} specialities={values.selectedSpecialities} onChange={onChangeModel} />
+                    <SelectedGroupSpecialities errors={errors ? errors.specialities : null} specialities={values.specialities} onChange={onChangeModel} />
                 </Col>
             </Row>
         </React.Suspense>

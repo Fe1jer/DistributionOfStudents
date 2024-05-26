@@ -64,7 +64,7 @@ namespace webapi.Controllers
                     return Ok();
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 _logger.LogError("Произошла ошибка при изменении группы - {GroupName}", model.Name);
             }

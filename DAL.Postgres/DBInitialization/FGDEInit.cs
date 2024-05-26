@@ -43,7 +43,7 @@ namespace DAL.Postgres.DBInitialization
             return new List<Speciality>() { gmio, rmpi, emiavp };
         }
 
-        public List<GroupOfSpecialities> GetGroupsOfSpecialties(List<Speciality> specialities, FormOfEducation form)
+        public List<GroupOfSpecialities> GetGroupsOfSpecialties(List<Speciality> specialities, List<Subject> subjects, FormOfEducation form)
         {
             return new();
         }

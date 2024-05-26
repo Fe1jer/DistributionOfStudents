@@ -7,7 +7,6 @@ using ChartJSCore.Models;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;
 using DAL.Postgres.Specifications;
-using System.Data;
 
 namespace BLL.Services
 {
@@ -86,13 +85,13 @@ namespace BLL.Services
             GroupOfSpecialities group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties().IncludeAdmissions()) ?? new();
             await UpdateGroupStatisticAsync(group);
             await UpdatePlansStatisticAsync(facultyUrl, group);
-            throw new NotImplementedException();
+            _unitOfWork.Commit();
         }
 
         private async Task UpdateGroupStatisticAsync(GroupOfSpecialities group)
         {
             GroupOfSpecialitiesStatistic groupStatistic = await _unitOfWork.GroupsOfSpecialitiesStatistic.GetByGroupAndDateAsync(group.Id, DateTime.Today)
-                ?? new() { Date = DateTime.Today, GroupOfSpecialties = group };
+                ?? new() { GroupOfSpecialties = group };
             groupStatistic.CountOfAdmissions = (group.Admissions ?? new()).Count;
 
             await _unitOfWork.GroupsOfSpecialitiesStatistic.InsertOrUpdateAsync(groupStatistic);
@@ -102,13 +101,13 @@ namespace BLL.Services
         {
             List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyName).WhereGroup(group).WithoutTracking());
             List<RecruitmentPlanDTO> planDtos = Mapper.Map<List<RecruitmentPlanDTO>>(plans);
-            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+            List<AdmissionDTO> admissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
 
-            foreach (var plan in planDtos.Distribution(addmissionDtos).GetPlansWithPassingScores().Keys)
+            foreach (var plan in planDtos.Distribution(admissionDtos).GetPlansWithPassingScores().Keys)
             {
                 var plansToStatistic = await _unitOfWork.RecruitmentPlans.GetByIdAsync(plan.Id, new RecruitmentPlansSpecification(i => i.EnrolledStudents == null || i.EnrolledStudents.Count == 0).WithoutTracking()) ?? new();
                 RecruitmentPlanStatistic planStatistic = await _unitOfWork.RecruitmentPlansStatistic.GetByPlanAndDateAsync(plan.Id, DateTime.Today)
-                    ?? new() { Date = DateTime.Today, RecruitmentPlan = plansToStatistic };
+                    ?? new() { RecruitmentPlan = plansToStatistic };
                 planStatistic.Score = plan.PassingScore;
 
                 await _unitOfWork.RecruitmentPlansStatistic.InsertOrUpdateAsync(planStatistic);

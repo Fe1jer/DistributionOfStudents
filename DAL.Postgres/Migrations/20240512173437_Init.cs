@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Postgres.Migrations
 {
+    /// <inheritdoc />
     public partial class Init : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
@@ -321,7 +323,7 @@ namespace DAL.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RecruitmentPlandStatistic",
+                name: "RecruitmentPlansStatistic",
                 schema: "public",
                 columns: table => new
                 {
@@ -332,9 +334,9 @@ namespace DAL.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecruitmentPlandStatistic", x => x.Id);
+                    table.PrimaryKey("PK_RecruitmentPlansStatistic", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RecruitmentPlandStatistic_RecruitmentPlans_RecruitmentPlanId",
+                        name: "FK_RecruitmentPlansStatistic_RecruitmentPlans_RecruitmentPlanId",
                         column: x => x.RecruitmentPlanId,
                         principalSchema: "public",
                         principalTable: "RecruitmentPlans",
@@ -360,7 +362,8 @@ namespace DAL.Postgres.Migrations
                         column: x => x.AdmissionId,
                         principalSchema: "public",
                         principalTable: "Admissions",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SpecialtyPriorities_RecruitmentPlans_RecruitmentPlanId",
                         column: x => x.RecruitmentPlanId,
@@ -388,7 +391,8 @@ namespace DAL.Postgres.Migrations
                         column: x => x.AdmissionId,
                         principalSchema: "public",
                         principalTable: "Admissions",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_StudentScores_Subjects_SubjectId",
                         column: x => x.SubjectId,
@@ -447,12 +451,6 @@ namespace DAL.Postgres.Migrations
                 column: "FormOfEducationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RecruitmentPlandStatistic_RecruitmentPlanId",
-                schema: "public",
-                table: "RecruitmentPlandStatistic",
-                column: "RecruitmentPlanId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RecruitmentPlans_FormOfEducationId",
                 schema: "public",
                 table: "RecruitmentPlans",
@@ -463,6 +461,12 @@ namespace DAL.Postgres.Migrations
                 schema: "public",
                 table: "RecruitmentPlans",
                 column: "SpecialityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecruitmentPlansStatistic_RecruitmentPlanId",
+                schema: "public",
+                table: "RecruitmentPlansStatistic",
+                column: "RecruitmentPlanId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Specialities_FacultyId",
@@ -495,6 +499,7 @@ namespace DAL.Postgres.Migrations
                 column: "SubjectId");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
@@ -514,7 +519,7 @@ namespace DAL.Postgres.Migrations
                 schema: "public");
 
             migrationBuilder.DropTable(
-                name: "RecruitmentPlandStatistic",
+                name: "RecruitmentPlansStatistic",
                 schema: "public");
 
             migrationBuilder.DropTable(

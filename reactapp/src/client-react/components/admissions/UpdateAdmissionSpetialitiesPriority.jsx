@@ -5,30 +5,30 @@ import $ from 'jquery';
 
 import React, { useState } from 'react';
 
-export default function UpdateAdmissionSpetialitiesPriority({ form, specialitiesPriority, errors }) {
-    const [updatedSpecialitiesPriority, setUpdatedSpecialitiesPriority] = useState(specialitiesPriority);
-    const [specialitiesInPriority] = useState(updatedSpecialitiesPriority.filter(item => item.priority > 0).sort((a, b) => a.priority - b.priority).map(item => { return item.nameSpeciality }));
-    const [specialitiesIsntInPriority] = useState(updatedSpecialitiesPriority.filter(item => item.priority === 0).map(item => { return item.nameSpeciality }));
+export default function UpdateAdmissionSpetialitiesPriority({ form, specialityPriorities, errors }) {
+    const [updatedSpecialityPriorities, setUpdatedSpecialityPriorities] = useState(specialityPriorities);
+    const [specialitiesInPriority] = useState(updatedSpecialityPriorities.filter(item => item.priority > 0).sort((a, b) => a.priority - b.priority).map(item => { return item.specialityName }));
+    const [specialitiesIsntInPriority] = useState(updatedSpecialityPriorities.filter(item => item.priority === 0).map(item => { return item.specialityName }));
 
-    const onChangeSpecialitiesPriority = (nameSpeciality, priority) => {
-        var updateSpecialitiesPriorityTemp = updatedSpecialitiesPriority;
-        var item = updateSpecialitiesPriorityTemp.find(element => element.nameSpeciality === nameSpeciality);
-        var index = updateSpecialitiesPriorityTemp.indexOf(item);
-        updateSpecialitiesPriorityTemp[index].priority = priority;
-        setUpdatedSpecialitiesPriority(updateSpecialitiesPriorityTemp);
+    const onChangeSpecialityPriorities = (specialityName, priority) => {
+        var updateSpecialityPrioritiesTemp = updatedSpecialityPriorities;
+        var item = updateSpecialityPrioritiesTemp.find(element => element.specialityName === specialityName);
+        var index = updateSpecialityPrioritiesTemp.indexOf(item);
+        updateSpecialityPrioritiesTemp[index].priority = priority;
+        setUpdatedSpecialityPriorities(updateSpecialityPrioritiesTemp);
     }
 
     const sortableModel = () => {
         $(".not .one").each(function () {
-            const nameSpeciality = $(this).find(".item").text();
-            onChangeSpecialitiesPriority(nameSpeciality, 0);
+            const specialityName = $(this).find(".item").text();
+            onChangeSpecialityPriorities(specialityName, 0);
             $(this).find("strong").removeClass("alert-success");
             $(this).find("strong").addClass("alert-danger");
             $(this).find(".index").text(0);
         });
         $(".priority .one").each(function (index) {
-            const nameSpeciality = $(this).find(".item").text();
-            onChangeSpecialitiesPriority(nameSpeciality, index + 1);
+            const specialityName = $(this).find(".item").text();
+            onChangeSpecialityPriorities(specialityName, index + 1);
             $(this).find(".index").text(index + 1);
             $(this).find("strong").removeClass("alert-danger");
             $(this).find("strong").addClass("alert-success");
@@ -37,7 +37,7 @@ export default function UpdateAdmissionSpetialitiesPriority({ form, specialities
 
     const onChangeModel = (event, ui) => {
         sortableModel();
-        form.setFieldValue("specialitiesPriority", updatedSpecialitiesPriority);
+        form.setFieldValue("specialityPriorities", updatedSpecialityPriorities);
     }
 
     React.useEffect(() => {

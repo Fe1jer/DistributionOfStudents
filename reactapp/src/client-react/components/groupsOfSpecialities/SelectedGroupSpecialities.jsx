@@ -13,11 +13,11 @@ export default function SelectedGroupSpecialities({ onChange, errors, specialiti
             </Form.Group>
             <hr className="mt-2" />{
                 specialities.map((item, index) =>
-                    <Form.Check key={item.specialityName} className="mb-1"
-                        name={"selectedSpecialities[" + index + "].isSelected"}
+                    <Form.Check key={item.fullName} className="mb-1"
+                        name={"specialities[" + index + "].isSelected"}
                         type="checkbox"
-                        id={item.specialityId}
-                        label={item.specialityName}
+                        id={item.id}
+                        label={item.fullName}
                         checked={item.isSelected}
                         onChange={onChange}
                         isInvalid={!!errors}

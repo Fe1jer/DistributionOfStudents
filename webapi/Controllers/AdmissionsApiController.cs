@@ -25,7 +25,7 @@ namespace webapi.Controllers
         public async Task<ActionResult<IEnumerable<AdmissionViewModel>>> GetAdmissions() => Mapper.Map<List<AdmissionViewModel>>(await _service.GetAllAsync());
 
         [HttpGet("GroupAdmissions/{groupId}")]
-        public async Task<ActionResult<object>> GetGroupAdmissions(Guid groupId, DefaultFilter filter)
+        public async Task<ActionResult<object>> GetGroupAdmissions(Guid groupId, [FromQuery] DefaultFilter filter)
         {
             var (rows, count) = await _service.GetByGroupAsync(groupId, filter);
 
@@ -63,7 +63,7 @@ namespace webapi.Controllers
                     return Ok();
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 _logger.LogError("Произошла ошибка при изменении заявки аббитуриента - {Surname} {Name} {Patronymic}", model.Student.Surname, model.Student.Name, model.Student.Patronymic);
             }

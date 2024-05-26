@@ -3,7 +3,7 @@ using webapi.ViewModels.General;
 
 namespace webapi.ViewModels.GroupsOfSpecialities
 {
-    public class IsSelectedSubjectVM : BaseViewModel
+    public class SelectedSubjectViewModel : BaseViewModel
     {
 
         [Display(Name = "Предмет")]

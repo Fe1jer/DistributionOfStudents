@@ -6,7 +6,7 @@ export default function CreateDistributionPLanStudent({ student, enrolledStudent
     const generalScore = () => {
         var generalScore = 0;
         student.admissions[0].studentScores.forEach(element => generalScore += element.score);
-        return generalScore + student.gps;
+        return generalScore + student.gpa;
     }
 
     return (
@@ -31,7 +31,7 @@ export default function CreateDistributionPLanStudent({ student, enrolledStudent
                     </p>
                 )}
             </td>
-            <td>{student.gps}</td>
+            <td>{student.gpa}</td>
             <td>{generalScore()}</td>
             <td>
             </td>

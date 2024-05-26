@@ -14,7 +14,7 @@ import SpecialitiesService from "../../services/Specialities.service";
 import Placeholder from 'react-bootstrap/Placeholder';
 
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import useDocumentTitle from '../useDocumentTitle.jsx';
 
 export default function FacultyPage() {
@@ -86,8 +86,8 @@ export default function FacultyPage() {
             </React.Suspense>;
             if (facultyPlansYear) {
                 tableFacultyPlans = <React.Suspense >
-                    <SpecialityPlansList facultyShortName={shortName} year={facultyPlansYear} plans={facultyPlans} onClickDelete={onClickPlansDelete} />
-                    <ModalWindowPlansDelete show={deletePlansShow} handleClose={handleDeletePlansClose} onDeletePlans={onDeleteFacultyPlans} facultyShortName={shortName} year={facultyPlansYear} />
+                    <SpecialityPlansList shortName={shortName} year={facultyPlansYear} plans={facultyPlans} onClickDelete={onClickPlansDelete} />
+                    <ModalWindowPlansDelete show={deletePlansShow} handleClose={handleDeletePlansClose} onDeletePlans={onDeleteFacultyPlans} shortName={shortName} year={facultyPlansYear} />
                 </React.Suspense>;
             }
         }

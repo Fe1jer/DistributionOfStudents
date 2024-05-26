@@ -15,6 +15,7 @@ namespace webapi.Controllers
             {
                 cfg.AddProfile(typeof(DtoToViewModelMappingProfile));
                 cfg.AddProfile(typeof(ViewModelToDtoMappingProfile));
+                cfg.AllowNullCollections = true;
             });
             Mapper = config.CreateMapper();
             LinkGeneratorHelper.Current = new LinkGeneratorHelper(accessor, generator);

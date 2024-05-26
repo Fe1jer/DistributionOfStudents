@@ -18,7 +18,7 @@ namespace DAL.Postgres.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("public")
-                .HasAnnotation("ProductVersion", "6.0.18")
+                .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "uuid-ossp");
@@ -242,7 +242,7 @@ namespace DAL.Postgres.Migrations
 
                     b.HasIndex("RecruitmentPlanId");
 
-                    b.ToTable("RecruitmentPlandStatistic", "public");
+                    b.ToTable("RecruitmentPlansStatistic", "public");
                 });
 
             modelBuilder.Entity("DAL.Postgres.Entities.Speciality", b =>

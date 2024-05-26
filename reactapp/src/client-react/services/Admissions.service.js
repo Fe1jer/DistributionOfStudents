@@ -5,7 +5,7 @@ const config = {
 };
 
 const httpGetGroupAdmissions = (groupId, searhText, currentPage, pageLimit) => {
-    return fetchWrapper.get(`${config.api}GroupAdmissions/${groupId}?searchStudents=${searhText}&page=${currentPage}&pageLimit=${pageLimit}`)
+    return fetchWrapper.get(`${config.api}GroupAdmissions/${groupId}?search=${searhText}&page=${currentPage}&pageLimit=${pageLimit}`)
 };
 
 const httpGetById = (id) => {

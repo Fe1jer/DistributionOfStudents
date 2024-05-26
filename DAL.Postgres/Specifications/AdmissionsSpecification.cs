@@ -47,9 +47,16 @@ namespace DAL.Postgres.Specifications
             return this;
         }
 
-        public AdmissionsSpecification IncludeStudentScores()
+        public AdmissionsSpecification IncludeStudentScoresWithSubject()
         {
             AddInclude("StudentScores.Subject");
+
+            return this;
+        }
+
+        public AdmissionsSpecification IncludeStudentScores()
+        {
+            AddInclude("StudentScores");
 
             return this;
         }

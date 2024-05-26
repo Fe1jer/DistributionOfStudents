@@ -13,7 +13,7 @@ const httpGetById = (id) => {
 const httpGetFacultyPlans = (facultyShortName, year) => {
     return fetchWrapper.get(`${config.api}${facultyShortName}/${year}`)
 };
-const httpGetGrouptPlans = (facultyShortName, groupId) => {
+const httpGetGroupPlans = (facultyShortName, groupId) => {
     return fetchWrapper.get(`${config.api}${facultyShortName}/${groupId}/GroupPlans`)
 };
 const httpGetLastFacultyPlans = (facultyShortName) => {
@@ -33,7 +33,7 @@ const httpDelete = (facultyShortName, year) => {
 };
 
 const exportedObject = {
-    httpGet, httpGetById, httpGetFacultyPlans, httpGetGrouptPlans, httpGetLastFacultyPlans, httpPost, httpPut, httpPutById, httpDelete
+    httpGet, httpGetById, httpGetFacultyPlans, httpGetGroupPlans, httpGetLastFacultyPlans, httpPost, httpPut, httpPutById, httpDelete
 };
 
 export default exportedObject;

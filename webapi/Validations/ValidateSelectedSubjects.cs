@@ -7,7 +7,7 @@ namespace webapi.Validations
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            List<IsSelectedSubjectVM>? dt = (List<IsSelectedSubjectVM>?)value;
+            List<SelectedSubjectViewModel>? dt = (List<SelectedSubjectViewModel>?)value;
 
             if (dt != null && dt.Where(i => i.IsSelected == true).Any())
             {

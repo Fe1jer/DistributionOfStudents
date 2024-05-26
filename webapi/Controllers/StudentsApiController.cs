@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Shared.Filters.Base;
 using webapi.ViewModels.Admissions;
+using webapi.ViewModels.Students;
 
 namespace webapi.Controllers.Api
 {
@@ -19,13 +20,13 @@ namespace webapi.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<ActionResult<object>> GetStudents(DefaultFilter filter)
+        public async Task<ActionResult<object>> GetStudents([FromQuery] DefaultFilter filter)
         {
             var (rows, count) = await _service.GetByLastYearAsync(filter);
 
             return new
             {
-                admissions = Mapper.Map<List<AdmissionViewModel>>(rows),
+                admissions = Mapper.Map<List<StudentItemViewModel>>(rows),
                 count
             };
         }

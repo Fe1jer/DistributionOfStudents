@@ -12,7 +12,7 @@ export default function CreateDistributionPLanLst({ planIndex, plan, distributed
     const generalStudentScore = (enrolledStudent) => {
         var generalScore = 0;
         enrolledStudent.student.admissions[0].studentScores.forEach(element => generalScore += element.score);
-        return generalScore + enrolledStudent.student.gps;
+        return generalScore + enrolledStudent.student.gpa;
     }
 
     return (

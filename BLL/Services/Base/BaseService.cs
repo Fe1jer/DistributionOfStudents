@@ -18,6 +18,7 @@ namespace BLL.Services.Base
             {
                 cfg.AddProfile(typeof(DomainToDTOMappingProfile));
                 cfg.AddProfile(typeof(DTOToDomainMappingProfile));
+                cfg.AllowNullCollections = true;
             });
             Mapper = config.CreateMapper();
         }

@@ -25,7 +25,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
     const [studentFullName, setStudentFullName] = useState("");
     const [admission, setAdmission] = useState(null);
     const [studentScores, setStudentScores] = useState(null);
-    const [specialitiesPriority, setSpecialitiesPriority] = useState(null);
+    const [specialityPriorities, setSpecialityPriorities] = useState(null);
     const [admissionSpecialitiesPriority, setAdmissionSpecialitiesPriority] = useState(null);
     const [groupPlans, setGroupPlans] = useState(null);
 
@@ -36,7 +36,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
         setIsLoaded(false);
         setAdmission(null);
         setStudentScores(null);
-        setSpecialitiesPriority(null);
+        setSpecialityPriorities(null);
         setAdmissionSpecialitiesPriority(null);
         setGroupPlans(null);
     }
@@ -59,7 +59,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
         setStudentScores(data.studentScores);
     }
     const loadGroupPlans = async () => {
-        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupPlans(facultyShortName, groupId);
         setGroupPlans(recruitmentsPlansData);
     }
     React.useEffect(() => {
@@ -70,11 +70,11 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
                 setIsLoaded(true);
                 return;
             }
-            if (groupPlans && admissionSpecialitiesPriority && !specialitiesPriority) {
-                setSpecialitiesPriority(groupPlans.map(item => {
-                    var tempSpecialitiesPriority = admissionSpecialitiesPriority.find(element => element.recruitmentPlan.id === item.id);
+            if (groupPlans && admissionSpecialitiesPriority && !specialityPriorities) {
+                setSpecialityPriorities(groupPlans.map(item => {
+                    var tempSpecialitiesPriority = admissionSpecialitiesPriority.find(element => element.recruitmentPlanId === item.id);
                     return {
-                        planId: item.id, nameSpeciality: item.speciality.directionName ?? item.speciality.fullName,
+                        recruitmentPlanId: item.id, specialityName: item.specialityName,
                         priority: tempSpecialitiesPriority ? tempSpecialitiesPriority.priority : 0
                     }
                 }))
@@ -88,7 +88,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
     const onClose = () => {
         handleClose();
     }
-    if (!admission || !specialitiesPriority || !studentScores) {
+    if (!admission || !specialityPriorities || !studentScores) {
         return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
@@ -97,7 +97,7 @@ export default function EditModalWindow({ show, handleClose, onLoadAdmissions, a
                 <Formik
                     validationSchema={AdmissionValidationSchema}
                     onSubmit={handleSubmit}
-                    initialValues={{ ...admission, studentScores, specialitiesPriority }}>
+                    initialValues={{ ...admission, studentScores, specialityPriorities }}>
                     {({ handleSubmit, handleChange, values, touched, errors }) => (
                         <Form noValidate onSubmit={handleSubmit}>
                             <Modal.Header closeButton>

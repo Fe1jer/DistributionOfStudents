@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 
 import { useNavigate } from 'react-router-dom'
 
-export default function SpecialityPlansList({ facultyShortName, year, plans, onClickDelete }) {
+export default function SpecialityPlansList({ shortName, year, plans, onClickDelete }) {
     const navigate = useNavigate();
 
     return <div className="shadow">
@@ -17,8 +17,8 @@ export default function SpecialityPlansList({ facultyShortName, year, plans, onC
                     <th colSpan="4">Дневная форма получения образования</th>
                     <th colSpan="4">Заочная форма получения образования</th>
                     <th rowSpan="2" width="60" className="text-center align-middle">
-                        <EditButton onClick={() => navigate("/Faculties/" + facultyShortName + "/RecruitmentPlans/" + year + "/Edit")} />
-                        <DeleteButton onClick={() => onClickDelete(facultyShortName, year)} />
+                        <EditButton onClick={() => navigate("/Faculties/" + shortName + "/RecruitmentPlans/" + year + "/Edit")} />
+                        <DeleteButton onClick={() => onClickDelete(shortName, year)} />
                     </th>
                 </tr>
                 <tr>

@@ -1,6 +1,5 @@
-using DependencyResolver;
+using DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Helpers;
 using System.Text;
@@ -28,7 +27,7 @@ namespace webapi
             /*string connection = builder.Configuration.GetConnectionString("MssqlConnection");
             builder.Services.RegisterApplicationServices(connection);*/
 
-            string connection = builder.Configuration.GetConnectionString("NpgsqlConnection");
+            string connection = builder.Configuration.GetConnectionString("NpgsqlConnection")!;
             builder.Services.RegisterApplicationServices(connection);
 
             builder.Services.AddCors();
@@ -44,7 +43,7 @@ namespace webapi
 
             // configure strongly typed settings object
             builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("AppSettings"));
-            var authkey = builder.Configuration.GetValue<string>("AppSettings:Secret");
+            var authKey = builder.Configuration.GetValue<string>("AppSettings:Secret");
             builder.Services.AddAuthentication(item =>
             {
                 item.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -56,7 +55,7 @@ namespace webapi
                 item.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authkey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authKey)),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = false,

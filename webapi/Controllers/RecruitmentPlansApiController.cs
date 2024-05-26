@@ -1,7 +1,5 @@
-﻿using BLL.DTO;
-using BLL.DTO.GroupsOfSpecialities;
+﻿using BLL.DTO.GroupsOfSpecialities;
 using BLL.DTO.RecruitmentPlans;
-using BLL.Services;
 using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,9 +25,9 @@ namespace webapi.Controllers.Api
             => Mapper.Map<List<DetailsFacultyPlansViewModel>>(await _service.GetLastFacultiesPlansAsync());
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RecruitmentPlanViewModel>> GetRecruitmentPlan(Guid id)
+        public async Task<ActionResult<RecruitmentPlanItemViewModel>> GetRecruitmentPlan(Guid id)
         {
-            RecruitmentPlanViewModel model = Mapper.Map<RecruitmentPlanViewModel>(await _service.GetAsync(id));
+            RecruitmentPlanItemViewModel model = Mapper.Map<RecruitmentPlanItemViewModel>(await _service.GetAsync(id));
 
             return model != null ? model : NotFound();
         }
@@ -43,7 +41,7 @@ namespace webapi.Controllers.Api
             => Mapper.Map<DetailsFacultyPlansViewModel>(await _service.GetLastByFacultyAsync(facultyUrl));
 
         [HttpGet("{facultyUrl}/{groupId}/GroupPlans")]
-        public async Task<ActionResult<IEnumerable<RecruitmentPlanViewModel>>> GetGroupPlans([FromServices] IGroupsOfSpecialitiesService groupsService,
+        public async Task<ActionResult<IEnumerable<RecruitmentPlanItemViewModel>>> GetGroupPlans([FromServices] IGroupsOfSpecialitiesService groupsService,
             [FromServices] IDistributionService distributionService, string facultyUrl, Guid groupId)
         {
             GroupOfSpecialitiesDTO? group = await groupsService.GetAsync(groupId);
@@ -61,7 +59,7 @@ namespace webapi.Controllers.Api
                 plans = distribution.Keys.ToList();
             }
 
-            return Mapper.Map<List<RecruitmentPlanViewModel>>(plans);
+            return Mapper.Map<List<RecruitmentPlanItemViewModel>>(plans);
         }
 
         [HttpPut("{id}")]

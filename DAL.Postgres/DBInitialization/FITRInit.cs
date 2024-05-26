@@ -73,15 +73,16 @@ namespace DAL.Postgres.DBInitialization
             return new List<Speciality>() { poit, isitOPI, isitPP, atpipvpir, ae, prirk };
         }
 
-        public List<GroupOfSpecialities> GetGroupsOfSpecialties(List<Speciality> specialities, FormOfEducation form)
+        public List<GroupOfSpecialities> GetGroupsOfSpecialties(List<Speciality> specialities, List<Subject> subjects, FormOfEducation form)
         {
             GroupOfSpecialities group = new()
             {
                 Name = "Дневная форма получения образования за счет средств республиканского бюджета",
-                StartDate = DateTime.Today,
-                EnrollmentDate = DateTime.Today.AddDays(10),
+                StartDate = DateTime.Today.ToUniversalTime(),
+                EnrollmentDate = DateTime.Today.AddDays(10).ToUniversalTime(),
                 IsCompleted = false,
                 Specialities = specialities,
+                Subjects = subjects,
                 FormOfEducation = form
             };
 

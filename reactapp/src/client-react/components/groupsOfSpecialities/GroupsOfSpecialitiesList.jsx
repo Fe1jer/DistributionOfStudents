@@ -23,7 +23,7 @@ export default function GroupsOfSpecialitiesList({ facultyShortName, groups, onC
             </thead>
             <tbody>{
                 groups.map((item, index) =>
-                    <GroupOfSpecialities key={item.name + index} group={item} onClickDelete={onClickDelete} facultyShortName={facultyShortName} onClickEdit={onClickEdit} />
+                    <GroupOfSpecialities key={item.id + index} group={item} onClickDelete={onClickDelete} facultyShortName={facultyShortName} onClickEdit={onClickEdit} />
                 )}
             </tbody>
         </Table>

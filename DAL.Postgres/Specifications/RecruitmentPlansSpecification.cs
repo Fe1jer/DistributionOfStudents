@@ -6,8 +6,7 @@ namespace DAL.Postgres.Specifications
 {
     public class RecruitmentPlansSpecification : Specification<RecruitmentPlan>
     {
-
-        public RecruitmentPlansSpecification() : base()
+        public RecruitmentPlansSpecification()
         {
             IncludeFormOfEducation();
             SortBySpecialties();

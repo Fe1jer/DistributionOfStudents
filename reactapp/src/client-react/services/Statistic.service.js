@@ -5,7 +5,7 @@ const config = {
 };
 
 const httpGetPlansStatistic = (facultyName, groupId) => {
-    return fetchWrapper.get(`${config.api}PlansStatisticChart?groupId=${groupId}&facultyName=${facultyName}`)
+    return fetchWrapper.get(`${config.api}PlansStatisticChart?groupId=${groupId}&facultyUrl=${facultyName}`)
 };
 const httpGetGroupStatistic = (groupId) => {
     return fetchWrapper.get(`${config.api}GroupStatisticChart?groupId=${groupId}`)

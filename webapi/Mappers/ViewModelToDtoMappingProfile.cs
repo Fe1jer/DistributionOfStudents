@@ -28,7 +28,12 @@ namespace webapi.Mappers
             CreateMap<AdmissionViewModel, AdmissionDTO>();
             CreateMap<FacultyViewModel, FacultyDTO>();
             CreateMap<FormOfEducationViewModel, FormOfEducationDTO>();
+
             CreateMap<GroupOfSpecialitiesViewModel, GroupOfSpecialitiesDTO>();
+            CreateMap<UpdateGroupOfSpecialitiesViewModel, UpdateGroupOfSpecialitiesDTO>();
+            CreateMap<SelectedSubjectViewModel, SelectedSubjectDTO>();
+            CreateMap<SelectedSpecialityViewModel, SelectedSpecialityDTO>();
+
             CreateMap<RecruitmentPlanViewModel, RecruitmentPlanDTO>();
             CreateMap<SpecialityViewModel, SpecialityDTO>();
             CreateMap<SpecialityPlansViewModel, SpecialityPlansDTO>();

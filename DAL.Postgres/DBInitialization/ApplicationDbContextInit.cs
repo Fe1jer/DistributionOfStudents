@@ -69,7 +69,7 @@ namespace DAL.Postgres.DBInitialization
                         context.RecruitmentPlans.AddRange(plans);
                         context.SaveChanges();
                     }
-                    List<GroupOfSpecialities> groups = facultyInit.GetGroupsOfSpecialties(faculty.Specialities.Take(3).ToList(), form);
+                    List<GroupOfSpecialities> groups = facultyInit.GetGroupsOfSpecialties(faculty.Specialities.Take(3).ToList(), context.Subjects.Take(3).ToList(), form);
                     if (groups.Count != 0)
                     {
                         context.GroupsOfSpecialties.AddRange(groups);
@@ -96,13 +96,13 @@ namespace DAL.Postgres.DBInitialization
             CreateSubject("французский язык", context);
             CreateSubject("немецкий язык", context);
             CreateSubject("китайский язык", context);
+            context.SaveChanges();
         }
 
         private static void CreateSubject(string name, ApplicationDbContext context)
         {
             Subject subject = new() { Name = name };
             context.Subjects.Add(subject);
-            context.SaveChanges();
         }
 
         private static void CreateUsers(ApplicationDbContext context)

@@ -65,10 +65,10 @@ export default function EditModalWindow({ show, handleClose, onLoadGroups, group
                 setIsLoaded(true);
             }
             if (specialities.length > 0 && groupSpecialities && !selectedSpecialities) {
-                setSelectedSpecialities(specialities.map(item => { return { specialityName: item.directionName ?? item.fullName, specialityId: item.id, isSelected: groupSpecialities.some(gS => gS.id === item.id) } }))
+                setSelectedSpecialities(specialities.map(item => { return { fullName: item.directionName ?? item.fullName, id: item.id, isSelected: groupSpecialities.some(gS => gS.id === item.id) } }))
             }
             if (subjects.length > 0 && groupSubjects && !selectedSubjects) {
-                setSelectedSubjects(subjects.map(item => { return { subject: item.name, subjectId: item.id, isSelected: groupSubjects.some(gS => gS.id === item.id) } }))
+                setSelectedSubjects(subjects.map(item => { return { name: item.name, id: item.id, isSelected: groupSubjects.some(gS => gS.id === item.id) } }))
             }
         }
         else {
@@ -85,7 +85,7 @@ export default function EditModalWindow({ show, handleClose, onLoadGroups, group
                 <Formik
                     validationSchema={GroupOfSpecialitiesValidationSchema}
                     onSubmit={handleSubmit}
-                    initialValues={{ group, selectedSpecialities, selectedSubjects }}>
+                    initialValues={{ ...group, specialities: selectedSpecialities, subjects: selectedSubjects }}>
                     {({ handleSubmit, handleChange, values, touched, errors }) => (
                         <Form noValidate onSubmit={handleSubmit}>
                             <Modal.Header closeButton>

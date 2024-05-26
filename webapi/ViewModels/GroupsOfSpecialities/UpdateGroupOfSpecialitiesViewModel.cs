@@ -10,10 +10,10 @@ namespace webapi.ViewModels.GroupsOfSpecialities
 
         [ValidateSelectedSpecialities]
         [Display(Name = "Специальности, составляющие общий конкурс")]
-        public List<IsSelectedSpecialityInGroupVM> Specialities { get; set; } = new();
+        public List<SelectedSpecialityViewModel> Specialities { get; set; } = new();
 
         [ValidateSelectedSubjects]
         [Display(Name = "Предметы, по которым нужны сертификаты")]
-        public List<IsSelectedSubjectVM> Subjects { get; set; } = new();
+        public List<SelectedSubjectViewModel> Subjects { get; set; } = new();
     }
 }

@@ -27,21 +27,21 @@ namespace BLL.Services
             return Mapper.Map<List<AdmissionDTO>>(result);
         }
 
-        public async Task<(List<AdmissionDTO> rows, int count)> GetByLastYearAsync(DefaultFilter filter)
+        public async Task<(List<StudentItemDTO> rows, int count)> GetByLastYearAsync(DefaultFilter filter)
         {
-            var (rows, count) = await _unitOfWork.Admissions.GetByFilterAsync(filter, new AdmissionsSpecification().IncludeSpecialtyPriorities().SortByStudent());
-            return (Mapper.Map<List<AdmissionDTO>>(rows), count);
+            var (rows, count) = await _unitOfWork.Admissions.GetByFilterAsync(filter, new AdmissionsSpecification().IncludeGroupWithSpecialities().SortByStudent());
+            return (Mapper.Map<List<StudentItemDTO>>(rows), count);
         }
 
         public async Task<(List<AdmissionDTO> rows, int count)> GetByGroupAsync(Guid groupId, DefaultFilter filter)
         {
-            var (rows, count) = await _unitOfWork.Admissions.GetByFilterAsync(filter, new AdmissionsSpecification(i => i.GroupOfSpecialties.Id == groupId).IncludeSpecialtyPriorities().SortByStudent());
+            var (rows, count) = await _unitOfWork.Admissions.GetByFilterAsync(filter, new AdmissionsSpecification(i => i.GroupOfSpecialties.Id == groupId).IncludeSpecialtyPriorities().IncludeStudentScoresWithSubject().SortByStudent());
             return (Mapper.Map<List<AdmissionDTO>>(rows), count);
         }
 
         public async Task<AdmissionDTO> GetAsync(Guid id)
         {
-            var entity = await _unitOfWork.Admissions.GetByIdAsync(id, new AdmissionsSpecification().IncludeSpecialtyPriorities().IncludeStudentScores());
+            var entity = await _unitOfWork.Admissions.GetByIdAsync(id, new AdmissionsSpecification().IncludeSpecialtyPriorities().IncludeStudentScoresWithSubject());
 
             if (entity != null)
             {
@@ -66,33 +66,12 @@ namespace BLL.Services
             if (model.IsNew)
             {
                 entity = Mapper.Map<Admission>(model);
-
-                foreach (StudentScoreDTO studentScore in model.StudentScores)
-                {
-                    entity.StudentScores.Add(new() { Subject = await _unitOfWork.Subjects.GetByIdAsync(studentScore.Subject.Id) ?? new() });
-                }
-                foreach (SpecialityPriorityDTO specialityPriority in model.SpecialityPriorities.Where(p => p.Priority > 0))
-                {
-                    RecruitmentPlan? plan = await _unitOfWork.RecruitmentPlans.GetByIdAsync(specialityPriority.RecruitmentPlan.Id);
-                    specialityPriorities.Add(new() { Priority = specialityPriority.Priority, RecruitmentPlan = plan ?? new() });
-                }
             }
             else
             {
                 entity = await _unitOfWork.Admissions.GetByIdAsync(model.Id, new AdmissionsSpecification().IncludeSpecialtyPriorities().IncludeStudentScores());
                 Mapper.Map(model, entity);
-
-                //entity.StudentScores.ForEach(s => s.Score = model.StudentScores.First(i => i.Id == s.Id).Score);
-
-                foreach (SpecialityPriorityDTO specialityPriority in model.SpecialityPriorities.Where(p => p.Priority > 0))
-                {
-                    SpecialityPriority priority = entity.SpecialityPriorities.FirstOrDefault(i => i.RecruitmentPlan.Id == specialityPriority.RecruitmentPlan.Id) ??
-                        new() { RecruitmentPlan = await _unitOfWork.RecruitmentPlans.GetByIdAsync(specialityPriority.RecruitmentPlan.Id) ?? new() };
-                    priority.Priority = specialityPriority.Priority;
-                    specialityPriorities.Add(priority);
-                }
             }
-            entity.SpecialityPriorities = specialityPriorities;
 
             await _unitOfWork.Admissions.InsertOrUpdateAsync(entity);
             _unitOfWork.Commit();

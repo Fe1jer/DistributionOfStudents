@@ -3,7 +3,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import * as React from "react";
 
 export default function AdmissionSpetialitiesPriority({ admission, specialityPriority, plans, index }) {
-    const numOfPlan = plans.findIndex(x => x.id === specialityPriority.recruitmentPlan.id);
+    const numOfPlan = plans.findIndex(x => x.id === specialityPriority.recruitmentPlanId);
 
     const _showPriority = () => {
         if (plans[numOfPlan].enrolledStudents.some(s => s.student.id === admission.student.id)) {
@@ -26,10 +26,10 @@ export default function AdmissionSpetialitiesPriority({ admission, specialityPri
     }
 
     return (
-        <React.Suspense key={admission.student.surname + admission.student.name + admission.student.patronymic + specialityPriority.priority} >
+        <React.Suspense key={admission.student.fullName} >
             <OverlayTrigger
                 placement="top"
-                overlay={<Tooltip>{plans[numOfPlan].speciality.directionName ?? plans[numOfPlan].speciality.fullName}</Tooltip>}>
+                overlay={<Tooltip>{plans[numOfPlan].specialityName}</Tooltip>}>
                 {_showPriority()}
             </OverlayTrigger>
             <label>

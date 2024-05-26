@@ -14,7 +14,7 @@ namespace DAL.Postgres.Repositories.Custom
 
         public Task<List<GroupOfSpecialities>> GetByFacultyAsync(string facultyUrl, int year)
         {
-            return GetAllAsync(new GroupsOfSpecialitiesSpecification(p => p.Name == facultyUrl && p.FormOfEducation.Year == year));
+            return GetAllAsync(new GroupsOfSpecialitiesSpecification().WhereFaculty(facultyUrl).WhereYear(year));
         }
 
         public async Task DeleteAsync(Guid id)

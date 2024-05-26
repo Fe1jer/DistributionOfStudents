@@ -15,7 +15,7 @@ export default function GroupOfSpecialities({ group, facultyShortName, onClickDe
     const [competition, setCompetition] = useState(null);
 
     const loadSpecialities = async () => {
-        const data = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, group.id);
+        const data = await RecruitmentPlansService.httpGetGroupPlans(facultyShortName, group.id);
         setPlans(data);
     }
     const loadCompetition = async () => {
@@ -31,8 +31,8 @@ export default function GroupOfSpecialities({ group, facultyShortName, onClickDe
     const _showPlans = () => {
         if (plans) {
             return plans.map((item) =>
-                <React.Suspense key={group.name + "-" + (item.speciality.directionName ?? item.speciality.fullName)} >
-                    {item.speciality.directionName ?? item.speciality.fullName}
+                <React.Suspense key={group.name + "-" + (item.id)} >
+                    {item.specialityName}
                     <p className="m-1"></p>
                 </React.Suspense>
             )

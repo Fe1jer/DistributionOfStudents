@@ -29,9 +29,9 @@ namespace BLL.Services
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
             List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
             List<RecruitmentPlanDTO> planDtos = Mapper.Map<List<RecruitmentPlanDTO>>(plans);
-            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+            List<AdmissionDTO> admissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
 
-            return (float)Math.Round(planDtos.Distribution(addmissionDtos).Competition(addmissionDtos), 2);
+            return (float)Math.Round(planDtos.Distribution(admissionDtos).Competition(admissionDtos), 2);
         }
 
         public async Task<bool> ExistsEnrolledStudentsAsync(string facultyUrl, Guid groupId)
@@ -48,9 +48,9 @@ namespace BLL.Services
             group.IsCompleted = true;
             await _unitOfWork.GroupsOfSpecialities.InsertOrUpdateAsync(group);
 
-            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+            List<AdmissionDTO> admissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
             List<RecruitmentPlanDTO> plans = await GetPlansFromModelsAsync(models, facultyUrl, group);
-            var distribution = plans.Distribution(addmissionDtos);
+            var distribution = plans.Distribution(admissionDtos);
 
             foreach (var plan in distribution.GetPlansWithPassingScores().Keys)
             {
@@ -59,17 +59,16 @@ namespace BLL.Services
                 await _unitOfWork.RecruitmentPlans.InsertOrUpdateAsync(entity);
             }
 
-            if (notify) distribution.NotifyEnrolledStudents(addmissionDtos);
-            throw new NotImplementedException();
+            if (notify) distribution.NotifyEnrolledStudents(admissionDtos);
         }
 
         public async Task<Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>>> CreateAsync(string facultyUrl, Guid groupId, List<PlanForDistributionDTO> models)
         {
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
-            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group?.Admissions);
+            List<AdmissionDTO> admissionDtos = Mapper.Map<List<AdmissionDTO>>(group?.Admissions);
             List<RecruitmentPlanDTO> plans = await GetPlansFromModelsAsync(models, facultyUrl, group);
 
-            return plans.Distribution(addmissionDtos).GetPlansWithEnrolledStudents();
+            return plans.Distribution(admissionDtos).GetPlansWithEnrolledStudents();
         }
 
         public async Task DeleteAsync(string facultyUrl, Guid groupId)
@@ -93,9 +92,9 @@ namespace BLL.Services
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions().IncludeSpecialties());
             List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
             List<RecruitmentPlanDTO> planDtos = Mapper.Map<List<RecruitmentPlanDTO>>(plans);
-            List<AdmissionDTO> addmissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
+            List<AdmissionDTO> admissionDtos = Mapper.Map<List<AdmissionDTO>>(group.Admissions);
 
-            return planDtos.Distribution(addmissionDtos);
+            return planDtos.Distribution(admissionDtos);
         }
 
         private async Task<List<RecruitmentPlanDTO>> GetPlansFromModelsAsync(IEnumerable<PlanForDistributionDTO> models, string facultyUrl, GroupOfSpecialities group)

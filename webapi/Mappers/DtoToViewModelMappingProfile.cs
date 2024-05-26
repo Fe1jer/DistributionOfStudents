@@ -34,11 +34,17 @@ namespace webapi.Mappers
             CreateMap<GroupOfSpecialitiesDTO, GroupOfSpecialitiesViewModel>();
 
             CreateMap<RecruitmentPlanDTO, RecruitmentPlanViewModel>();
+            CreateMap<RecruitmentPlanDTO, RecruitmentPlanItemViewModel>()
+                .ForMember(p => p.SpecialityName, opts => opts.MapFrom(p => p.Speciality.DirectionName ?? p.Speciality.FullName));
             CreateMap<SpecialityPlansDTO, SpecialityPlansViewModel>();
 
             CreateMap<SpecialityDTO, SpecialityViewModel>();
             CreateMap<SpecialityPriorityDTO, SpecialityPriorityViewModel>();
+
+            CreateMap<StudentItemDTO, StudentItemViewModel>();
             CreateMap<StudentDTO, StudentViewModel>();
+            CreateMap<EnrolledStudentDTO, EnrolledStudentViewModel>();
+
             CreateMap<StudentScoreDTO, StudentScoreViewModel>();
             CreateMap<SubjectDTO, SubjectViewModel>();
         }

@@ -1,12 +1,13 @@
-namespace Shared.Helpers;
-
 using BLL.DTO.User;
 using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+
+namespace DI;
 
 public class JwtMiddleware
 {

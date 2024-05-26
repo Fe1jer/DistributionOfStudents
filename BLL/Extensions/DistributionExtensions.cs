@@ -16,6 +16,7 @@ namespace BLL.Extensions
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(typeof(DTOToDTOMappingProfile));
+                cfg.AllowNullCollections = true;
             });
             Mapper = config.CreateMapper();
         }
@@ -28,20 +29,20 @@ namespace BLL.Extensions
             List<AdmissionDTO> freeAdmissions = Mapper.Map<List<AdmissionDTO>>(admissions);
             if (recruitmentPlans.All(i => i.EnrolledStudents is null))
             {
-                DistridutionPlans(distributedStudents, recruitmentPlans, freeAdmissions);
+                DistributionPlans(distributedStudents, recruitmentPlans, freeAdmissions);
             }
             else
             {
-                DistridutionControversialPlans(distributedStudents, recruitmentPlans, freeAdmissions);
+                DistributionControversialPlans(distributedStudents, recruitmentPlans, freeAdmissions);
             }
 
             return distributedStudents;
         }
 
-        private static void DistridutionControversialPlans(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, List<RecruitmentPlanDTO> plans, List<AdmissionDTO> freeAdmissions)
+        private static void DistributionControversialPlans(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, List<RecruitmentPlanDTO> plans, List<AdmissionDTO> freeAdmissions)
         {
             List<RecruitmentPlanDTO> controversialPlans = GetControversialPlans(plans, freeAdmissions);
-            DistridutionPlans(distributedStudents, controversialPlans, freeAdmissions);
+            DistributionPlans(distributedStudents, controversialPlans, freeAdmissions);
         }
 
         private static List<RecruitmentPlanDTO> GetControversialPlans(List<RecruitmentPlanDTO> plans, List<AdmissionDTO> freeAdmissions)
@@ -51,7 +52,7 @@ namespace BLL.Extensions
                 if (plan.EnrolledStudents is not null && plan.EnrolledStudents.Any() && plan.Count <= plan.EnrolledStudents.Count)
                 {
                     freeAdmissions.RemoveAll(i => plan.EnrolledStudents.Select(s => s.Student.Id).Contains(i.Student.Id));
-                    freeAdmissions.ForEach(admission => admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan.Id == plan.Id));
+                    freeAdmissions.ForEach(admission => admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlanId == plan.Id));
                     plans.Remove(plan);
                 }
             }
@@ -93,41 +94,39 @@ namespace BLL.Extensions
             {
                 if (keyValuePair.Key.EnrolledStudents is null || keyValuePair.Key.Count == 0)
                 {
-                    keyValuePair.Key.TargetPassingScore = keyValuePair.Key.Target == 0 || keyValuePair.Key.Target > keyValuePair.Value.Where(s => s.IsTargeted).Count() ? 0 :
+                    keyValuePair.Key.TargetPassingScore = keyValuePair.Key.Target == 0 || keyValuePair.Key.Target > keyValuePair.Value.Count(s => s.IsTargeted) ? 0 :
                         keyValuePair.Value.Where(s => s.IsTargeted).OrderByDescending(i => i.Score).Take(keyValuePair.Key.Target).Min(a => a.Score);
 
                     keyValuePair.Key.PassingScore = keyValuePair.Key.Count > keyValuePair.Value.Count ? 0 :
                         keyValuePair.Value.Where(s => !(s.IsTargeted && s.Score >= keyValuePair.Key.TargetPassingScore)
-                        && !s.IsWithoutEntranceExams && !s.IsOutOfCompetition).Min(a => a.Score);
+                                                      && s is { IsWithoutEntranceExams: false, IsOutOfCompetition: false }).Min(a => a.Score);
                 }
             }
 
             return distributedStudents;
         }
 
-        private static void DistridutionPlans(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, List<RecruitmentPlanDTO> plans, List<AdmissionDTO> freeAdmissions)
+        private static void DistributionPlans(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, List<RecruitmentPlanDTO> plans, List<AdmissionDTO> freeAdmissions)
         {
-            List<AdmissionDTO> tempDistributedAdmissions = new();
-
             for (int i = 0; i < plans.Count; i++)
             {
                 distributedStudents.GetPlansWithPassingScores();
                 foreach (RecruitmentPlanDTO plan in plans.OrderByDescending(i => i.PassingScore))
                 {
-                    tempDistributedAdmissions = distributedStudents[plan].ToList();
-                    AddPriorityAdmissonsToPlan(distributedStudents, plan, freeAdmissions);
-                    DistridutionToPlan(distributedStudents, plan, freeAdmissions);
+                    List<AdmissionDTO> tempDistributedAdmissions = distributedStudents[plan].ToList();
+                    AddPriorityAdmissionsToPlan(distributedStudents, plan, freeAdmissions);
+                    DistributionToPlan(distributedStudents, plan, freeAdmissions);
                     freeAdmissions.AddRange(tempDistributedAdmissions.Except(distributedStudents[plan]));
                 }
             }
         }
 
-        private static void DistridutionToPlan(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
+        private static void DistributionToPlan(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
         {
             if (distributedStudents[plan].Count > plan.Count)
             {
-                int targetPassingScore = 0, generalPassingScore = 0;
-                List<AdmissionDTO> targetAdmissions = new(), generalAdmissions = new();
+                var targetPassingScore = 0;
+                List<AdmissionDTO> targetAdmissions = new();
 
                 if (plan.Target != 0)
                 {
@@ -135,24 +134,24 @@ namespace BLL.Extensions
                     targetPassingScore = targetAdmissions.Any() ? targetAdmissions.Min(i => i.Score) : 0;
                     targetAdmissions = distributedStudents[plan].Where(s => s.IsTargeted && s.Score >= targetPassingScore).ToList();
                 }
-                generalAdmissions = distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
+                List<AdmissionDTO> generalAdmissions = distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
                     .OrderByDescending(i => i.IsWithoutEntranceExams).ThenByDescending(i => i.IsOutOfCompetition).ThenByDescending(i => i.Score)
                     .Take(plan.Count - targetAdmissions.Count).ToList();
-                generalPassingScore = generalAdmissions.Any() ? generalAdmissions.Last().Score : 0;
+                var generalPassingScore = generalAdmissions.Any() ? generalAdmissions.Last().Score : 0;
                 generalAdmissions = distributedStudents[plan].Where(s => !(s.IsTargeted && s.Score >= targetPassingScore))
                     .Where(s => s.IsWithoutEntranceExams || s.IsOutOfCompetition || s.Score >= generalPassingScore).ToList();
 
                 freeAdmissions.AddRange(distributedStudents[plan].Except(targetAdmissions).Except(generalAdmissions));
-                distributedStudents[plan].RemoveAll(i => freeAdmissions.Contains(i));
+                distributedStudents[plan].RemoveAll(freeAdmissions.Contains);
             }
         }
 
-        private static void AddPriorityAdmissonsToPlan(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
+        private static void AddPriorityAdmissionsToPlan(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
         {
-            foreach (AdmissionDTO admission in freeAdmissions.Where(i => i.SpecialityPriorities.Any()).Where(i => i.SpecialityPriorities[0].RecruitmentPlan == plan))
+            foreach (AdmissionDTO admission in freeAdmissions.Where(i => i.SpecialityPriorities.Any()).Where(i => i.SpecialityPriorities[0].RecruitmentPlanId == plan.Id))
             {
                 distributedStudents[plan].Add(admission);
-                admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlan == plan);
+                admission.SpecialityPriorities.RemoveAll(i => i.RecruitmentPlanId == plan.Id);
             }
             freeAdmissions.RemoveAll(i => distributedStudents[plan].Contains(i));
         }
@@ -169,7 +168,7 @@ namespace BLL.Extensions
                         {
                             string studentFullName = admission.Student.Name + " " + admission.Student.Patronymic;
                             string specialityName = plan.Speciality.DirectionName ?? plan.Speciality.FullName;
-                            string message = studentFullName + ", вы зачислены на \"" + plan.Speciality.Faculty.FullName + "\""
+                            string message = studentFullName + ", вы зачислены на \"" + plan.Speciality.Faculty!.FullName + "\""
                                 + " на специальность \"" + specialityName + "\"";
 
                             IEmailService.SendEmailAsync(admission.Email, "Вы зачислены", message);

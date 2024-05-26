@@ -86,7 +86,7 @@ export default function CreateDistributionPage() {
     const generalStudentScore = (enrolledStudent) => {
         var generalScore = 0;
         enrolledStudent.student.admissions[0].studentScores.forEach(element => generalScore += element.score);
-        return generalScore + enrolledStudent.student.gps;
+        return generalScore + enrolledStudent.student.gpa;
     }
     const initializationSelectedStudentsInPlan = (plan) => {
         return plan.enrolledStudents.map((item) => {
@@ -145,7 +145,7 @@ export default function CreateDistributionPage() {
             <React.Suspense>
                 <ModalWindowCreate show={createDistributionShow} handleClose={handleCreateClose} onCreateDistribution={onCreateDistribution} />{
                     values.distributedPlans.map((plan, index) =>
-                        <React.Suspense key={plan.planId}>
+                        <React.Suspense key={plan.recruitmentPlanId}>
                             <h4>{plans[index].speciality.directionName ?? plans[index].speciality.fullName} (Набор {plans[index].count} человек, проходной балл {plans[index].passingScore})</h4>
                             <CreateDistributionPlanList planIndex={index} plan={plans[index]} distributedPlan={plan} errors={errors.distributedPlans ? errors.distributedPlans[index] : {}} handleChange={handleChange} />
                             {index !== (distributedPlans.length - 1) ? <hr /> : null}

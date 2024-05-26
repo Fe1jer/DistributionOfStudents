@@ -9,6 +9,8 @@ namespace webapi.ViewModels.Admissions
     {
         public StudentViewModel Student { get; set; } = null!;
 
+        public Guid GroupOfSpecialtiesId { get; set; }
+
         [Display(Name = "Подача заявки")]
         [DataType(DataType.DateTime)]
         public DateTime DateOfApplication { get; set; }
@@ -27,5 +29,6 @@ namespace webapi.ViewModels.Admissions
         [ValidateSpecialityPriorities]
         public List<SpecialityPriorityViewModel> SpecialityPriorities { get; set; } = new();
 
+        public int Score => StudentScores.Sum(i => i.Score) + Student.GPA;
     }
 }

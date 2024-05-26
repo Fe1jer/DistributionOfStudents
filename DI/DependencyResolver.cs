@@ -7,15 +7,19 @@ using DAL.Postgres.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DependencyResolver
+namespace DI
 {
     public static class DependencyResolver
     {
         public static void RegisterApplicationServices(this IServiceCollection services, string connection)
         {
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             // DbContext
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connection));
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseNpgsql(connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                //options.EnableSensitiveDataLogging();
+            });
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             services.AddTransient<ApplicationDbContext>();
 
@@ -39,12 +43,12 @@ namespace DependencyResolver
         {
             var provider = services.BuildServiceProvider();
 
-            ApplicationDbContext? prasDbContext = provider.GetService<ApplicationDbContext>();
+            ApplicationDbContext? dbContext = provider.GetService<ApplicationDbContext>();
 
-            if (prasDbContext != null)
-                prasDbContext.Database.Migrate();
+            if (dbContext != null)
+                dbContext.Database.Migrate();
 
-            ApplicationDbContextInit.InitDbContext(prasDbContext);
+            ApplicationDbContextInit.InitDbContext(dbContext);
         }
     }
 }

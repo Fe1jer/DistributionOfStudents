@@ -6,6 +6,7 @@ namespace DAL.Postgres.Entities
     {
         public Student Student { get; set; } = null!;
         public GroupOfSpecialities GroupOfSpecialties { get; set; } = null!;
+        public Guid GroupOfSpecialtiesId { get; set; }
         public DateTime DateOfApplication { get; set; }
         public List<SpecialityPriority> SpecialityPriorities { get; set; } = new();
         public string? PassportID { get; set; }

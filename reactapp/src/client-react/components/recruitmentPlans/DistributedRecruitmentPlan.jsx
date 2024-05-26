@@ -16,7 +16,7 @@ export default function GroupRecruitmentPlan({ index, specialityPlan, onClickEdi
     return <React.Suspense>
         <tr className="align-middle">
             <td rowSpan={isHaveTarget ? 2 : 1}>{index + 1}</td>
-            <td rowSpan={isHaveTarget ? 2 : 1}>{specialityPlan.speciality.directionName ?? specialityPlan.speciality.fullName}</td>
+            <td rowSpan={isHaveTarget ? 2 : 1}>{specialityPlan.specialityName}</td>
             <td>{specialityPlan.count}</td>
             <td>{specialityPlan.passingScore}</td>
             <td rowSpan={isHaveTarget ? 2 : 1} className="text-center">

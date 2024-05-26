@@ -19,7 +19,8 @@ namespace DAL.Postgres.Repositories
         private IStudentsRepository? _students;
         private ISubjectsRepository? _subjects;
         private IUserRepository? _users;
-        private bool disposed = false;
+
+        private bool _disposed;
 
         public UnitOfWork(ApplicationDbContext context) => _context = context;
 
@@ -45,13 +46,14 @@ namespace DAL.Postgres.Repositories
             Cleanup(true);
             GC.SuppressFinalize(this);
         }
+
         private void Cleanup(bool disposing)
         {
-            if (!this.disposed && disposing)
+            if (!_disposed && disposing)
             {
                 _context.Dispose();
             }
-            disposed = true;
+            _disposed = true;
         }
 
         ~UnitOfWork()

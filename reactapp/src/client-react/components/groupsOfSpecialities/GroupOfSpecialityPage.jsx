@@ -53,7 +53,7 @@ export default function GroupOfSpecialityPage() {
         setCanDistribution(new Date(getTodayTimeNull()) < new Date(groupData.enrollmentDate) ? 'disabled' : '');
     }
     const loadPlans = async () => {
-        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupPlans(facultyShortName, groupId);
         setPlans(recruitmentsPlansData);
     }
     const loadPlansStatistic = async () => {
@@ -99,7 +99,7 @@ export default function GroupOfSpecialityPage() {
     }
     const _showGroupStatistic = () => {
         if (groupStatistic) {
-            return <Line data={getData(groupStatistic)} />;
+            return <Line data={getData(groupStatistic)} options={{ plugins: { legend: { display: false } } }} />;
         }
     }
     const _showIsCompleted = () => {

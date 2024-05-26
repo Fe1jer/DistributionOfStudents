@@ -8,7 +8,7 @@ namespace webapi.ViewModels.GroupsOfSpecialities
         [Display(Name = "Название")]
         [DataType(DataType.Text)]
         [Required]
-        public string Name { get; set; } = String.Empty;
+        public string Name { get; set; } = string.Empty;
 
         [Display(Name = "Описание")]
         [DataType(DataType.Text)]
@@ -23,5 +23,7 @@ namespace webapi.ViewModels.GroupsOfSpecialities
         public DateTime EnrollmentDate { get; set; }
 
         public bool IsCompleted { get; set; }
+
+        public FormOfEducationViewModel FormOfEducation { get; set; } = null!;
     }
 }

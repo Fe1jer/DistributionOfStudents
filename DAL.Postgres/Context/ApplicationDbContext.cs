@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Context
 {
-    public class ApplicationDbContext : DbContext
+    public sealed class ApplicationDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
@@ -18,7 +18,7 @@ namespace DAL.Postgres.Context
         public DbSet<EnrolledStudent> EnrolledStudents { get; set; }
         public DbSet<FormOfEducation> FormsOfEducation { get; set; }
         public DbSet<GroupOfSpecialitiesStatistic> GroupsOfSpecialitiesStatistic { get; set; }
-        public DbSet<RecruitmentPlanStatistic> RecruitmentPlandStatistic { get; set; }
+        public DbSet<RecruitmentPlanStatistic> RecruitmentPlansStatistic { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -35,7 +35,7 @@ namespace DAL.Postgres.Context
             EnrolledStudents = Set<EnrolledStudent>();
             FormsOfEducation = Set<FormOfEducation>();
             GroupsOfSpecialitiesStatistic = Set<GroupOfSpecialitiesStatistic>();
-            RecruitmentPlandStatistic = Set<RecruitmentPlanStatistic>();
+            RecruitmentPlansStatistic = Set<RecruitmentPlanStatistic>();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
