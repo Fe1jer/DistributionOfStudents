@@ -22,12 +22,12 @@ namespace DAL.Postgres.Repositories.Custom
 
         public async Task<List<RecruitmentPlanStatistic>> GetAllAsync(Guid planId)
         {
-            return (await GetAllAsync()).Where(i => i.RecruitmentPlan.Id == planId).OrderBy(i => i.Date).ToList();
+            return (await GetAllAsync()).Where(i => i.RecruitmentPlanId == planId).OrderBy(i => i.Date).ToList();
         }
 
         public async Task<RecruitmentPlanStatistic?> GetByPlanAndDateAsync(Guid planId, DateTime date)
         {
-            return (await GetAllAsync()).SingleOrDefault(i => i.RecruitmentPlan.Id == planId && i.Date == date);
+            return (await GetAllAsync()).SingleOrDefault(i => i.RecruitmentPlanId == planId && i.Date == date);
         }
     }
 }

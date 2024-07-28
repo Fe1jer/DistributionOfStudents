@@ -82,7 +82,8 @@ namespace BLL.Extensions
             {
                 if (keyValuePair.Key.EnrolledStudents is null || !keyValuePair.Key.EnrolledStudents.Any())
                 {
-                    keyValuePair.Key.EnrolledStudents = keyValuePair.Value.Select(i => new EnrolledStudentDTO { Student = i.Student }).ToList();
+                    keyValuePair.Key.EnrolledStudents = keyValuePair.Value
+                        .Select(i => new EnrolledStudentDTO { Student = i.Student, StudentScores = i.StudentScores }).OrderByDescending(i => i.Score).ToList();
                 }
             }
             return distributedStudents;
@@ -148,6 +149,8 @@ namespace BLL.Extensions
 
         private static void AddPriorityAdmissionsToPlan(Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>> distributedStudents, RecruitmentPlanDTO plan, List<AdmissionDTO> freeAdmissions)
         {
+            freeAdmissions.Where(i => i.SpecialityPriorities.Any()).ToList().ForEach(p => p.SpecialityPriorities = p.SpecialityPriorities.OrderBy(f => f.Priority).ToList());
+
             foreach (AdmissionDTO admission in freeAdmissions.Where(i => i.SpecialityPriorities.Any()).Where(i => i.SpecialityPriorities[0].RecruitmentPlanId == plan.Id))
             {
                 distributedStudents[plan].Add(admission);

@@ -9,6 +9,7 @@ using BLL.DTO.Subjects;
 using BLL.DTO.User;
 using webapi.ViewModels;
 using webapi.ViewModels.Admissions;
+using webapi.ViewModels.Distribution;
 using webapi.ViewModels.Faculties;
 using webapi.ViewModels.General;
 using webapi.ViewModels.GroupsOfSpecialities;
@@ -35,12 +36,16 @@ namespace webapi.Mappers
             CreateMap<SelectedSpecialityViewModel, SelectedSpecialityDTO>();
 
             CreateMap<RecruitmentPlanViewModel, RecruitmentPlanDTO>();
-            CreateMap<SpecialityViewModel, SpecialityDTO>();
             CreateMap<SpecialityPlansViewModel, SpecialityPlansDTO>();
+            CreateMap<PlanForDistributionViewModel, PlanForDistributionDTO>();
+
+            CreateMap<SpecialityViewModel, SpecialityDTO>();
             CreateMap<SpecialityPriorityViewModel, SpecialityPriorityDTO>();
-            CreateMap<StudentViewModel, StudentDTO>();
             CreateMap<StudentScoreViewModel, StudentScoreDTO>();
             CreateMap<SubjectViewModel, SubjectDTO>();
+
+            CreateMap<IsDistributedStudentVM, IsDistributedStudentDTO>();
+            CreateMap<StudentViewModel, StudentDTO>();
         }
         public override string ProfileName => "DTOToDomainMappings";
     }

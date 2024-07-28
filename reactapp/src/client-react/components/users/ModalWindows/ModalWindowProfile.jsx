@@ -13,10 +13,13 @@ import Row from 'react-bootstrap/Row';
 import { Field } from 'formik';
 import * as formik from 'formik';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import React, { useState } from 'react';
+import { authActions } from '../../../../_store';
 
 export default function ModalWindowProfile({ show, handleClose }) {
+    const dispatch = useDispatch();
+    const logout = () => dispatch(authActions.logout());
     const authUser = useSelector(x => x.auth.user);
     const { Formik } = formik;
     const [validated, setValidated] = useState(false);
@@ -43,9 +46,14 @@ export default function ModalWindowProfile({ show, handleClose }) {
         }
     }
     const getUserById = async () => {
-        var userData = await UsersService.httpGetById(authUser.id);
-        setUpdatedUser(userData);
-        setPreview(userData.img);
+        try {
+            var userData = await UsersService.httpGetById(authUser.id);
+            setUpdatedUser(userData);
+            setPreview(userData.img);
+        }
+        catch {
+            logout();
+        }
     }
     const onClose = () => {
         setValidated(false);

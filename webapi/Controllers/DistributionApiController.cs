@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using webapi.ViewModels.Distribution;
+using webapi.ViewModels.RecruitmentPlans;
 
 namespace webapi.Controllers
 {
@@ -28,16 +29,17 @@ namespace webapi.Controllers
         [Authorize(Roles = "commission")]
         public async Task<ActionResult<object>> GetDistribution(string facultyUrl, Guid groupId)
         {
+            List<DistributedPlanViewModel> result;
             var distributedPlans = await _service.GetAsync(facultyUrl, groupId);
 
             if (!distributedPlans.AreControversialStudents())
             {
-                return new { plans = distributedPlans.Keys.OrderBy(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c))))).ToList(), areControversialStudents = false };
+                result = Mapper.Map<List<DistributedPlanViewModel>>(distributedPlans.Keys);
+                return new { plans = result.OrderBy(s => int.TryParse(s.Speciality.Code, out int n) ? n : int.MaxValue), areControversialStudents = false };
             }
 
-            //TODO: вывод в списке заявок аббитуриаентов приоритет специальностей
-            //TODO: Смапить во вьюшки, чтобы не было цикличности зависимостей
-            return new { plans = distributedPlans.Keys, areControversialStudents = true };
+            result = Mapper.Map<List<DistributedPlanViewModel>>(GetDistributedPlans(distributedPlans.Keys.ToList()));
+            return new { plans = result, areControversialStudents = true };
         }
 
         [HttpPost("{facultyUrl}/{groupId}/CreateDistribution")]
@@ -48,17 +50,19 @@ namespace webapi.Controllers
             {
                 try
                 {
+                    List<DistributedPlanViewModel> result;
                     var plans = Mapper.Map<List<PlanForDistributionDTO>>(models);
                     var distributedPlans = await _service.CreateAsync(facultyUrl, groupId, plans);
 
                     if (!distributedPlans.AreControversialStudents())
                     {
-                        return new { plans = distributedPlans.Keys.OrderBy(f => int.Parse(string.Join("", f.Speciality.Code.Where(c => char.IsDigit(c))))).ToList(), areControversialStudents = false };
+                        result = Mapper.Map<List<DistributedPlanViewModel>>(distributedPlans.Keys);
+                        return new { plans = result.OrderBy(s => int.TryParse(s.Speciality.Code, out int n) ? n : int.MaxValue), areControversialStudents = false };
                     }
 
                     //TODO: Отбросить специальности после спорной
-                    //TODO: Отсортировать студентов по баллам по убыванию
-                    return new { plans = distributedPlans.Keys, areControversialStudents = true };
+                    result = Mapper.Map<List<DistributedPlanViewModel>>(GetDistributedPlans(distributedPlans.Keys.ToList()));
+                    return new { plans = result, areControversialStudents = true };
                 }
                 catch
                 {
@@ -87,7 +91,7 @@ namespace webapi.Controllers
 
                 return Ok();
             }
-            catch
+            catch(Exception ex)
             {
                 return BadRequest(ModelState);
             }
@@ -103,26 +107,17 @@ namespace webapi.Controllers
             return Ok();
         }
 
-        /*private static List<RecruitmentPlanDTO> GetDistributedPlans(List<RecruitmentPlanDTO> plans, List<AdmissionDTO> admissions)
+        private static List<RecruitmentPlanDTO> GetDistributedPlans(List<RecruitmentPlanDTO> plans)
         {
             List<RecruitmentPlanDTO> distributedPlans = new();
-            bool isControversialPlan = false;
 
             foreach (RecruitmentPlanDTO plan in plans.OrderByDescending(i => i.PassingScore))
             {
-                plan.EnrolledStudents ??= new();
-                foreach (EnrolledStudentDTO student in plan.EnrolledStudents)
-                {
-                    student.Student.Admissions = admissions.Where(i => i.Student.Id == student.Student.Id).ToList();
-
-                    isControversialPlan = plan.Count < plan.EnrolledStudents.Count;
-                }
-                plan.EnrolledStudents = plan.EnrolledStudents.OrderByDescending(i => i.Student.GPA + (i.Student.Admissions != null ? i.Student.Admissions[0].StudentScores.Sum(s => s.Score) : new())).ToList();
                 distributedPlans.Add(plan);
-                if (isControversialPlan) break;
+                if (plan.Count < plan.EnrolledStudents.Count) break;
             }
 
             return distributedPlans;
-        }*/
+        }
     }
 }

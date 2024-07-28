@@ -22,12 +22,12 @@ namespace DAL.Postgres.Repositories.Custom
 
         public async Task<List<GroupOfSpecialitiesStatistic>> GetAllAsync(Guid groupId)
         {
-            return (await GetAllAsync()).Where(i => i.GroupOfSpecialties.Id == groupId).OrderBy(i => i.Date).ToList();
+            return (await GetAllAsync()).Where(i => i.GroupOfSpecialtiesId == groupId).OrderBy(i => i.Date).ToList();
         }
 
         public async Task<GroupOfSpecialitiesStatistic?> GetByGroupAndDateAsync(Guid groupId, DateTime date)
         {
-            return (await GetAllAsync()).SingleOrDefault(i => i.GroupOfSpecialties.Id == groupId && i.Date == date);
+            return (await GetAllAsync()).SingleOrDefault(i => i.GroupOfSpecialtiesId == groupId && i.Date == date);
         }
     }
 }

@@ -4,7 +4,7 @@ import EnrolledStudentsList from "../students/EnrolledStudentsList.jsx"
 export default function DistributedPlan({ plan }) {
     return (
         <React.Suspense>
-            <h5>{plan.speciality.directionName ?? plan.speciality.fullName}</h5>
+            <h5>{plan.specialityName}</h5>
             <EnrolledStudentsList enrolledStudents={plan.enrolledStudents} />
         </React.Suspense>
     );

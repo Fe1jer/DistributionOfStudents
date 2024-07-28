@@ -9,6 +9,7 @@ using BLL.DTO.Subjects;
 using BLL.DTO.User;
 using DAL.Postgres.Entities;
 using webapi.ViewModels.Admissions;
+using webapi.ViewModels.Distribution;
 using webapi.ViewModels.Faculties;
 using webapi.ViewModels.General;
 using webapi.ViewModels.GroupsOfSpecialities;
@@ -37,6 +38,7 @@ namespace webapi.Mappers
             CreateMap<RecruitmentPlanDTO, RecruitmentPlanItemViewModel>()
                 .ForMember(p => p.SpecialityName, opts => opts.MapFrom(p => p.Speciality.DirectionName ?? p.Speciality.FullName));
             CreateMap<SpecialityPlansDTO, SpecialityPlansViewModel>();
+            CreateMap<RecruitmentPlanDTO, DistributedPlanViewModel>();
 
             CreateMap<SpecialityDTO, SpecialityViewModel>();
             CreateMap<SpecialityPriorityDTO, SpecialityPriorityViewModel>();

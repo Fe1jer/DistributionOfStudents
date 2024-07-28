@@ -149,7 +149,7 @@ export default function GroupOfSpecialityPage() {
                     {deleteDisButton}
                 </h4>{
                     plans.map((plan, index) =>
-                        <React.Suspense key={plan.speciality.directionName ?? plan.speciality.fullName}>
+                        <React.Suspense key={plan.specialityName}>
                             <DistributedPlan plan={plan} />
                             {index !== plans.length - 1 ? <hr /> : null}
                         </React.Suspense>

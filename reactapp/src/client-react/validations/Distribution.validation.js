@@ -5,7 +5,7 @@ export const DistributionValidationSchema = yup.object({
         yup.object().shape({
             id: yup.string().uuid(),
             passingScore: yup.number().min(0).required(),
-            planCount: yup.number().min(0).required(),
+            count: yup.number().min(0).required(),
             distributedStudents: yup.array().of(
                 yup.object().shape({
                     id: yup.string().uuid(),
@@ -15,12 +15,12 @@ export const DistributionValidationSchema = yup.object({
                 const {
                     createError,
                     parent: {
-                        planCount,
+                        count,
                     },
                 } = validationContext;
-                if (planCount < value.length
-                    && value.filter(i => i.isDistributed).length !== planCount) {
-                    return createError({ message: 'Выберите ' + planCount + ' абитуриентов' });
+                if (count < value.length
+                    && value.filter(i => i.isDistributed).length !== count) {
+                    return createError({ message: 'Выберите ' + count + ' абитуриентов' });
                 }
                 return true;
             }),

@@ -54,10 +54,15 @@ namespace BLL.Services
 
             foreach (var plan in distribution.GetPlansWithPassingScores().Keys)
             {
-                RecruitmentPlan? entity = await _unitOfWork.RecruitmentPlans.GetByIdAsync(plan.Id);
+                RecruitmentPlan? entity = await _unitOfWork.RecruitmentPlans.GetByIdAsync(plan.Id, new RecruitmentPlansSpecification().IncludeEnrolledStudents());
                 Mapper.Map(plan, entity);
+                foreach (var item in entity.EnrolledStudents)
+                {
+                    item.Student = await _unitOfWork.Students.GetByIdAsync(item.Student.Id);
+                }
                 await _unitOfWork.RecruitmentPlans.InsertOrUpdateAsync(entity);
             }
+            _unitOfWork.Commit();
 
             if (notify) distribution.NotifyEnrolledStudents(admissionDtos);
         }
@@ -106,6 +111,7 @@ namespace BLL.Services
                 if (plan is not null)
                 {
                     plan.EnrolledStudents = new();
+                    plan.PassingScore = distributedPlan.PassingScore;
                     foreach (IsDistributedStudentDTO distributedStudent in distributedPlan.DistributedStudents.Where(i => i.IsDistributed))
                     {
                         Student? student = await _unitOfWork.Students.GetByIdAsync(distributedStudent.StudentId);

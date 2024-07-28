@@ -63,8 +63,8 @@ namespace BLL.Services
 
         public async Task<List<RecruitmentPlanDTO>> GetByGroupAsync(Guid groupId)
         {
-            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification());
-            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().IncludeSpecialty().WhereGroup(group!));
+            GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSpecialties());
+            List<RecruitmentPlan> plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().IncludeSpecialty().IncludeEnrolledStudents().WhereGroup(group!));
 
             return Mapper.Map<List<RecruitmentPlanDTO>>(plans);
         }

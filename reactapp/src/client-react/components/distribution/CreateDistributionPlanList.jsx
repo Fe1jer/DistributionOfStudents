@@ -7,12 +7,7 @@ import React from 'react';
 
 export default function CreateDistributionPLanLst({ planIndex, plan, distributedPlan, errors, handleChange }) {
     const isControversial = (enrolledStudent) => {
-        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) === plan.passingScore;
-    }
-    const generalStudentScore = (enrolledStudent) => {
-        var generalScore = 0;
-        enrolledStudent.student.admissions[0].studentScores.forEach(element => generalScore += element.score);
-        return generalScore + enrolledStudent.student.gpa;
+        return plan.count < plan.enrolledStudents.length && enrolledStudent.score === plan.passingScore;
     }
 
     return (
@@ -37,7 +32,7 @@ export default function CreateDistributionPLanLst({ planIndex, plan, distributed
                     <tbody>{
                         distributedPlan.distributedStudents.map((item, index) =>
                             <CreateDistributionPlanSutent key={item.studentId}
-                                index={index} planIndex={planIndex} student={plan.enrolledStudents[index].student} enrolledStudent={item} handleChange={handleChange} isControversial={isControversial(plan.enrolledStudents[index])} />
+                                index={index} planIndex={planIndex} enrolledStudent={item} handleChange={handleChange} isControversial={isControversial(plan.enrolledStudents[index])} />
                         )}
                     </tbody>
                 </Table>
