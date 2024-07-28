@@ -13,7 +13,7 @@ import React from 'react';
 export default function ModalWindowCreate({ show, handleClose, onLoadSubjects }) {
     const { Formik } = formik;
     const defaultSubject = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         name: null
     }
 

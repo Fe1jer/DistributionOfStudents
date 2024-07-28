@@ -1,5 +1,5 @@
-﻿using webapi.ViewModels.Distribution;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using webapi.ViewModels.Distribution;
 
 namespace webapi.Validations
 {
@@ -7,12 +7,12 @@ namespace webapi.Validations
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            PlanForDistributionVM? dt = (PlanForDistributionVM?)value;
+            PlanForDistributionViewModel? dt = (PlanForDistributionViewModel?)value;
             if (dt != null)
             {
-                if (dt.DistributedStudents.Count > dt.PlanCount && dt.DistributedStudents.Where(i => i.IsDistributed).Count() != dt.PlanCount)
+                if (dt.DistributedStudents.Count > dt.Count && dt.DistributedStudents.Where(i => i.IsDistributed).Count() != dt.Count)
                 {
-                    return new ValidationResult("Выберите " + dt.PlanCount + " абитуриентов");
+                    return new ValidationResult("Выберите " + dt.Count + " абитуриентов");
                 }
                 else
                 {

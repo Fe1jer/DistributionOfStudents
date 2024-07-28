@@ -1,45 +1,36 @@
-using webapi.Data;
-using webapi.Data.DBInitialization;
-using webapi.Data.Models;
-using webapi.Data.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using webapi.Data.Interfaces.Repositories;
+using DI;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Shared.Helpers;
+using System.Text;
 
 namespace webapi
 {
     public class Program
     {
-
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             ConfigureServices(builder);
             var app = builder.Build();
-            await InitContext(app);
 
             Configure(app);
-        }
+            builder.Services.InitDatabase();
 
-        private async static Task InitContext(WebApplication app)
-        {
-            var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
-            using var scope = scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-            await ApplicationDbContextInit.InitDbContextAsync(userManager, roleManager, context);
+            app.Run();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public static void ConfigureServices(WebApplicationBuilder builder)
         {
-            // Add services to the container.
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-            builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            //MSSQL подключение
+            /*string connection = builder.Configuration.GetConnectionString("MssqlConnection");
+            builder.Services.RegisterApplicationServices(connection);*/
+
+            string connection = builder.Configuration.GetConnectionString("NpgsqlConnection")!;
+            builder.Services.RegisterApplicationServices(connection);
+
+            builder.Services.AddCors();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -50,7 +41,29 @@ namespace webapi
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddCors();
 
-            AddTransients(builder.Services);
+            // configure strongly typed settings object
+            builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("AppSettings"));
+            var authKey = builder.Configuration.GetValue<string>("AppSettings:Secret");
+            builder.Services.AddAuthentication(item =>
+            {
+                item.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                item.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(item =>
+            {
+                item.RequireHttpsMetadata = true;
+                item.SaveToken = true;
+                item.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authKey)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            builder.Services.AddSingleton<LinkGeneratorHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,27 +85,25 @@ namespace webapi
 
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+            app.UseHttpsRedirection();
 
-            app.MapControllers();
+            // configure HTTP request pipeline
+            {
+                // global cors policy
+                app.UseCors(x => x
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
 
-            app.Run();
-        }
-
-        private static void AddTransients(IServiceCollection services)
-        {
-            services.AddTransient<IFacultiesRepository, FacultiesRepository>();
-            services.AddTransient<IAdmissionsRepository, AdmissionsRepository>();
-            services.AddTransient<IStudentsRepository, StudentsRepository>();
-            services.AddTransient<IGroupsOfSpecialitiesRepository, GroupsOfSpecialitiesRepository>();
-            services.AddTransient<ISpecialitiesRepository, SpecialitiesRepository>();
-            services.AddTransient<ISubjectsRepository, SubjectsRepository>();
-            services.AddTransient<IRecruitmentPlansRepository, RecruitmentPlansRepository>();
-            services.AddTransient<IFormsOfEducationRepository, FormsOfEducationRepository>();
-            services.AddTransient<IGroupsOfSpecialitiesStatisticRepository, GroupsOfSpecialitiesStatisticRepository>();
-            services.AddTransient<IRecruitmentPlansStatisticRepository, RecruitmentPlansStatisticRepository>();
+                // custom jwt auth middleware
+                app.UseMiddleware<JwtMiddleware>();
+            }
         }
     }
 }

@@ -1,143 +1,97 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using webapi.Data.Interfaces.Repositories;
-using webapi.Data.Models;
-using webapi.Data.Specifications;
+﻿using BLL.DTO.Subjects;
+using BLL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using webapi.ViewModels.General;
 
 namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubjectsApiController : ControllerBase
+    public class SubjectsApiController : BaseController
     {
-        private readonly ISubjectsRepository _subjectsRepository;
-        private readonly IGroupsOfSpecialitiesRepository _groupsOfSpecialtiesRepository;
+        private readonly ILogger<SubjectsApiController> _logger;
+        private readonly ISubjectsService _service;
 
-        public SubjectsApiController(ISubjectsRepository subjectsRepository, IGroupsOfSpecialitiesRepository groupsOfSpecialtiesRepository)
+        public SubjectsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<SubjectsApiController> logger, ISubjectsService service) : base(accessor, generator)
         {
-            _subjectsRepository = subjectsRepository;
-            _groupsOfSpecialtiesRepository = groupsOfSpecialtiesRepository;
+            _logger = logger;
+            _service = service;
         }
 
         // GET: api/ApiSubjects
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Subject>>> GetSubjects()
-        {
-            if (await _subjectsRepository.GetAllAsync() == null)
-            {
-                return NotFound();
-            }
-            return await _subjectsRepository.GetAllAsync();
-        }
+        public async Task<ActionResult<IEnumerable<SubjectViewModel>>> GetSubjects() => Mapper.Map<List<SubjectViewModel>>(await _service.GetAllAsync());
 
         [HttpGet("GroupSubjects/{groupId}")]
-        public async Task<ActionResult<IEnumerable<Subject>>> GetGroupSubjects(int groupId)
-        {
-            GroupOfSpecialties? group = await _groupsOfSpecialtiesRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSubjects());
-            if (group == null)
-            {
-                return NotFound();
-            }
-            if (group.Subjects == null)
-            {
-                return NotFound();
-            }
-
-            return group.Subjects.Select(i => new Subject()
-            {
-                Id = i.Id,
-                Name = i.Name
-            }).ToArray();
-        }
+        public async Task<ActionResult<IEnumerable<SubjectViewModel>>> GetGroupSubjects(Guid groupId) => Mapper.Map<List<SubjectViewModel>>(await _service.GetByGroupAsync(groupId));
 
         // GET: api/ApiSubjects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Subject>> GetSubject(int id)
+        public async Task<ActionResult<SubjectViewModel>> GetSubject(Guid id)
         {
-            if (await _subjectsRepository.GetAllAsync() == null)
-            {
-                return NotFound();
-            }
+            SubjectViewModel model = Mapper.Map<SubjectViewModel>(await _service.GetAsync(id));
 
-            Subject? subject = await _subjectsRepository.GetByIdAsync(id);
-            if (subject == null)
-            {
-                return NotFound();
-            }
-
-            return subject;
+            return model != null ? model : NotFound();
         }
 
         // PUT: api/ApiSubjects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSubject(int id, Subject subject)
+        [Authorize(Roles = "commission")]
+        public async Task<IActionResult> PutSubject(SubjectViewModel model)
         {
-            if (id != subject.Id)
+            try
             {
-                return BadRequest();
+                if (ModelState.IsValid)
+                {
+                    var dto = Mapper.Map<SubjectDTO>(model);
+                    dto = await _service.SaveAsync(dto);
+
+                    _logger.LogInformation("Изменен предмет - {Subject}", dto.Name);
+
+                    return Ok();
+                }
             }
-
-            if (ModelState.IsValid)
+            catch
             {
-                try
-                {
-                    await _subjectsRepository.UpdateAsync(subject);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await SubjectExists(subject.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return Ok();
+                _logger.LogError("Произошла ошибка при изменении предмета - {Subject}", model.Name);
             }
 
             return BadRequest(ModelState);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Subject>> PostSubject([FromBody] Subject subject)
+        [Authorize(Roles = "commission")]
+        public async Task<ActionResult<SubjectViewModel>> PostSubject([FromBody] SubjectViewModel model)
         {
-            if (await _subjectsRepository.GetAllAsync() == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Subjects'  is null.");
-            }
             if (ModelState.IsValid)
             {
-                await _subjectsRepository.AddAsync(subject);
+                var dto = Mapper.Map<SubjectDTO>(model);
+                dto = await _service.SaveAsync(dto);
+
+                _logger.LogInformation("Создан предмет - {Subject}", dto.Name);
 
                 return Ok();
             }
+
             return BadRequest(ModelState);
         }
 
         // DELETE: api/ApiSubjects/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSubject(int id)
+        [Authorize(Roles = "commission")]
+        public async Task<IActionResult> DeleteSubject(Guid id)
         {
-            if (await _subjectsRepository.GetAllAsync() == null)
+            try
             {
-                return Problem("Entity set 'ApplicationDbContext.Subjects'  is null.");
+                await _service.DeleteAsync(id);
             }
-            Subject? subject = await _subjectsRepository.GetByIdAsync(id);
-            if (subject != null)
+            catch (Exception e)
             {
-                await _subjectsRepository.DeleteAsync(id);
+                _logger.LogError(e, "Удаление предмета");
             }
-
             return Ok();
-        }
-
-        private async Task<bool> SubjectExists(int id)
-        {
-            return (await _subjectsRepository.GetAllAsync()).Any(e => e.Id == id);
         }
     }
 }

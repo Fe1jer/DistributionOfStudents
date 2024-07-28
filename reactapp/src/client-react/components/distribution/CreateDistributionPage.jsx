@@ -65,7 +65,7 @@ export default function CreateDistributionPage() {
             initializationSelectedStudents(data.plans);
         }
         catch (err) {
-            setModelErrors(JSON.parse(`{${err.message.replace('Error', '"Error"')}}`).Error.modelErrors);
+            setModelErrors(JSON.parse(`{${err.message.replace('Error', '"Error"')}}`).Error);
         }
         handleCreateClose();
     }
@@ -76,28 +76,23 @@ export default function CreateDistributionPage() {
             navigate("/Faculties/" + facultyShortName + "/" + groupId);
         }
         catch (err) {
-            setModelErrors(JSON.parse(`{${err.message.replace('Error', '"Error"')}}`).Error.modelErrors);
+            setModelErrors(JSON.parse(`{${err.message.replace('Error', '"Error"')}}`).Error);
         }
         handleConfirmClose();
     }
     const isDistributedStudent = (plan, enrolledStudent) => {
-        return plan.count < plan.enrolledStudents.length && generalStudentScore(enrolledStudent) === plan.passingScore;
-    }
-    const generalStudentScore = (enrolledStudent) => {
-        var generalScore = 0;
-        enrolledStudent.student.admissions[0].studentScores.forEach(element => generalScore += element.score);
-        return generalScore + enrolledStudent.student.gps;
+        return plan.count < plan.enrolledStudents.length && enrolledStudent.score === plan.passingScore;
     }
     const initializationSelectedStudentsInPlan = (plan) => {
         return plan.enrolledStudents.map((item) => {
-            return { studentId: item.student.id, isDistributed: !isDistributedStudent(plan, item) }
+            return { ...item, studentId: item.student.id, isDistributed: !isDistributedStudent(plan, item) }
         });
     }
     const initializationSelectedStudents = (plans) => {
         if (!isInitSelectedStudents) {
             setIsInitSelectedStudents(true);
             var initializatedDistributedPlans = plans.map((item) => {
-                return { planId: item.id, planCount: item.count, passingScore: item.passingScore, distributedStudents: initializationSelectedStudentsInPlan(item) }
+                return { id: item.id, count: item.count, passingScore: item.passingScore, distributedStudents: initializationSelectedStudentsInPlan(item) }
             });
             setDistribitedPlans(initializatedDistributedPlans);
         }
@@ -145,7 +140,7 @@ export default function CreateDistributionPage() {
             <React.Suspense>
                 <ModalWindowCreate show={createDistributionShow} handleClose={handleCreateClose} onCreateDistribution={onCreateDistribution} />{
                     values.distributedPlans.map((plan, index) =>
-                        <React.Suspense key={plan.planId}>
+                        <React.Suspense key={plan.id}>
                             <h4>{plans[index].speciality.directionName ?? plans[index].speciality.fullName} (Набор {plans[index].count} человек, проходной балл {plans[index].passingScore})</h4>
                             <CreateDistributionPlanList planIndex={index} plan={plans[index]} distributedPlan={plan} errors={errors.distributedPlans ? errors.distributedPlans[index] : {}} handleChange={handleChange} />
                             {index !== (distributedPlans.length - 1) ? <hr /> : null}
@@ -167,6 +162,7 @@ export default function CreateDistributionPage() {
             initializationSelectedStudents(plans);
         }
     }, [plans])
+
     if (!group || !plans || !distributedPlans) {
         return <React.Suspense>
             <Placeholder as="h1" animation="glow" className="text-center"><Placeholder xs={12} /></Placeholder>

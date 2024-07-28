@@ -6,13 +6,13 @@ import Button from 'react-bootstrap/Button';
 
 import React from 'react';
 
-export default function ModalWindowDelete({ show, handleClose, onDeletePlans, facultyShortName, year }) {
+export default function ModalWindowDelete({ show, handleClose, onDeletePlans, shortName, year }) {
     const handleSubmit = (e) => {
         e.preventDefault();
-        onDeletePlans(facultyShortName, year);
+        onDeletePlans(shortName, year);
     }
 
-    if (!facultyShortName || !year) {
+    if (!shortName || !year) {
         return <ModalWindowPreloader show={show} handleClose={handleClose} />;
     }
     else {
@@ -26,7 +26,7 @@ export default function ModalWindowDelete({ show, handleClose, onDeletePlans, fa
                         <p>
                             Вы уверенны, что хотите удалить план приёма?
                             <br />
-                            План приёма за <b className="text-success">{year} год</b> на <b className="text-success">{facultyShortName}</b> будет удалён без возможности восстановления.
+                            План приёма за <b className="text-success">{year} год</b> на <b className="text-success">{shortName}</b> будет удалён без возможности восстановления.
                         </p>
                     </Modal.Body>
                     <Modal.Footer>

@@ -14,7 +14,7 @@ export default function StudentsList({ students }) {
             </thead>
             <tbody>{
                 students.map((item) =>
-                    <Student key={item.fullName} student={item} />
+                    <Student key={item.id} student={item} />
                 )}
             </tbody>
         </Table>

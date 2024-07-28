@@ -17,7 +17,7 @@ export default function StudentsPage() {
 
     const [students, setStudents] = React.useState([]);
     const [searhText, setSearhText] = React.useState(searchStudentsParam);
-    const [currentPage, setCurrentPage] = React.useState(0);
+    const [currentPage, setCurrentPage] = React.useState(1);
     const [pageLimit, setPageLimit] = React.useState(30);
     const [countSearchStudents, setCountSearchStudents] = React.useState(0);
     const [pageNeighbours] = React.useState(4);
@@ -25,8 +25,8 @@ export default function StudentsPage() {
 
     const loadData = async () => {
         const data = await StudentsService.httpGet(searhText, currentPage, pageLimit);
-        setStudents(data.students);
-        setCountSearchStudents(data.countOfSearchStudents);
+        setStudents(data.admissions);
+        setCountSearchStudents(data.count);
         setLoading(false);
     }
     const onSearhChange = (text) => {

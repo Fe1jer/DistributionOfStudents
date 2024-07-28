@@ -13,11 +13,11 @@ export default function SelectedGroupSubjects({ onChange, errors, subjects }) {
             </Form.Group>
             <hr className="mt-2" />{
                 subjects.map((item, index) =>
-                    <Form.Check key={item.subject} className="mb-1"
-                        name={"selectedSubjects[" + index + "].isSelected"}
+                    <Form.Check key={item.name} className="mb-1"
+                        name={"subjects[" + index + "].isSelected"}
                         type="checkbox"
-                        id={item.subject}
-                        label={item.subject}
+                        id={item.id}
+                        label={item.name}
                         checked={item.isSelected}
                         onChange={onChange}
                         isInvalid={errors}

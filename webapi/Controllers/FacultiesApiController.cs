@@ -1,158 +1,106 @@
-﻿using webapi.Data.Models;
-using webapi.Data.Services;
-using webapi.Data.Specifications;
-using webapi.ViewModels.Faculties;
+﻿using BLL.DTO.Faculties;
+using BLL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using webapi.Data.Interfaces.Repositories;
-using webapi.Data.Interfaces.Services;
+using webapi.ViewModels.Faculties;
 
 namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FacultiesApiController : ControllerBase
+    public class FacultiesApiController : BaseController
     {
         private readonly ILogger<FacultiesApiController> _logger;
-        private readonly IFacultiesRepository _facultiesRepository;
+        private readonly IFacultiesService _service;
 
-        public FacultiesApiController(ILogger<FacultiesApiController> logger, IFacultiesRepository facultyRepository)
+        public FacultiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<FacultiesApiController> logger, IFacultiesService service) : base(accessor, generator)
         {
             _logger = logger;
-            _facultiesRepository = facultyRepository;
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Faculty>>> GetFaculties() => (await _facultiesRepository.GetAllAsync());
+        public async Task<ActionResult<IEnumerable<DetailsFacultyViewModel>>> GetFaculties() =>
+            Mapper.Map<List<DetailsFacultyViewModel>>(await _service.GetAllAsync());
 
         [HttpGet("{shortName}")]
-        public async Task<ActionResult<Faculty>> GetFaculty(string shortName)
+        public async Task<ActionResult<DetailsFacultyViewModel>> GetFaculty(string shortName)
         {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(shortName);
+            DetailsFacultyViewModel model = Mapper.Map<DetailsFacultyViewModel>(await _service.GetAsync(shortName));
 
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            return faculty;
+            return model != null ? model : NotFound();
         }
 
         [HttpPut("{shortName}")]
-        public async Task<IActionResult> PutFaculty(string shortName, [FromForm] CreateChangeFacultyVM model)
+        [Authorize(Roles = "commission")]
+        public async Task<IActionResult> PutFaculty(string shortName, [FromForm] FacultyViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                try
                 {
-                    Faculty? sameFaculty = await _facultiesRepository.GetByShortNameAsync(model.Faculty.ShortName);
-                    if (sameFaculty == null || shortName.ToLower() == model.Faculty.ShortName.ToLower())
+                    if (await _service.CheckUrlIsUniqueAsync(model.ShortName, shortName))
                     {
-                        Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(shortName);
-                        if (faculty == null)
-                        {
-                            return NotFound();
-                        }
-                        faculty.FullName = model.Faculty.FullName;
-                        faculty.ShortName = model.Faculty.ShortName;
-                        string path = "\\img\\Faculties\\";
-                        path += model.Img != null ? faculty.ShortName.Replace(" ", "_") + "\\" : "Default.jpg";
+                        var dto = Mapper.Map<FacultyDTO>(model);
+                        dto = await _service.SaveAsync(dto);
 
-                        if (model.Img != null && faculty.Img != "\\img\\Faculties\\Default.jpg")
-                        {
-                            string[] deletePath = faculty.Img.Split('.');
-                            IFileService.DeleteFile(faculty.Img);
-                            faculty.Img = deletePath[0] + "_300x170." + deletePath[1];
-                            IFileService.DeleteFile(faculty.Img);
-                            faculty.Img = IFileService.UploadFile(model.Img, path + model.Img.FileName);
-                            IFileService.ResizeAndCrop(faculty.Img, 300, 170);
-                        }
-                        else if (model.Img != null)
-                        {
-                            faculty.Img = IFileService.UploadFile(model.Img, path + model.Img.FileName);
-                            IFileService.ResizeAndCrop(faculty.Img, 300, 170);
-                        }
-
-                        await _facultiesRepository.UpdateAsync(faculty);
-                        _logger.LogInformation("Изменён факультет - {FacultyName}", faculty.FullName);
+                        _logger.LogInformation("Изменён факультет - {FacultyPreName} на {FacultyPastName}", dto.FullName, dto.FullName);
 
                         return Ok();
                     }
-                    else
-                    {
-                        ModelState.AddModelError("modelErrors", "Такой факультет уже существует");
-                    }
+                    ModelState.AddModelError("modelErrors", "Такой факультет уже существует");
                 }
-            }
-            catch (IOException)
-            {
-                ModelState.AddModelError("modelErrors", "В данный момент невозможно изменить изображение");
-                ModelState.AddModelError("modelErrors", "Повторите попытку позже");
-                _logger.LogError("Произошла ошибка при изменении факультета - {FacultyName}", shortName);
-            }
-            catch
-            {
-                _logger.LogError("Произошла ошибка при изменении факультета - {FacultyName}", shortName);
+                catch (IOException)
+                {
+                    ModelState.AddModelError("modelErrors", "В данный момент невозможно изменить изображение");
+                    ModelState.AddModelError("modelErrors", "Повторите попытку позже");
+                    _logger.LogError("Произошла ошибка при изменении факультета - {FacultyName}", model.FullName);
+                }
+                catch
+                {
+                    _logger.LogError("Произошла ошибка при изменении факультета - {FacultyName}", model.FullName);
+                }
             }
 
             return BadRequest(ModelState);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostFaculty([FromForm] CreateChangeFacultyVM model)
+        [Authorize(Roles = "commission")]
+        public async Task<IActionResult> PostFaculty([FromForm] FacultyViewModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    Faculty? sameFaculty = await _facultiesRepository.GetByShortNameAsync(model.Faculty.ShortName, new FacultiesSpecification());
-                    if (sameFaculty == null)
-                    {
-                        Faculty faculty = new() { Img = "\\img\\Faculties\\Default.jpg" };
-                        string path = "\\img\\Faculties\\";
-                        path += model.Img != null ? model.Faculty.ShortName.Replace(" ", "_") + "\\" : "Default.jpg";
+                    var dto = Mapper.Map<FacultyDTO>(model);
+                    dto = await _service.SaveAsync(dto);
 
-                        faculty = new()
-                        {
-                            FullName = model.Faculty.FullName,
-                            ShortName = model.Faculty.ShortName,
-                            Img = model.Img != null ? IFileService.UploadFile(model.Img, path + model.Img.FileName) : path
-                        };
+                    _logger.LogInformation("Добавлен факультет - {FacultyPreName}", dto.FullName);
 
-                        Task addFaculty = _facultiesRepository.AddAsync(faculty);
-                        if (model.Img != null)
-                        {
-                            IFileService.ResizeAndCrop(faculty.Img, 300, 170);
-                        }
-
-                        await addFaculty;
-                        _logger.LogInformation("Создан факультет - {FacultyName}", faculty.FullName);
-
-                        return Ok();
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("modelErrors", "Такой факультет уже существует");
-                    }
+                    return Ok();
                 }
             }
-            catch
+            catch (Exception e)
             {
-                _logger.LogError("Произошла ошибка при создании факультета");
+                _logger.LogError(e, "Добавление факультета");
 
             }
             return BadRequest(ModelState);
         }
 
         [HttpDelete("{shortName}")]
+        [Authorize(Roles = "commission")]
         public async Task<IActionResult> DeleteFaculty(string shortName)
         {
-            Faculty? faculty = await _facultiesRepository.GetByShortNameAsync(shortName);
-            if (faculty != null)
+            try
             {
-                await _facultiesRepository.DeleteAsync(faculty.Id);
-                _logger.LogInformation("Факультет - {FacultyName} - был удалён", faculty.FullName);
+                await _service.DeleteAsync(shortName);
             }
-
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Удаление факультета");
+            }
             return Ok();
         }
     }

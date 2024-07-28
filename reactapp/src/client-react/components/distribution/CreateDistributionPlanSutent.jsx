@@ -2,12 +2,7 @@ import Form from 'react-bootstrap/Form';
 
 import React from "react";
 
-export default function CreateDistributionPLanStudent({ student, enrolledStudent, handleChange, index, planIndex, isControversial }) {
-    const generalScore = () => {
-        var generalScore = 0;
-        student.admissions[0].studentScores.forEach(element => generalScore += element.score);
-        return generalScore + student.gps;
-    }
+export default function CreateDistributionPLanStudent({ enrolledStudent, handleChange, index, planIndex, isControversial }) {
 
     return (
         <tr className="align-middle">
@@ -21,18 +16,18 @@ export default function CreateDistributionPLanStudent({ student, enrolledStudent
             </td>
             <td>
                 <label className={isControversial ? "bg-warning px-1" : "px-1"}>
-                    {student.surname} {student.name}  {student.patronymic}
+                    {enrolledStudent.student.surname} {enrolledStudent.student.name}  {enrolledStudent.student.patronymic}
                 </label>
             </td>
             <td>
-                {student.admissions[0].studentScores.map((item) =>
+                {enrolledStudent.studentScores.map((item) =>
                     <p key={item.subject.name} className="m-0" style={{ lineHeight: "18px" }}>
                         {item.subject.name} : {item.score}
                     </p>
                 )}
             </td>
-            <td>{student.gps}</td>
-            <td>{generalScore()}</td>
+            <td>{enrolledStudent.student.gpa}</td>
+            <td>{enrolledStudent.score}</td>
             <td>
             </td>
         </tr >

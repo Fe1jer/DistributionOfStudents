@@ -52,7 +52,7 @@ export default function EditModalWindowItem({ show, handleClose, planId, onLoadP
                     {({ handleSubmit, handleChange, values, touched, errors }) => (
                         <Form noValidate onSubmit={handleSubmit}>
                             <Modal.Header closeButton>
-                                <Modal.Title as="h5">Изменить план <b className="text-success">"{plan.speciality.directionName ?? plan.speciality.fullName}"</b></Modal.Title>
+                                <Modal.Title as="h5">Изменить план <b className="text-success">"{plan.specialityName}"</b></Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
                                 <UpdatePlanItem values={values} handleChange={handleChange} errors={errors} />

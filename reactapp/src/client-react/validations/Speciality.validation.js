@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 export const SpecialityValidationSchema = yup.object().shape({
-    id: yup.number(),
+    id: yup.string().uuid(),
     fullName: yup.string().required('Введите название'),
     shortName: yup.string().nullable(true),
     code: yup.string().required('Введите код'),

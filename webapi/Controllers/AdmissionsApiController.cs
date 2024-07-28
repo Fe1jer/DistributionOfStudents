@@ -1,152 +1,71 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using webapi.Data.Interfaces.Repositories;
-using webapi.Data.Models;
-using webapi.Data.Specifications;
+﻿using BLL.DTO;
+using BLL.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shared.Filters.Base;
 using webapi.ViewModels.Admissions;
 
 namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdmissionsApiController : ControllerBase
+    public class AdmissionsApiController : BaseController
     {
         private readonly ILogger<AdmissionsApiController> _logger;
-        private readonly IAdmissionsRepository _admissionsRepository;
-        private readonly IGroupsOfSpecialitiesRepository _groupsRepository;
-        private readonly IRecruitmentPlansRepository _plansRepository;
-        private readonly ISubjectsRepository _subjectsRepository;
+        private readonly IAdmissionsService _service;
 
-        public AdmissionsApiController(ILogger<AdmissionsApiController> logger, IAdmissionsRepository admissionsRepository, IGroupsOfSpecialitiesRepository groupsRepository,
-            IRecruitmentPlansRepository plansRepository, ISubjectsRepository subjectsRepository)
+        public AdmissionsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<AdmissionsApiController> logger, IAdmissionsService service) : base(accessor, generator)
         {
             _logger = logger;
-            _admissionsRepository = admissionsRepository;
-            _groupsRepository = groupsRepository;
-            _plansRepository = plansRepository;
-            _subjectsRepository = subjectsRepository;
+            _service = service;
         }
 
         // GET: api/AdmissionsApi
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Admission>>> GetAdmissions()
-        {
-            return await _admissionsRepository.GetAllAsync();
-        }
+        public async Task<ActionResult<IEnumerable<AdmissionViewModel>>> GetAdmissions() => Mapper.Map<List<AdmissionViewModel>>(await _service.GetAllAsync());
 
         [HttpGet("GroupAdmissions/{groupId}")]
-        public async Task<ActionResult<object>> GetGroupAdmissions(int groupId, string? searchStudents, int page, int pageLimit)
+        public async Task<ActionResult<object>> GetGroupAdmissions(Guid groupId, [FromQuery] DefaultFilter filter)
         {
-            GroupOfSpecialties group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeRecruitmentPlans().IncludeAdmissions()) ?? new();
-
-            if (group == null)
-            {
-                return NotFound();
-            }
-
-            List<Admission> admissions = SearchAdmissions(searchStudents, group.Admissions)
-                .OrderBy(i => i.Student.Surname).ThenBy(i => i.Student.Name).ThenBy(i => i.Student.Patronymic).ToList();
-
-            foreach (Admission admission in admissions)
-            {
-                admission.GroupOfSpecialties = new();
-                admission.Student.Admissions = null;
-                foreach (SpecialityPriority priority in admission.SpecialityPriorities)
-                {
-                    priority.RecruitmentPlan.EnrolledStudents = null;
-                    priority.RecruitmentPlan.Speciality = new();
-                }
-            }
+            var (rows, count) = await _service.GetByGroupAsync(groupId, filter);
 
             return new
             {
-                admissions = admissions.Skip((page - 1) * pageLimit).Take(pageLimit).ToList(),
-                countOfSearchStudents = admissions.Count
+                admissions = Mapper.Map<List<AdmissionViewModel>>(rows),
+                count
             };
         }
 
         // GET: api/AdmissionsApi/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Admission>> GetAdmission(int id)
+        public async Task<ActionResult<AdmissionViewModel>> GetAdmission(Guid id)
         {
-            Admission? admission = await _admissionsRepository.GetByIdAsync(id, new AdmissionsSpecification().IncludeSpecialtyPriorities().IncludeStudentScores());
+            AdmissionViewModel model = Mapper.Map<AdmissionViewModel>(await _service.GetAsync(id));
 
-            if (admission == null)
-            {
-                return NotFound();
-            }
-            admission.GroupOfSpecialties = new();
-            admission.Student.Admissions = null;
-            foreach (SpecialityPriority priority in admission.SpecialityPriorities)
-            {
-                priority.RecruitmentPlan.EnrolledStudents = null;
-                priority.RecruitmentPlan.Speciality = new();
-            }
-            admission.SpecialityPriorities = admission.SpecialityPriorities.OrderBy(i => i.Priority).ToList();
-
-            return admission;
+            return model != null ? model : NotFound();
         }
 
         // PUT: api/AdmissionsApi/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAdmission(int id, CreateChangeAdmissionVM model)
+        [Authorize(Roles = "commission")]
+        public async Task<IActionResult> PutAdmission(Guid id, AdmissionViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                Admission? admission = await _admissionsRepository.GetByIdAsync(id, new AdmissionsSpecification().IncludeSpecialtyPriorities().IncludeStudentScores());
-                if (admission == null)
+                if (ModelState.IsValid)
                 {
+                    var updateDto = Mapper.Map<AdmissionDTO>(model);
+                    var dto = await _service.SaveAsync(updateDto);
+
+                    _logger.LogInformation("Заявка абитуриента - {Surname} {Name} {Patronymic} - изменена", dto.Student.Surname, dto.Student.Name, dto.Student.Patronymic);
+
                     return Ok();
                 }
-
-                List<SpecialityPriority> specialityPriorities = new();
-                List<Subject> subjects = new();
-
-                foreach (StudentScore studentScore in admission.StudentScores)
-                {
-                    studentScore.Score = model.StudentScores.First(i => i.Id == studentScore.Id).Score;
-                }
-                foreach (SpecialityPriorityVM specialityPriority in model.SpecialitiesPriority.Where(p => p.Priority > 0))
-                {
-                    SpecialityPriority priority = admission.SpecialityPriorities.FirstOrDefault(i => i.RecruitmentPlan.Id == specialityPriority.PlanId) ??
-                        new() { RecruitmentPlan = await _plansRepository.GetByIdAsync(specialityPriority.PlanId) ?? new() };
-                    priority.Priority = specialityPriority.Priority;
-                    specialityPriorities.Add(priority);
-                }
-
-                admission.SpecialityPriorities = specialityPriorities;
-                admission.PassportID = model.PassportID;
-                admission.IsTargeted = model.IsTargeted;
-                admission.IsWithoutEntranceExams = model.IsWithoutEntranceExams;
-                admission.IsOutOfCompetition = model.IsOutOfCompetition;
-                admission.PassportSeries = model.PassportSeries;
-                admission.PassportNumber = model.PassportNumber;
-                admission.Email = model.Email;
-                admission.Student.Surname = model.Student.Surname.Trim();
-                admission.Student.Name = model.Student.Name.Trim();
-                admission.Student.Patronymic = model.Student.Patronymic.Trim();
-                admission.Student.GPS = model.Student.GPS;
-
-                await _admissionsRepository.UpdateAsync(admission);
-
-                _logger.LogInformation("Заявка абитуриента - {Surname} {Name} {Patronymic} - изменена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
-                try
-                {
-                    await _admissionsRepository.UpdateAsync(admission);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await AdmissionExists(admission.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return Ok();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("Произошла ошибка при изменении заявки аббитуриента - {Surname} {Name} {Patronymic}", model.Student.Surname, model.Student.Name, model.Student.Patronymic);
             }
 
             return BadRequest(ModelState);
@@ -155,49 +74,15 @@ namespace webapi.Controllers
         // POST: api/AdmissionsApi
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{groupId}")]
-        public async Task<ActionResult<Admission>> PostAdmission(int groupId, CreateChangeAdmissionVM model)
+        [Authorize(Roles = "commission")]
+        public async Task<ActionResult<AdmissionViewModel>> PostAdmission(Guid groupId, AdmissionViewModel model)
         {
             if (ModelState.IsValid)
             {
-                List<SpecialityPriority> specialityPriorities = new();
-                List<Subject> subjects = new();
+                var dto = Mapper.Map<AdmissionDTO>(model);
+                dto = await _service.SaveAsync(dto);
 
-                foreach (StudentScore studentScore in model.StudentScores)
-                {
-                    Subject? subject = await _subjectsRepository.GetByIdAsync(studentScore.Subject.Id);
-                    if (subject != null)
-                    {
-                        studentScore.Subject = subject;
-                    }
-                }
-                foreach (SpecialityPriorityVM specialityPriority in model.SpecialitiesPriority.Where(p => p.Priority > 0))
-                {
-                    RecruitmentPlan? plan = await _plansRepository.GetByIdAsync(specialityPriority.PlanId);
-                    if (plan != null)
-                    {
-                        SpecialityPriority priority = new() { Priority = specialityPriority.Priority, RecruitmentPlan = plan };
-                        specialityPriorities.Add(priority);
-                    }
-                }
-
-                GroupOfSpecialties group = await _groupsRepository.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeAdmissions()) ?? new();
-                Admission admission = new()
-                {
-                    GroupOfSpecialties = await _groupsRepository.GetByIdAsync(groupId) ?? new(),
-                    StudentScores = model.StudentScores,
-                    Student = new() { Name = model.Student.Name.Trim(), Surname = model.Student.Surname.Trim(), Patronymic = model.Student.Patronymic.Trim(), GPS = model.Student.GPS },
-                    DateOfApplication = model.DateOfApplication,
-                    SpecialityPriorities = specialityPriorities,
-                    PassportID = model.PassportID,
-                    PassportSeries = model.PassportSeries,
-                    PassportNumber = model.PassportNumber,
-                    Email = model.Email,
-                    IsTargeted = model.IsTargeted,
-                    IsWithoutEntranceExams = model.IsWithoutEntranceExams,
-                    IsOutOfCompetition = model.IsOutOfCompetition,
-                };
-                await _admissionsRepository.AddAsync(admission);
-                _logger.LogInformation("Заявка студента - {Surname} {Name} {Patronymic} - добавлена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
+                _logger.LogInformation("Заявка студента - {Surname} {Name} {Patronymic} - добавлена", dto.Student.Surname, dto.Student.Name, dto.Student.Patronymic);
 
                 return Ok();
             }
@@ -207,41 +92,19 @@ namespace webapi.Controllers
 
         // DELETE: api/AdmissionsApi/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAdmission(int id)
+        [Authorize(Roles = "commission")]
+        public async Task<IActionResult> DeleteAdmission(Guid id)
         {
-            Admission? admission = await _admissionsRepository.GetByIdAsync(id, new AdmissionsSpecification());
-            if (admission != null)
+            try
             {
-                await _admissionsRepository.DeleteAsync(id);
-                _logger.LogInformation("Заявка студента - {Surname} {Name} {Patronymic} - была удалена", admission.Student.Surname, admission.Student.Name, admission.Student.Patronymic);
+                await _service.DeleteAsync(id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Удаление заявки студента");
             }
 
             return Ok();
-        }
-
-        private async Task<bool> AdmissionExists(int id)
-        {
-            var admissions = await _admissionsRepository.GetAllAsync();
-            return admissions.Any(e => e.Id == id);
-        }
-
-        private static List<Admission> SearchAdmissions(string? searchStudents, List<Admission>? admissions)
-        {
-            admissions ??= new();
-
-            if (searchStudents != null)
-            {
-                List<string> searchWords = searchStudents.Split(" ").ToList();
-                foreach (string word in searchWords)
-                {
-                    admissions = admissions.Where(i => i.Student.Name.ToLower().Contains(word.ToLower())).ToList()
-                        .Union(admissions.Where(i => i.Student.Surname.ToLower().Contains(word.ToLower()))).Distinct()
-                        .Union(admissions.Where(i => i.Student.Patronymic.ToLower().Contains(word.ToLower()))).Distinct()
-                        .ToList();
-                }
-            }
-
-            return admissions;
         }
     }
 }

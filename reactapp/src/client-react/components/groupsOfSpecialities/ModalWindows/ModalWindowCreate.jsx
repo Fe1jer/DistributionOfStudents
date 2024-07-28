@@ -21,14 +21,14 @@ export default function CreateModalWindow({ show, handleClose, onLoadGroups }) {
     const params = useParams();
     const facultyShortName = params.shortName;
     const defaultForm = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         year: 0,
         isDailyForm: true,
         isBudget: true,
         isFullTime: true
     }
     const defaultGroup = {
-        id: 0,
+        id: "00000000-0000-0000-0000-000000000000",
         name: null,
         startDate: getToday(),
         enrollmentDate: getToday(),
@@ -71,10 +71,10 @@ export default function CreateModalWindow({ show, handleClose, onLoadGroups }) {
             setIsLoaded(true);
         }
         if (specialities.length > 0 && selectedSpecialities.length === 0) {
-            setSelectedSpecialities(specialities.map(item => { return { specialityName: item.directionName ?? item.fullName, specialityId: item.id, isSelected: false } }))
+            setSelectedSpecialities(specialities.map(item => { return { fullName: item.directionName ?? item.fullName, id: item.id, isSelected: false } }))
         }
         if (subjects.length > 0 && selectedSubjects.length === 0) {
-            setSelectedSubjects(subjects.map(item => { return { subject: item.name, subjectId: item.id, isSelected: false } }))
+            setSelectedSubjects(subjects.map(item => { return { name: item.name, id: item.id, isSelected: false } }))
         }
     }, [subjects, specialities, show])
 
@@ -87,7 +87,7 @@ export default function CreateModalWindow({ show, handleClose, onLoadGroups }) {
                 <Formik
                     validationSchema={GroupOfSpecialitiesValidationSchema}
                     onSubmit={handleSubmit}
-                    initialValues={{ group: defaultGroup, selectedSpecialities, selectedSubjects }}>
+                    initialValues={{ ...defaultGroup, specialities: selectedSpecialities, subjects: selectedSubjects }}>
                     {({ handleSubmit, handleChange, values, touched, errors }) => (
                         <Form noValidate onSubmit={handleSubmit}>
                             <Modal.Header closeButton>

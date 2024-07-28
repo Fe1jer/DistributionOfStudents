@@ -1,5 +1,6 @@
 import Subject from './Subject.jsx';
 
+import CreateButton from '../adminButtons/CreateButton.jsx';
 import ModalWindowCreate from './ModalWindows/ModalWindowCreate.jsx';
 import ModalWindowEdit from './ModalWindows/ModalWindowEdit.jsx';
 import ModalWindowDelete from './ModalWindows/ModalWindowDelete.jsx';
@@ -54,11 +55,7 @@ export default function SubjectsList({ subjects, onLoadSubjects }) {
                             Название
                         </th>
                         <th className="text-center" width="100">
-                            <button type="button" className="btn btn-sm text-success p-0" onClick={onClickCreateSubject} >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle-fill suc" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                                </svg>
-                            </button >
+                            <CreateButton size="sm" onClick={onClickCreateSubject} />
                         </th>
                     </tr>
                 </thead>

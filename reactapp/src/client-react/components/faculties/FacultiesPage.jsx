@@ -4,6 +4,7 @@ import FacultyCardPreloader from "./FacultyCardPreloader.jsx";
 import ModalWindowDelete from "./ModalWindows/ModalWindowDelete.jsx";
 import ModalWindowEdit from "./ModalWindows/ModalWindowEdit.jsx";
 import ModalWindowCreate from "./ModalWindows/ModalWindowCreate.jsx";
+import CreateButton from '../adminButtons/CreateButton.jsx';
 
 import Row from 'react-bootstrap/Row';
 
@@ -81,11 +82,7 @@ export default function FacultiesPage() {
                 <div className="ps-lg-4 pe-lg-4 pt-2 position-relative">
                     <h1 className="d-inline-block">
                         Факультеты
-                        <button className="btn text-success ms-2 p-0" onClick={() => onClickCreateFaculty()}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle-fill suc" viewBox="0 0 16 16">
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
-                            </svg>
-                        </button>
+                        <CreateButton className="ms-2" onClick={() => onClickCreateFaculty()} />
                     </h1>
                     <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} shortName={deleteShortNameShow} fullName={deleteFullNameShow} onLoadFaculties={loadData} />
                     <ModalWindowEdit show={editShow} handleClose={handleEditClose} shortName={updateShortNameShow} onLoadFaculties={loadData} />

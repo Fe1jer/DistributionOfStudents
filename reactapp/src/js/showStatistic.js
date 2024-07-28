@@ -8,6 +8,9 @@ export default function getData(statistic) {
             borderColor: "#" + Math.floor(Math.random() * 16777215).toString(16),
             fill: false,
             spanGaps: false
-        }))
+        })),
+        options: {
+            plugins: { legend: { display: false, }, }
+        }
     };
 }

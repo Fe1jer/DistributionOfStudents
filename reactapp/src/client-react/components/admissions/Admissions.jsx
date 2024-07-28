@@ -19,7 +19,7 @@ export default function Admissions({ groupId, plans, onLoadGroup }) {
 
     const [admissions, setAdmissions] = useState([]);
     const [searhText, setSearhText] = useState(searchStudentsParam);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const [pageLimit, setPageLimit] = useState(20);
     const [countSearchAdmissions, setCountSearchAdmissions] = useState(0);
     const [pageNeighbours] = useState(4);
@@ -35,7 +35,7 @@ export default function Admissions({ groupId, plans, onLoadGroup }) {
     const loadData = async () => {
         var data = await AdmissionsService.httpGetGroupAdmissions(groupId, searhText, currentPage, pageLimit);
         setAdmissions(data.admissions);
-        setCountSearchAdmissions(data.countOfSearchStudents);
+        setCountSearchAdmissions(data.count);
         setLoading(false);
     }
     const handleDeleteClose = () => {

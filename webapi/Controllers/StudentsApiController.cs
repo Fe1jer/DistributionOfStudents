@@ -1,48 +1,34 @@
-﻿using webapi.Data.Models;
-using webapi.Data.Specifications;
-using webapi.ViewModels.Students;
+﻿using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using webapi.Data.Interfaces.Repositories;
+using Shared.Filters.Base;
+using webapi.ViewModels.Admissions;
+using webapi.ViewModels.Students;
 
 namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentsApiController : ControllerBase
+    public class StudentsApiController : BaseController
     {
-        private readonly IAdmissionsRepository _admissionsRepository;
-        private readonly IRecruitmentPlansRepository _plansRepository;
+        private readonly ILogger<StudentsApiController> _logger;
+        private readonly IAdmissionsService _service;
 
-        public StudentsApiController(IAdmissionsRepository admissionsRepository, IRecruitmentPlansRepository plansRepository)
+        public StudentsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<StudentsApiController> logger, IAdmissionsService service) : base(accessor, generator)
         {
-            _admissionsRepository = admissionsRepository;
-            _plansRepository = plansRepository;
+            _logger = logger;
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<object>> GetStudents(string? searchStudents, int page, int pageLimit)
+        public async Task<ActionResult<object>> GetStudents([FromQuery] DefaultFilter filter)
         {
-            List<DetailsStudentVM> models = new();
-            List<RecruitmentPlan> allPlans = await _plansRepository.GetAllAsync(new RecruitmentPlansSpecification());
-            int lastYear = allPlans.Count != 0 ? allPlans.Max(i => i.FormOfEducation.Year) : 0;
-            List<Admission> allAdmissions = await _admissionsRepository.SearchByStudentsAsync(searchStudents, new AdmissionsSpecification(i => i.GroupOfSpecialties.FormOfEducation.Year == lastYear).SortByStudent().IncludeGroupWithSpecialities());
-            int countOfSearchStudents = allAdmissions.Count;
-            allAdmissions = allAdmissions.Skip((page - 1) * pageLimit).Take(pageLimit).ToList();
-            foreach (Admission admission in allAdmissions)
+            var (rows, count) = await _service.GetByLastYearAsync(filter);
+
+            return new
             {
-                GroupOfSpecialties group = admission.GroupOfSpecialties;
-                DetailsStudentVM detailsStudent;
-
-                if (group.Specialities != null)
-                {
-                    string studentFullName = admission.Student.Surname + " " + admission.Student.Name + " " + admission.Student.Patronymic;
-                    string facultyName = group.Specialities.First().Faculty.ShortName;
-                    detailsStudent = new(studentFullName, facultyName, group);
-                    models.Add(detailsStudent);
-                }
-            }
-
-            return new { students = models, countOfSearchStudents };
+                admissions = Mapper.Map<List<StudentItemViewModel>>(rows),
+                count
+            };
         }
     }
 }

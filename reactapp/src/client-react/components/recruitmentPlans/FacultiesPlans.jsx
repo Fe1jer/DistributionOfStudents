@@ -71,9 +71,9 @@ export default function FacultiesPlans() {
             <React.Suspense>
                 <h1 className="text-center"> План приёма на {year} год</h1>
                 <div className="ps-lg-4 pe-lg-4 position-relative">
-                    <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} onDeletePlans={onDeleteFacultyPlans} facultyShortName={deleteFacultyShortName} year={deleteYear} /> {
+                    <ModalWindowDelete show={deleteShow} handleClose={handleDeleteClose} onDeletePlans={onDeleteFacultyPlans} shortName={deleteFacultyShortName} year={deleteYear} /> {
                         facultiesPlans.map((item) =>
-                            <FacultyPlans key={item.facultyShortName} facultyFullName={item.facultyFullName} facultyShortName={item.facultyShortName} year={item.year} plansForSpecialities={item.plansForSpecialities} onClickDelete={onClickDeleteFacultyPlans} />
+                            <FacultyPlans key={item.shortName} fullName={item.fullName} shortName={item.shortName} year={item.year} plansForSpecialities={item.plansForSpecialities} onClickDelete={onClickDeleteFacultyPlans} />
                         )}
                 </div>
             </React.Suspense>

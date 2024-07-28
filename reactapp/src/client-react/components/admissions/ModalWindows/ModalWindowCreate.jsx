@@ -25,18 +25,22 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
     const facultyShortName = params.shortName;
 
     const defaultStudent = {
-        id: 0, gps: 0,
+        id: "00000000-0000-0000-0000-000000000000", gpa: 0,
         name: "", surname: "", patronymic: "",
     }
     const defaultAdmission = {
-        id: 0,
-        dateOfApplication: getNow()
+        id: "00000000-0000-0000-0000-000000000000",
+        dateOfApplication: getNow(),
+        isTargeted: false,
+        isWithoutEntranceExams: false,
+        isOutOfCompetition: false,
+        groupOfSpecialtiesId: groupId
     }
     defaultAdmission.student = defaultStudent;
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [studentScores, setStudentScores] = useState([]);
-    const [specialitiesPriority, setSpecialitiesPriority] = useState([]);
+    const [specialityPriorities, setSpecialityPriorities] = useState([]);
     const [groupSubjects, setGroupSubjects] = useState(null);
     const [groupPlans, setGroupPlans] = useState(null);
 
@@ -56,7 +60,7 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
         await StatisticService.httpPutGroupStatisticUrl(facultyShortName, groupId);
     }
     const loadGroupPlans = async () => {
-        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupPlans(facultyShortName, groupId);
         setGroupPlans(recruitmentsPlansData);
     }
     const loadGroupSubjects = async () => {
@@ -71,11 +75,11 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
             loadGroupPlans();
             return;
         }
-        if (groupPlans && specialitiesPriority.length === 0) {
-            setSpecialitiesPriority(groupPlans.map(item => { return { planId: item.id, nameSpeciality: item.speciality.directionName ?? item.speciality.fullName, priority: 0 } }))
+        if (groupPlans && specialityPriorities.length === 0) {
+            setSpecialityPriorities(groupPlans.map(item => { return { recruitmentPlanId: item.id, specialityName: item.specialityName, priority: 0 } }))
         }
         if (groupSubjects && studentScores.length === 0) {
-            setStudentScores(groupSubjects.map(item => { return { subject: item, score: 0 } }))
+            setStudentScores(groupSubjects.map(item => { return { subject: item, subjectId: item.id, score: 0 } }))
         }
         if (show) {
             defaultAdmission.dateOfApplication = getNow();
@@ -91,7 +95,7 @@ export default function CreateModalWindow({ show, handleClose, onLoadAdmissions,
                 <Formik
                     validationSchema={AdmissionValidationSchema}
                     onSubmit={handleSubmit}
-                    initialValues={{ ...defaultAdmission, studentScores, specialitiesPriority }}>
+                    initialValues={{ ...defaultAdmission, studentScores, specialityPriorities }}>
                     {({ handleSubmit, handleChange, values, touched, errors }) => (
                         <Form noValidate onSubmit={handleSubmit}>
                             <Modal.Header closeButton>

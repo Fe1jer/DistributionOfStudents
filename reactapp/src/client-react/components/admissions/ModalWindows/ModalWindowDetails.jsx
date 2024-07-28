@@ -41,7 +41,7 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
         setStudentScores(data.studentScores);
     }
     const loadGroupPlans = async () => {
-        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupRecruitmentPlans(facultyShortName, groupId);
+        const recruitmentsPlansData = await RecruitmentPlansService.httpGetGroupPlans(facultyShortName, groupId);
         setGroupPlans(recruitmentsPlansData);
     }
     React.useEffect(() => {
@@ -54,9 +54,9 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
             }
             if (groupPlans && admissionSpecialitiesPriority && !specialitiesPriority) {
                 setSpecialitiesPriority(groupPlans.map(item => {
-                    var tempSpecialitiesPriority = admissionSpecialitiesPriority.find(element => element.recruitmentPlan.id === item.id);
+                    var tempSpecialitiesPriority = admissionSpecialitiesPriority.find(element => element.recruitmentPlanId === item.id);
                     return {
-                        planId: item.id, nameSpeciality: item.speciality.directionName ?? item.speciality.fullName,
+                        planId: item.id, specialityName: item.specialityName,
                         priority: tempSpecialitiesPriority ? tempSpecialitiesPriority.priority : 0
                     }
                 }))
@@ -79,7 +79,7 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
                 <Modal.Body>
                     <Row>
                         <Col sm={4}>
-                            <h5 className="text-center">Аттестат: {student.gps}</h5>
+                            <h5 className="text-center">Аттестат: {student.gpa}</h5>
                             <hr className="my-1" />
                             <h5 className="text-center">Баллы по ЦТ(ЦЭ)</h5>{
                                 studentScores.map((item) =>
@@ -92,10 +92,10 @@ export default function ModalWindowDetails({ show, handleClose, admissionId }) {
                         <Col sm={8}>
                             <h5 className="text-center">Приоритет специальностей<sup>*</sup></h5>{
                                 admissionSpecialitiesPriority.sort((a, b) => a.priority - b.priority).map((item, index) =>
-                                    <React.Suspense key={groupPlans.find(x => x.id === item.recruitmentPlan.id).speciality.directionName ?? groupPlans.find(x => x.id === item.recruitmentPlan.id).speciality.fullName}>
+                                    <React.Suspense key={groupPlans.find(x => x.id === item.recruitmentPlanId).specialityName}>
                                         <hr className="my-1" />
                                         <p className="mb-0">
-                                            {index + 1}: <b>{groupPlans.find(x => x.id === item.recruitmentPlan.id).speciality.directionName ?? groupPlans.find(x => x.id === item.recruitmentPlan.id).speciality.fullName}</b>
+                                            {index + 1}: <b>{groupPlans.find(x => x.id === item.recruitmentPlanId).specialityName}</b>
                                         </p>
                                     </React.Suspense>
                                 )}

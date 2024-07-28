@@ -45,7 +45,7 @@ export default function UpdateAdmission({ values, errors, onChangeModel }) {
                 <Form.Group as={Col} sm={4} className="mt-2">
                     <Form.Label className="mb-0">Подача заявки</Form.Label><sup>*</sup>
                     <Form.Control type="datetime-local"
-                        name="dateOfApplication" value={values.dateOfApplication ?? ""} onChange={onChangeModel}
+                        name="dateOfApplication" value={values.dateOfApplication.slice(0, 16) ?? ""} onChange={onChangeModel}
                         isInvalid={errors ? !!errors.dateOfApplication : false} />
                     <Form.Control.Feedback type="invalid">{errors ? errors.dateOfApplication : ""}</Form.Control.Feedback>
                 </Form.Group>
@@ -80,16 +80,16 @@ export default function UpdateAdmission({ values, errors, onChangeModel }) {
                     <Form.Group sm={4} className="pb-2">
                         <Form.Label className="mb-0">Сумма баллов</Form.Label><sup>*</sup>
                         <Form.Control type="number"
-                            name="student.gps" value={values.student.gps ?? ""} onChange={onChangeModel}
-                            isInvalid={errors.student ? !!errors.student.gps : false} />
-                        <Form.Control.Feedback type="invalid">{errors.student ? errors.student.gps : ""}</Form.Control.Feedback>
+                            name="student.gpa" value={values.student.gpa ?? ""} onChange={onChangeModel}
+                            isInvalid={errors.student ? !!errors.student.gpa : false} />
+                        <Form.Control.Feedback type="invalid">{errors.student ? errors.student.gpa : ""}</Form.Control.Feedback>
                     </Form.Group>
                     <UpdateAdmissionSubjectScores onChangeModel={onChangeModel} studentScores={values.studentScores} errors={errors ? errors.studentScores : null} />
                 </Col>
                 <Col sm={8}>
-                    <Field name="specialitiesPriority">
+                    <Field name="specialityPriorities">
                         {({ form }) => (
-                            <UpdateAdmissionSpetialitiesPriority form={form} specialitiesPriority={values.specialitiesPriority} errors={errors ? errors.specialitiesPriority : null} />
+                            <UpdateAdmissionSpetialitiesPriority form={form} specialityPriorities={values.specialityPriorities} errors={errors ? errors.specialityPriorities : null} />
                         )}
                     </Field>
                 </Col>
