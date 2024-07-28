@@ -1,4 +1,4 @@
-﻿using DAL.Postgres.Entities;
+﻿using DAL.Entities;
 
 namespace BLL.DTO.RecruitmentPlans
 {

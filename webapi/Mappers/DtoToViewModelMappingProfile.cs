@@ -7,7 +7,6 @@ using BLL.DTO.Specialities;
 using BLL.DTO.Students;
 using BLL.DTO.Subjects;
 using BLL.DTO.User;
-using DAL.Postgres.Entities;
 using webapi.ViewModels.Admissions;
 using webapi.ViewModels.Distribution;
 using webapi.ViewModels.Faculties;

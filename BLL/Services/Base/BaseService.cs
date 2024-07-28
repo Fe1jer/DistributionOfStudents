@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using BLL.Mappers;
-using DAL.Postgres.Repositories.Interfaces;
+using DAL.Repositories.Interfaces;
 
 namespace BLL.Services.Base
 {

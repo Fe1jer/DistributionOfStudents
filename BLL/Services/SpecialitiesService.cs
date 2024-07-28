@@ -1,9 +1,9 @@
 ﻿using BLL.DTO.Specialities;
 using BLL.Services.Base;
 using BLL.Services.Interfaces;
-using DAL.Postgres.Entities;
-using DAL.Postgres.Repositories.Interfaces;
-using DAL.Postgres.Specifications;
+using DAL.Entities;
+using DAL.Repositories.Interfaces;
+using DAL.Specifications;
 
 namespace BLL.Services
 {

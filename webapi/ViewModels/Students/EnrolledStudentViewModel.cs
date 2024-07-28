@@ -1,6 +1,4 @@
 ﻿using BLL.DTO.Base;
-using BLL.DTO.Students;
-using DAL.Postgres.Entities;
 using webapi.ViewModels.Admissions;
 
 namespace webapi.ViewModels.Students
