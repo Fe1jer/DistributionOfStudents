@@ -1,13 +1,19 @@
 using DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
+using NLog;
+using NLog.Web;
 using Shared.Helpers;
 using System.Text;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace webapi
 {
     public class Program
     {
+        public static Logger Logger = LogManager.GetCurrentClassLogger();
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +22,7 @@ namespace webapi
 
             Configure(app);
             builder.Services.InitDatabase();
+            Logger.Info("Application started");
 
             app.Run();
         }
@@ -25,6 +32,7 @@ namespace webapi
         {
             //MSSQL подключение
             string connection = builder.Configuration.GetConnectionString("MssqlConnection");
+            Logger.Info(connection);
             builder.Services.RegisterApplicationServices(connection);
 /*
             string connection = builder.Configuration.GetConnectionString("NpgsqlConnection")!;
@@ -63,6 +71,11 @@ namespace webapi
                 };
             });
 
+            // NLog: Setup NLog for Dependency injection
+            builder.Logging.ClearProviders();
+            builder.Logging.SetMinimumLevel(LogLevel.Debug);
+            builder.Host.UseNLog();
+
             builder.Services.AddSingleton<LinkGeneratorHelper>();
         }
 
@@ -72,6 +85,21 @@ namespace webapi
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseExceptionHandler(new ExceptionHandlerOptions()
+                {
+                    ExceptionHandler = context =>
+                    {
+                        var ex = context.Features.Get<IExceptionHandlerFeature>();
+
+                        if (ex != null)
+                        {
+                            Logger.Error(ex);
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                });
+
                 app.UseSwagger();
                 app.UseSwaggerUI();
                 app.UseMigrationsEndPoint();

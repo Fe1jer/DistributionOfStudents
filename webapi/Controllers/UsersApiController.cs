@@ -25,13 +25,20 @@ public class UsersApiController : BaseController
     [HttpPost("authenticate")]
     public async Task<IActionResult> AuthenticateAsync(LoginViewModel model)
     {
-        var dto = Mapper.Map<LoginDTO>(model);
-        var response = await _service.Authenticate(dto);
+        try
+        {
+            var dto = Mapper.Map<LoginDTO>(model);
+            var response = await _service.Authenticate(dto);
 
-        if (response == null)
-            return BadRequest(new { message = "Неверные данные пользователя" });
+            if (response == null)
+                return BadRequest(new { message = "Неверные данные пользователя" });
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet]

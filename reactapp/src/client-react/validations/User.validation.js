@@ -10,7 +10,7 @@ export const CreateUserValidationSchema = yup.object().shape({
 });
 
 export const ChangeUserValidationSchema = yup.object().shape({
-    id: yup.string().uuid(),
+    id: yup.string().matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i),
     name: yup.string().required('Введите имя'),
     surname: yup.string().required('Введите фамилию'),
     patronymic: yup.string().required("Введите отчество"),

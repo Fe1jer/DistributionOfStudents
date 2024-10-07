@@ -3,6 +3,7 @@ namespace BLL.Services;
 using BLL.DTO.User;
 using BLL.Services.Base;
 using BLL.Services.Interfaces;
+using ChartJSCore.Models;
 using DAL.Entities;
 using DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Options;
@@ -195,7 +196,8 @@ public class UserService : BaseService, IUserService
                         new(ClaimsIdentity.DefaultRoleClaimType, user.Role.ToString()),
                 }
             ),
-            Expires = DateTime.Now.AddMinutes(1),
+            Expires = DateTime.UtcNow.AddMinutes(1),
+            NotBefore = DateTime.UtcNow,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenkey), SecurityAlgorithms.HmacSha256)
         };
         var token = tokenhandler.CreateToken(tokenDescriptor);

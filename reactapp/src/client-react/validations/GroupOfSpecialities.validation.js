@@ -1,14 +1,14 @@
 import * as yup from 'yup';
 
 export const GroupOfSpecialitiesValidationSchema = yup.object().shape({
-    id: yup.string().uuid(),
+    id: yup.string().matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i),
     name: yup.string().required('Введите название'),
     startDate: yup.date().required('Неверная дата'),
     enrollmentDate: yup.date().required('Неверная дата'),
     description: yup.string().nullable(true),
     isCompleted: yup.boolean().default(false),
     formOfEducation: yup.object().shape({
-        id: yup.string().uuid(),
+        id: yup.string().matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i),
         year: yup.number(),
         isDailyForm: yup.boolean().required(),
         isBudget: yup.boolean().required(),
@@ -17,7 +17,7 @@ export const GroupOfSpecialitiesValidationSchema = yup.object().shape({
     specialities: yup.array().of(
         yup.object().shape({
             fullName: yup.string().required(),
-            id: yup.string().uuid(),
+            id: yup.string().matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i),
             isSelected: yup.boolean().default(false)
         })
     ).test("at-least-one-true", 'Выберите хотя бы одну специальность', (obj) => {
@@ -26,7 +26,7 @@ export const GroupOfSpecialitiesValidationSchema = yup.object().shape({
     subjects: yup.array().of(
         yup.object().shape({
             name: yup.string().required(),
-            id: yup.string().uuid(),
+            id: yup.string().matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i),
             isSelected: yup.boolean().default(false)
         })
     ).test("at-least-one-true", 'Выберите хотя бы один предмет', (obj) => {

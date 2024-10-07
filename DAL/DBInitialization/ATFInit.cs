@@ -11,7 +11,7 @@ namespace DAL.DBInitialization
 
             Faculty atf = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = "\\img\\Faculties\\АТФ\\АТФ.jpg",
                 FullName = "Автотракторный факультет",
                 ShortName = "АТФ",
                 Specialities = specialties

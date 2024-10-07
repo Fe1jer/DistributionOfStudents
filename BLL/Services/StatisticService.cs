@@ -21,11 +21,13 @@ namespace BLL.Services
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId);
             List<Dataset> Datasets = new();
             List<double?> data = new();
+            int lastCount = 0;
 
             foreach (DateTime date in GetRangeDates(group.StartDate, group.EnrollmentDate))
             {
                 GroupOfSpecialitiesStatistic? groupStatistic = await _unitOfWork.GroupsOfSpecialitiesStatistic.GetByGroupAndDateAsync(groupId, date);
-                data.Add((groupStatistic ?? new GroupOfSpecialitiesStatistic()).CountOfAdmissions);
+                lastCount = groupStatistic != null ? groupStatistic.CountOfAdmissions : lastCount;
+                data.Add(lastCount);
             }
             LineDataset dataset = new()
             {
@@ -55,11 +57,13 @@ namespace BLL.Services
             plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group).IncludeSpecialty());
             foreach (var plan in plans)
             {
+                int lastScore = 0;
                 List<double?> data = new();
                 foreach (DateTime date in GetRangeDates(group.StartDate, group.EnrollmentDate))
                 {
                     RecruitmentPlanStatistic? planStatistic = await _unitOfWork.RecruitmentPlansStatistic.GetByPlanAndDateAsync(plan.Id, date);
-                    data.Add((planStatistic ?? new RecruitmentPlanStatistic()).Score);
+                    lastScore = planStatistic != null ? planStatistic.Score : lastScore;
+                    data.Add(lastScore);
                 }
                 LineDataset dataset = new()
                 {
@@ -117,7 +121,7 @@ namespace BLL.Services
         private static List<DateTime> GetRangeDates(DateTime start, DateTime finish)
         {
             var dates = new List<DateTime>();
-            for (var dt = start; dt <= (DateTime.Today < finish ? DateTime.Today : finish); dt = dt.AddDays(1))
+            for (var dt = start.ToLocalTime().Date; dt <= (DateTime.Today.Date < finish.ToLocalTime().Date ? DateTime.Today.ToLocalTime().Date : finish); dt = dt.AddDays(1))
             {
                 dates.Add(dt);
             }

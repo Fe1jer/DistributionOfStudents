@@ -11,7 +11,7 @@ namespace DAL.DBInitialization
 
             Faculty fitr = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = "\\img\\Faculties\\ФИТР\\ФИТР.jpg",
                 FullName = "Факультет информационных технологий и робототехники",
                 ShortName = "ФИТР",
                 Specialities = specialties

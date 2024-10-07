@@ -11,7 +11,7 @@ namespace DAL.DBInitialization
 
             Faculty mtf = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = "\\img\\Faculties\\МТФ\\МТФ.jpg",
                 FullName = "Механико-технологический факультет",
                 ShortName = "МТФ",
                 Specialities = specialties

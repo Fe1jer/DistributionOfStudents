@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Helpers;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Security.Authentication;
 using webapi.Mappers;
 
 namespace webapi.Controllers
@@ -19,6 +22,18 @@ namespace webapi.Controllers
             });
             Mapper = config.CreateMapper();
             LinkGeneratorHelper.Current = new LinkGeneratorHelper(accessor, generator);
+        }
+
+        protected static HttpStatusCode GetErrorCode(Exception e)
+        {
+            return e switch
+            {
+                ValidationException _ => HttpStatusCode.BadRequest,
+                FormatException _ => HttpStatusCode.BadRequest,
+                AuthenticationException _ => HttpStatusCode.Forbidden,
+                NotImplementedException _ => HttpStatusCode.NotImplemented,
+                _ => HttpStatusCode.InternalServerError,
+            };
         }
     }
 }

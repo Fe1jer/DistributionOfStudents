@@ -28,7 +28,7 @@ namespace DAL.Repositories.Custom
 
         public async Task<RecruitmentPlanStatistic?> GetByPlanAndDateAsync(Guid planId, DateTime date)
         {
-            return (await GetAllAsync()).SingleOrDefault(i => i.RecruitmentPlanId == planId && i.Date == date);
+            return (await GetAllAsync()).SingleOrDefault(i => i.RecruitmentPlanId == planId && i.Date.ToLocalTime().Date == date.Date);
         }
     }
 }

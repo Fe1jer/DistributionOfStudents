@@ -11,7 +11,7 @@ namespace DAL.DBInitialization
 
             Faculty fmmp = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = "\\img\\Faculties\\ЭФ\\ЭФ.jpg",
                 FullName = "Энергетический факультет",
                 ShortName = "ЭФ",
                 Specialities = specialties

@@ -18,7 +18,7 @@ export const RecruitmentPlansValidationSchema = yup.object().shape({
 });
 
 export const RecruitmentPlanValidationSchema = yup.object().shape({
-    id: yup.string().uuid(),
+    id: yup.string().matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i),
     count: yup.number().min(0).required(),
     target: yup.number().min(0).required(),
 });

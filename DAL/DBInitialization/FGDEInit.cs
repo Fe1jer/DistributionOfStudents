@@ -11,7 +11,7 @@ namespace DAL.DBInitialization
 
             Faculty fgde = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = "\\img\\Faculties\\ФГДЭ\\ФГДЭ.jpg",
                 FullName = "Факультет горного дела и инженерной экологии",
                 ShortName = "ФГДЭ",
                 Specialities = specialties

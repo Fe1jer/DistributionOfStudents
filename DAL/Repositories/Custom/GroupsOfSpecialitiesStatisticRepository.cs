@@ -28,7 +28,7 @@ namespace DAL.Repositories.Custom
 
         public async Task<GroupOfSpecialitiesStatistic?> GetByGroupAndDateAsync(Guid groupId, DateTime date)
         {
-            return (await GetAllAsync()).SingleOrDefault(i => i.GroupOfSpecialtiesId == groupId && i.Date == date);
+            return (await GetAllAsync()).SingleOrDefault(i => i.GroupOfSpecialtiesId == groupId && i.Date.ToLocalTime().Date == date.Date);
         }
     }
 }

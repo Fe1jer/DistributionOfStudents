@@ -11,7 +11,7 @@ namespace DAL.DBInitialization
 
             Faculty msf = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = "\\img\\Faculties\\МСФ\\МСФ.jpg",
                 FullName = "Машиностроительный факультет",
                 ShortName = "МСФ",
                 Specialities = specialties
