@@ -31,12 +31,11 @@ namespace webapi
         public static void ConfigureServices(WebApplicationBuilder builder)
         {
             //MSSQL подключение
-            string connection = builder.Configuration.GetConnectionString("MssqlConnection");
-            Logger.Info(connection);
-            builder.Services.RegisterApplicationServices(connection);
-/*
-            string connection = builder.Configuration.GetConnectionString("NpgsqlConnection")!;
+/*            string connection = builder.Configuration.GetConnectionString("MssqlConnection");
             builder.Services.RegisterApplicationServices(connection);*/
+
+            string connection = builder.Configuration.GetConnectionString("NpgsqlConnection")!;
+            builder.Services.RegisterApplicationServices(connection);
 
             builder.Services.AddCors();
             builder.Services.AddControllers();

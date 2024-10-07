@@ -4,9 +4,9 @@ using BLL.DTO.Students;
 using BLL.Extensions;
 using BLL.Services.Base;
 using BLL.Services.Interfaces;
-using DAL.Entities;
-using DAL.Repositories.Interfaces;
-using DAL.Specifications;
+using DAL.Postgres.Entities;
+using DAL.Postgres.Repositories.Interfaces;
+using DAL.Postgres.Specifications;
 
 
 namespace BLL.Services

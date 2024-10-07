@@ -7,7 +7,7 @@ using BLL.DTO.Specialities;
 using BLL.DTO.Students;
 using BLL.DTO.Subjects;
 using BLL.DTO.User;
-using DAL.Entities;
+using DAL.Postgres.Entities;
 using System.Globalization;
 
 namespace BLL.Mappers

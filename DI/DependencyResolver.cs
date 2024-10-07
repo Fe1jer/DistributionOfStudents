@@ -1,9 +1,9 @@
 ﻿using BLL.Services;
 using BLL.Services.Interfaces;
-using DAL.Context;
-using DAL.DBInitialization;
-using DAL.Repositories;
-using DAL.Repositories.Interfaces;
+using DAL.Postgres.Context;
+using DAL.Postgres.DBInitialization;
+using DAL.Postgres.Repositories;
+using DAL.Postgres.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,12 +14,12 @@ namespace DI
         public static void RegisterApplicationServices(this IServiceCollection services, string connection)
         {
             // DbContext
-/*            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseNpgsql(connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
                 //options.EnableSensitiveDataLogging();
-            });*/
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+            });
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             services.AddTransient<ApplicationDbContext>();
 
