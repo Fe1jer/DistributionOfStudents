@@ -6,8 +6,6 @@ using BLL.DTO.RecruitmentPlans;
 using BLL.DTO.Specialities;
 using BLL.DTO.Students;
 using BLL.DTO.Subjects;
-using BLL.DTO.User;
-using webapi.ViewModels;
 using webapi.ViewModels.Admissions;
 using webapi.ViewModels.Distribution;
 using webapi.ViewModels.Faculties;
@@ -16,7 +14,6 @@ using webapi.ViewModels.GroupsOfSpecialities;
 using webapi.ViewModels.RecruitmentPlans;
 using webapi.ViewModels.Specialities;
 using webapi.ViewModels.Students;
-using webapi.ViewModels.Users;
 
 namespace webapi.Mappers
 {
@@ -24,8 +21,6 @@ namespace webapi.Mappers
     {
         public ViewModelToDtoMappingProfile()
         {
-            CreateMap<UserViewModel, UserDTO>();
-            CreateMap<LoginViewModel, LoginDTO>();
             CreateMap<AdmissionViewModel, AdmissionDTO>();
             CreateMap<FacultyViewModel, FacultyDTO>();
             CreateMap<FormOfEducationViewModel, FormOfEducationDTO>();

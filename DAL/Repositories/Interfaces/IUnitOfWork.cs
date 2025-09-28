@@ -14,7 +14,6 @@ namespace DAL.Repositories.Interfaces
         IRecruitmentPlansStatisticRepository RecruitmentPlansStatistic { get; }
         IStudentsRepository Students { get; }
         ISubjectsRepository Subjects { get; }
-        IUserRepository Users { get; }
         bool Commit();
     }
 }

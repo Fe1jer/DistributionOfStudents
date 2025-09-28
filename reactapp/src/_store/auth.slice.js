@@ -41,7 +41,7 @@ function createReducers() {
 }
 
 function createExtraActions() {
-    const baseUrl = `api/UsersApi`;
+    const baseUrl = `auth/api/UsersApi`;
 
     return {
         login: login()

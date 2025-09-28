@@ -35,7 +35,6 @@ namespace DI
             services.AddTransient<ISpecialitiesService, SpecialitiesService>();
             services.AddTransient<IStatisticService, StatisticService>();
             services.AddTransient<ISubjectsService, SubjectsService>();
-            services.AddTransient<IUserService, UserService>();
 
         }
 

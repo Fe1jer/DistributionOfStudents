@@ -1,15 +1,19 @@
 ﻿const { createProxyMiddleware } = require('http-proxy-middleware');
 
-const context = [
-    "/api",
-    "/img",
-];
+const apiProxy = createProxyMiddleware(["/api", "/img"], {
+    target: 'https://localhost:7113',
+    secure: false
+});
+
+const authProxy = createProxyMiddleware("/auth/api", {
+    target: 'https://localhost:23422',
+    secure: false,
+    pathRewrite: {
+        '^/auth/api': '/api' // Optional: rewrite path if needed
+    }
+});
 
 module.exports = function (app) {
-    const appProxy = createProxyMiddleware(context, {
-        target: 'https://localhost:7113',
-        secure: false
-    });
-
-    app.use(appProxy);
+    app.use(apiProxy);
+    app.use(authProxy);
 };

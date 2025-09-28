@@ -18,7 +18,6 @@ namespace DAL.Repositories
         private IRecruitmentPlansStatisticRepository? _recruitmentPlansStatistic;
         private IStudentsRepository? _students;
         private ISubjectsRepository? _subjects;
-        private IUserRepository? _users;
 
         private bool _disposed;
 
@@ -34,7 +33,6 @@ namespace DAL.Repositories
         public IRecruitmentPlansStatisticRepository RecruitmentPlansStatistic => _recruitmentPlansStatistic ??= new RecruitmentPlansStatisticRepository(_context);
         public IStudentsRepository Students => _students ??= new StudentsRepository(_context);
         public ISubjectsRepository Subjects => _subjects ??= new SubjectsRepository(_context);
-        public IUserRepository Users => _users ??= new UserRepository(_context);
 
         public bool Commit()
         {

@@ -6,7 +6,6 @@ using BLL.DTO.RecruitmentPlans;
 using BLL.DTO.Specialities;
 using BLL.DTO.Students;
 using BLL.DTO.Subjects;
-using BLL.DTO.User;
 using DAL.Postgres.Entities;
 
 namespace BLL.Mappers
@@ -15,7 +14,6 @@ namespace BLL.Mappers
     {
         public DomainToDTOMappingProfile()
         {
-            CreateMap<User, UserDTO>();
             CreateMap<Admission, AdmissionDTO>();
             CreateMap<EnrolledStudent, EnrolledStudentDTO>();
             CreateMap<Faculty, FacultyDTO>();
