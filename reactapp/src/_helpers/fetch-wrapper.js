@@ -1,67 +1,76 @@
 import { store, authActions } from '../_store';
 
 export const fetchWrapper = {
-    get: request('GET'),
-    post: request('POST'),
-    put: request('PUT'),
-    delete: request('DELETE')
+    get,
+    post,
+    put,
+    delete: _delete
 };
 
-function request(method) {
-    return (url, body, contentType = { 'content-type': 'application/json' }) => {
-        const requestOptions = {
-            method,
-            headers: { ...contentType, ...authHeader() },
-        };
-        if (body) {
-            requestOptions.body = body;
-        }
-        return fetch(url, requestOptions)
-            .then((response) => handleResponse(response))
-            .then((response) => response)
-            .catch((error) => {
-                console.error(error);
-                throw Error(error);
-            });;
-    }
-}
-
-// helper functions
-
 function authHeader() {
-    // return auth header with jwt if user is logged in and request is to the api url
-    const token = authToken();
-    const isLoggedIn = !!token;
-    if (isLoggedIn) {
-        return { Authorization: `Bearer ${token}` };
-    } else {
-        return {};
-    }
+    const token = localStorage.getItem('accessToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function authToken() {
-    return store.getState().auth.jwtToken;
+function get(url) {
+    return request(url, { method: 'GET' });
 }
 
-function handleResponse(response) {
-    return response.text().then(text => {
-        const data = text ? JSON.parse(text) : null;
-        if (!response.ok) {
-            console.log(data)
-            if (response.status === 400) {
-                if (data.modelErrors) {
-                    throw Error(JSON.stringify(data.modelErrors));
-                }
-            }
-            else if ([401, 403].includes(response.status) && authToken()) {
-                // auto logout if 401 Unauthorized or 403 Forbidden response returned from api
-                const logout = () => store.dispatch(authActions.logout());
-                logout();
-            }
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
-        }
-
-        return data;
+function post(url, body, contentType = { 'content-type': 'application/json' }) {
+    return request(url, {
+        method: 'POST',
+        headers: { ...contentType },
+        body: body
     });
+}
+
+function put(url, body, contentType = { 'content-type': 'application/json' }) {
+    return request(url, {
+        method: 'PUT',
+        headers: { ...contentType },
+        body: body
+    });
+}
+
+function _delete(url) {
+    return request(url, { method: 'DELETE' });
+}
+
+async function request(url, options) {
+    const headers = {
+        ...options.headers,
+        ...authHeader()
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    if ([401, 403].includes(response.status)) {
+        try {
+            const refreshResult = await store.dispatch(authActions.refresh()).unwrap();
+            const retryHeaders = {
+                ...options.headers,
+                Authorization: `Bearer ${refreshResult.accessToken}`
+            };
+
+            const retryResponse = await fetch(url, { ...options, headers: retryHeaders });
+            return handleResponse(retryResponse);
+        } catch {
+            store.dispatch(authActions.logout());
+            throw new Error('Unauthorized');
+        }
+    }
+
+    return handleResponse(response);
+}
+
+async function handleResponse(response) {
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+        const error = (data && data.message) || response.statusText;
+        return Promise.reject(error);
+    }
+
+    return data;
 }

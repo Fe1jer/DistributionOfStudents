@@ -22,25 +22,6 @@ public class UsersApiController : BaseController
         _service = userService;
     }
 
-    [HttpPost("authenticate")]
-    public async Task<IActionResult> AuthenticateAsync(LoginViewModel model)
-    {
-        try
-        {
-            var dto = Mapper.Map<LoginDTO>(model);
-            var response = await _service.Authenticate(dto);
-
-            if (response == null)
-                return BadRequest(new { message = "Неверные данные пользователя" });
-
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
     [HttpGet]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetAllAsync() => Ok(await _service.GetAllAsync());

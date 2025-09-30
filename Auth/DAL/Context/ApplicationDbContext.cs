@@ -6,10 +6,12 @@ namespace DAL.Context
     public sealed class AuthDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
 
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
         {
             Users = Set<User>();
+            UserTokens = Set<UserToken>();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

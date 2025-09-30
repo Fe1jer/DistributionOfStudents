@@ -10,8 +10,7 @@ namespace DAL.Repositories.Custom
     {
         public UserRepository(AuthDbContext appDBContext) : base(appDBContext) { }
 
-
-        public async Task<User?> GetByUrlAsync(string username)
+        public async Task<User?> GetByUserNameAsync(string username)
         {
             return await EntitySet.SingleOrDefaultAsync(i => i.UserName == username);
         }

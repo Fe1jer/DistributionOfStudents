@@ -1,86 +1,71 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import { login, refresh, logout } from './auth.actions';
+import { history } from '../_helpers';
 
-import { history, fetchWrapper } from '../_helpers';
+const initialState = {
+    user: JSON.parse(localStorage.getItem('user')),
+    accessToken: localStorage.getItem('accessToken'),
+    refreshToken: localStorage.getItem('refreshToken'),
+    error: null
+};
 
-// create slice
+const authSlice = createSlice({
+    name: 'auth',
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        // logout
+        builder.addCase(logout.fulfilled, (state) => {
+            state.user = null;
+            state.accessToken = null;
+            state.refreshToken = null;
+            localStorage.removeItem('user');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            history.navigate('/login');
+        });
+        builder.addCase(logout.rejected, (state, action) => {
+            state.error = action.error;
+            state.user = null;
+            state.accessToken = null;
+            state.refreshToken = null;
+            localStorage.removeItem('user');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            history.navigate('/login');
+        });
 
-const name = 'auth';
-const initialState = createInitialState();
-const reducers = createReducers();
-const extraActions = createExtraActions();
-const extraReducers = createExtraReducers();
-const slice = createSlice({ name, initialState, reducers, extraReducers });
+        // login
+        builder.addCase(login.fulfilled, (state, action) => {
+            const data = action.payload;
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
 
-// exports
+            state.user = data.user;
+            state.accessToken = data.accessToken;
+            state.refreshToken = data.refreshToken;
 
-export const authActions = { ...slice.actions, ...extraActions };
-export const authReducer = slice.reducer;
+            const { from } = history.location.state || { from: { pathname: '/' } };
+            history.navigate(from);
+        });
+        builder.addCase(login.rejected, (state, action) => {
+            state.error = action.error;
+        });
 
-// implementation
+        // refresh
+        builder.addCase(refresh.fulfilled, (state, action) => {
+            const data = action.payload;
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
 
-function createInitialState() {
-    return {
-        // initialize state from local storage to enable user to stay logged in
-        user: JSON.parse(localStorage.getItem('user')),
-        jwtToken: localStorage.getItem('jwtToken'),
-        error: null
+            state.accessToken = data.accessToken;
+            state.refreshToken = data.refreshToken;
+        });
+        builder.addCase(refresh.rejected, (state, action) => {
+            state.error = action.error;
+        });
     }
-}
+});
 
-function createReducers() {
-    return {
-        logout
-    };
-
-    function logout(state) {
-        state.user = null;
-        localStorage.removeItem('user');
-        localStorage.removeItem('jwtToken');
-        history.navigate('/login');
-    }
-}
-
-function createExtraActions() {
-    const baseUrl = `auth/api/UsersApi`;
-
-    return {
-        login: login()
-    };
-
-    function login() {
-        return createAsyncThunk(
-            `${name}/login`,
-            async ({ username, password }) => await fetchWrapper.post(`${baseUrl}/authenticate`, JSON.stringify({ username: username, password, rememberMe: false }))
-        );
-    }
-}
-
-function createExtraReducers() {
-    return {
-        ...login()
-    };
-
-    function login() {
-        var { pending, fulfilled, rejected } = extraActions.login;
-        return {
-            [pending]: (state) => {
-                state.error = null;
-            },
-            [fulfilled]: (state, action) => {
-                const data = action.payload;
-                // store user details and jwt token in local storage to keep user logged in between page refreshes
-                localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('jwtToken', data.jwtToken);
-                state.user = data.user;
-                state.jwtToken = data.jwtToken;
-
-                // get return url from location state or default to home page
-                const { from } = history.location.state || { from: { pathname: '/' } };
-                history.navigate(from);
-            },
-            [rejected]: (state, action) => {
-                state.error = action.error;
-            }
-        };
-    }
-}
+export const authReducer = authSlice.reducer;

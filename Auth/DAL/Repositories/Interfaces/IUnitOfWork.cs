@@ -5,6 +5,9 @@ namespace DAL.Repositories.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IUserRepository Users { get; }
+        IUserTokenRepository UserTokens { get; }
+
         bool Commit();
+        Task<bool> CommitAsync();
     }
 }

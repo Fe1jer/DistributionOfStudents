@@ -26,6 +26,7 @@ namespace webapi.DI
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IUserTokenService, UserTokenService>();
             services.AddTransient<ICryptographyService, CryptographyService>();
             services.AddTransient<IJwtService, JwtService>();
         }

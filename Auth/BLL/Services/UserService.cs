@@ -11,28 +11,15 @@ using System.Collections.Generic;
 public class UserService : BaseService, IUserService
 {
     private readonly ICryptographyService _cryptographyService;
-    private readonly IJwtService _jwtService;
 
-    public UserService(IUnitOfWork unitOfWork, ICryptographyService cryptographyService, IJwtService jwtService) : base(unitOfWork)
+    public UserService(IUnitOfWork unitOfWork, ICryptographyService cryptographyService) : base(unitOfWork)
     {
-        _cryptographyService = cryptographyService;
-        _jwtService = jwtService;
-    }
-
-    public async Task<object?> Authenticate(LoginDTO model)
-    {
-        User? _user = await _unitOfWork.Users.GetByUrlAsync(model.Username);
-        if (_user == null)
-            return null;
-        if (!_cryptographyService.VerifyHashedPassword(_user.PasswordHash, model.Password))
-            return null;
-
-        return new { jwtToken = _jwtService.GenerateJwtToken(_user), user = _user };
+        _cryptographyService = cryptographyService; 
     }
 
     public async Task<UserDTO?> Registration(RegisterDTO model)
     {
-        if (await _unitOfWork.Users.GetByUrlAsync(model.UserName) != null) return null;
+        if (await _unitOfWork.Users.GetByUserNameAsync(model.UserName) != null) return null;
 
         User entity = Mapper.Map<User>(model);
         entity.PasswordHash = _cryptographyService.GetHashPassword(model.Password);
@@ -62,7 +49,7 @@ public class UserService : BaseService, IUserService
 
     public async Task<UserDTO> GetAsync(string userName)
     {
-        var entity = await _unitOfWork.Users.GetByUrlAsync(userName);
+        var entity = await _unitOfWork.Users.GetByUserNameAsync(userName);
         return Mapper.Map<UserDTO>(entity);
     }
 
@@ -78,7 +65,7 @@ public class UserService : BaseService, IUserService
         User? entity;
         if (model.IsNew)
         {
-            if (await _unitOfWork.Users.GetByUrlAsync(model.UserName) != null) return null;
+            if (await _unitOfWork.Users.GetByUserNameAsync(model.UserName) != null) return null;
             entity = Mapper.Map<User>(model);
             entity.Role = "commission";
         }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Helpers;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace Shared.Extensions
 {
@@ -15,8 +15,13 @@ namespace Shared.Extensions
             services.Configure<AccessTokenSettings>(jwtSettingsConfiguration);
             var jwtSettings = jwtSettingsConfiguration.Get<AccessTokenSettings>();
 
-            var publicKey = Encoding.UTF8.GetBytes(jwtSettings.PublicKey);
-            var symmetricKey = new SymmetricSecurityKey(publicKey);
+            RSA rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(
+                source: Convert.FromBase64String(jwtSettings.PublicKey),
+                bytesRead: out int _
+            );
+
+            var rsaKey = new RsaSecurityKey(rsa);
 
             services.AddAuthentication(options =>
             {
@@ -27,13 +32,15 @@ namespace Shared.Extensions
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
+                    RequireSignedTokens = true,
+                    RequireExpirationTime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = symmetricKey,
+                    IssuerSigningKey = rsaKey,
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
             });

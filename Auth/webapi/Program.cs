@@ -1,7 +1,10 @@
+using Auth_Shared.Helpers;
+using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Web;
 using Shared.Extensions;
 using Shared.Helpers;
+using System.Security.Cryptography;
 using webapi.DI;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -48,8 +51,18 @@ namespace webapi
             builder.Services.AddCors();
 
             // configure strongly typed settings object
-            var accessTokenSettings = builder.Configuration.GetSection("AccessTokenSettings")!;
+            var jwtSettingsConfiguration = builder.Configuration.GetSection("JwtSettings")!;
+            builder.Services.Configure<JwtSettings>(jwtSettingsConfiguration);
+            var jwtSettings = jwtSettingsConfiguration.Get<JwtSettings>();
+            var accessTokenSettings = jwtSettingsConfiguration.GetSection("AccessTokenSettings")!;
             builder.Services.AddJwtAuthentication(accessTokenSettings);
+
+            builder.Services.AddSingleton(provider =>
+            {
+                var rsa = RSA.Create();
+                rsa.ImportRSAPrivateKey(source: Convert.FromBase64String(jwtSettings.AccessTokenSettings.PrivateKey), bytesRead: out int _);
+                return new RsaSecurityKey(rsa);
+            });
 
             // NLog: Setup NLog for Dependency injection
             builder.Logging.ClearProviders();

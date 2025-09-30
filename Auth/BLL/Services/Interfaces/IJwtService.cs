@@ -4,6 +4,8 @@ namespace BLL.Services.Interfaces
 {
     public interface IJwtService
     {
-        public string GenerateJwtToken(User user);
+        public Task<string> GenerateAccessTokenAsync(User user);
+        public Task<string> GenerateRefreshTokenAsync();
+        public Task<int> GetRefreshTokenLifetimeInDays();
     }
 }

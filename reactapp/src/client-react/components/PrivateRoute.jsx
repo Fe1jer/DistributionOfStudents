@@ -5,7 +5,7 @@ import { authActions } from '../../_store';
 import { history } from '../../_helpers';
 
 export default function PrivateRoute({ children }) {
-    const { user: authUser, jwtToken: token } = useSelector(x => x.auth);
+    const { user: authUser, accessToken: token } = useSelector(x => x.auth);
     const dispatch = useDispatch();
     const logout = () => dispatch(authActions.logout());
 

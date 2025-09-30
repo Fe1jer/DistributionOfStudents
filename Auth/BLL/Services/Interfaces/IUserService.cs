@@ -9,7 +9,6 @@ namespace BLL.Services.Interfaces
         Task<UserDTO> GetAsync(string userName);
         Task DeleteAsync(Guid id);
         Task<UserDTO?> SaveAsync(UserDTO model);
-        Task<object?> Authenticate(LoginDTO model);
         Task<UserDTO?> Registration(RegisterDTO model);
     }
 }

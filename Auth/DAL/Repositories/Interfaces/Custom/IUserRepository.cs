@@ -5,6 +5,6 @@ namespace DAL.Repositories.Interfaces.Custom
 {
     public interface IUserRepository : IRepository<User>
     {
-        Task<User?> GetByUrlAsync(string username);
+        Task<User?> GetByUserNameAsync(string username);
     }
 }
