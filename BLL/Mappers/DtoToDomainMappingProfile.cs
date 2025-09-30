@@ -6,9 +6,7 @@ using BLL.DTO.RecruitmentPlans;
 using BLL.DTO.Specialities;
 using BLL.DTO.Students;
 using BLL.DTO.Subjects;
-using BLL.DTO.User;
 using DAL.Postgres.Entities;
-using System.Globalization;
 
 namespace BLL.Mappers
 {
@@ -19,9 +17,6 @@ namespace BLL.Mappers
             CreateMap<DateTime, DateTime>().ConvertUsing((src, dest) =>
                 src.ToUniversalTime());
 
-            CreateMap<UserDTO, User>()
-                .ForMember(p => p.PasswordHash, opts => opts.Ignore());
-            CreateMap<RegisterDTO, User>();
             CreateMap<AdmissionDTO, Admission>()
                 .ForMember(p => p.SpecialityPriorities, opts => opts.MapFrom(p => p.SpecialityPriorities.Where(p => p.Priority > 0)));
             CreateMap<Admission, StudentItemDTO>()

@@ -1,7 +1,7 @@
 import { fetchWrapper } from "../../_helpers/fetch-wrapper";
 
 const config = {
-    api: '/api/UsersApi/',
+    api: 'auth/api/UsersApi/',
 };
 
 const httpGet = () => {
