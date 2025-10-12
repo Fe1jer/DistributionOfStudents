@@ -1,5 +1,6 @@
 ﻿using DAL.Postgres.DBInitialization.Interface;
 using DAL.Postgres.Entities;
+using FilesManager;
 
 namespace DAL.Postgres.DBInitialization
 {
@@ -11,7 +12,7 @@ namespace DAL.Postgres.DBInitialization
 
             Faculty mtf = new()
             {
-                Img = "\\img\\Faculties\\Default.jpg",
+                Img = ManagerConstants.CombinePath(ManagerConstants.SUB_DIR, "Faculties", "Default.jpg"),
                 FullName = "Механико-технологический факультет",
                 ShortName = "МТФ",
                 Specialities = specialties

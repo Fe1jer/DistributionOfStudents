@@ -8,18 +8,16 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NLog" Version="6.0.5" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="6.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Enums\" />
+	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+	  <ProjectReference Include="..\FilesManager\FilesManager.csproj" />
 	</ItemGroup>
 
 </Project>

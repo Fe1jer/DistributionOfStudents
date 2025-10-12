@@ -16,7 +16,7 @@ export default function ModalWindowCreate({ show, handleClose, onLoadFaculties }
         id: "00000000-0000-0000-0000-000000000000",
         fullName: "",
         shortName: "",
-        img: "\\img\\Faculties\\Default.jpg"
+        img: "img/Faculties/Default.jpg"
     }
     const [modelErrors, setModelErrors] = useState(null);
 

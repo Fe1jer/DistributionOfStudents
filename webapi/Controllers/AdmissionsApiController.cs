@@ -43,7 +43,7 @@ namespace webapi.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize(Roles = "commission")]
-        public async Task<IActionResult> PutAdmission(Guid id, AdmissionViewModel model, ILogger _logger)
+        public async Task<IActionResult> PutAdmission(Guid id, AdmissionViewModel model)
         {
             try
             {

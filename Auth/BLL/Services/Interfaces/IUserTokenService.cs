@@ -1,10 +1,11 @@
-﻿using BLL.DTO.User;
+﻿using BLL.DTO;
+using BLL.DTO.User;
 
 namespace BLL.Services.Interfaces
 {
     public interface IUserTokenService
     {
-        Task<object?> AuthenticateAsync(LoginDTO model, string? deviceInfo = null, string? ipAddress = null);
+        Task<object?> AuthenticateAsync(LoginDTO model, RequestContextDTO? context = null);
         Task<object> RefreshAsync(string refreshToken);
         Task<object?> SignOutAsync(string refreshToken);
     }
