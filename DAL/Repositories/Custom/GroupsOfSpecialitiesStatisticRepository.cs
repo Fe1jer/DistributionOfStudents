@@ -1,17 +1,12 @@
 ﻿using DAL.Context;
 using DAL.Entities;
-using DAL.Context;
 using DAL.Repositories.Base;
 using DAL.Repositories.Interfaces.Custom;
 
 namespace DAL.Repositories.Custom
 {
-    public class GroupsOfSpecialitiesStatisticRepository : Repository<GroupOfSpecialitiesStatistic>, IGroupsOfSpecialitiesStatisticRepository
+    public class GroupsOfSpecialitiesStatisticRepository(ApplicationDbContext appDBContext) : Repository<GroupOfSpecialitiesStatistic>(appDBContext), IGroupsOfSpecialitiesStatisticRepository
     {
-        public GroupsOfSpecialitiesStatisticRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task DeleteAsync(Guid id)
         {
             GroupOfSpecialitiesStatistic? statistic = await GetByIdAsync(id);
@@ -23,7 +18,7 @@ namespace DAL.Repositories.Custom
 
         public async Task<List<GroupOfSpecialitiesStatistic>> GetAllAsync(Guid groupId)
         {
-            return (await GetAllAsync()).Where(i => i.GroupOfSpecialtiesId == groupId).OrderBy(i => i.Date).ToList();
+            return [.. (await GetAllAsync()).Where(i => i.GroupOfSpecialtiesId == groupId).OrderBy(i => i.Date)];
         }
 
         public async Task<GroupOfSpecialitiesStatistic?> GetByGroupAndDateAsync(Guid groupId, DateTime date)

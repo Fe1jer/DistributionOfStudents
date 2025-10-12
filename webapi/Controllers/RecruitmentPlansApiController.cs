@@ -5,20 +5,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using webapi.ViewModels.RecruitmentPlans;
 
-namespace webapi.Controllers.Api
+namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RecruitmentPlansApiController : BaseController
+    public class RecruitmentPlansApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<RecruitmentPlansApiController> logger, IRecruitmentPlansService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<RecruitmentPlansApiController> _logger;
-        private readonly IRecruitmentPlansService _service;
-
-        public RecruitmentPlansApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<RecruitmentPlansApiController> logger, IRecruitmentPlansService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<RecruitmentPlansApiController> _logger = logger;
+        private readonly IRecruitmentPlansService _service = service;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DetailsFacultyPlansViewModel>>> GetFacultiesPlans()
@@ -56,7 +50,7 @@ namespace webapi.Controllers.Api
             if (!group.IsCompleted)
             {
                 var distribution = await distributionService.GetAsync(facultyUrl, groupId);
-                plans = distribution.Keys.ToList();
+                plans = [.. distribution.Keys];
             }
 
             return Mapper.Map<List<RecruitmentPlanItemViewModel>>(plans);

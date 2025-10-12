@@ -5,10 +5,7 @@ using DAL.Postgres.Repositories.Interfaces.Custom;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class SubjectsRepository : Repository<Subject>, ISubjectsRepository
+    public class SubjectsRepository(ApplicationDbContext appDBContext) : Repository<Subject>(appDBContext), ISubjectsRepository
     {
-        public SubjectsRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
     }
 }

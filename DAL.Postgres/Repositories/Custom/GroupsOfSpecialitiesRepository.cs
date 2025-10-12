@@ -6,12 +6,8 @@ using DAL.Postgres.Specifications;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class GroupsOfSpecialitiesRepository : Repository<GroupOfSpecialities>, IGroupsOfSpecialitiesRepository
+    public class GroupsOfSpecialitiesRepository(ApplicationDbContext appDBContext) : Repository<GroupOfSpecialities>(appDBContext), IGroupsOfSpecialitiesRepository
     {
-        public GroupsOfSpecialitiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public Task<List<GroupOfSpecialities>> GetByFacultyAsync(string facultyUrl, int year)
         {
             return GetAllAsync(new GroupsOfSpecialitiesSpecification().WhereFaculty(facultyUrl).WhereYear(year));

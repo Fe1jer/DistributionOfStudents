@@ -6,12 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class StudentsRepository : Repository<Student>, IStudentsRepository
+    public class StudentsRepository(ApplicationDbContext appDBContext) : Repository<Student>(appDBContext), IStudentsRepository
     {
-        public StudentsRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task<Student?> GetByFullNameAsync(string name, string surname, string patronymic)
         {
             return await EntitySet.FirstOrDefaultAsync(i => i.Name.ToLower() == name.ToLower()
@@ -24,10 +20,10 @@ namespace DAL.Postgres.Repositories.Custom
             var students = await GetAllAsync();
             if (searchText != null)
             {
-                List<string> searchWords = searchText.Split(" ").ToList();
+                List<string> searchWords = [.. searchText.Split(" ")];
                 foreach (string word in searchWords)
                 {
-                    students = students.Where(st => string.Join(" ", st.Name, st.Surname, st.Patronymic).Contains(word, StringComparison.OrdinalIgnoreCase)).ToList();
+                    students = [.. students.Where(st => string.Join(" ", st.Name, st.Surname, st.Patronymic).Contains(word, StringComparison.OrdinalIgnoreCase))];
                 }
             }
 

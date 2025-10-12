@@ -1,18 +1,13 @@
 ﻿using DAL.Context;
 using DAL.Entities;
-using DAL.Context;
-using DAL.Specifications;
 using DAL.Repositories.Base;
 using DAL.Repositories.Interfaces.Custom;
+using DAL.Specifications;
 
 namespace DAL.Repositories.Custom
 {
-    public class GroupsOfSpecialitiesRepository : Repository<GroupOfSpecialities>, IGroupsOfSpecialitiesRepository
+    public class GroupsOfSpecialitiesRepository(ApplicationDbContext appDBContext) : Repository<GroupOfSpecialities>(appDBContext), IGroupsOfSpecialitiesRepository
     {
-        public GroupsOfSpecialitiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public Task<List<GroupOfSpecialities>> GetByFacultyAsync(string facultyUrl, int year)
         {
             return GetAllAsync(new GroupsOfSpecialitiesSpecification().WhereFaculty(facultyUrl).WhereYear(year));

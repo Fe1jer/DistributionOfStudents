@@ -2,6 +2,7 @@
 using BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using webapi.Providers;
 using webapi.ViewModels;
 
 namespace webapi.Controllers
@@ -9,14 +10,10 @@ namespace webapi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class UserTokensApiController : BaseController
+    public class UserTokensApiController(IHttpContextAccessor accessor, LinkGenerator generator, IUserTokenService userService, RequestContextProvider contextProvider) : BaseController(accessor, generator)
     {
-        private readonly IUserTokenService _service;
-
-        public UserTokensApiController(IHttpContextAccessor accessor, LinkGenerator generator, IUserTokenService userService) : base(accessor, generator)
-        {
-            _service = userService;
-        }
+        private readonly IUserTokenService _service = userService;
+        private readonly RequestContextProvider _contextProvider = contextProvider;
 
         [AllowAnonymous]
         [HttpPost]
@@ -24,7 +21,8 @@ namespace webapi.Controllers
         public async Task<IActionResult> AuthenticateAsync(LoginViewModel request)
         {
             var dto = Mapper.Map<LoginDTO>(request);
-            var response = await _service.AuthenticateAsync(dto);
+            var context = _contextProvider.GetRequestContext();
+            var response = await _service.AuthenticateAsync(dto, context);
 
             if (response == null)
                 return BadRequest(new { message = "Неверные данные пользователя" });
@@ -45,7 +43,7 @@ namespace webapi.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("sign-out")]
-        public async Task<IActionResult> SignOut(string refreshToken)
+        public async Task<IActionResult> SignOutAsync(string refreshToken)
         {
             var result = await _service.SignOutAsync(refreshToken);
 

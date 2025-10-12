@@ -7,17 +7,14 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class SubjectsService : BaseService, ISubjectsService
+    public class SubjectsService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), ISubjectsService
     {
-        public SubjectsService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<List<SubjectDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.Subjects.GetAllAsync();
             return Mapper.Map<List<SubjectDTO>>(result);
         }
+
         public async Task<List<SubjectDTO>> GetByGroupAsync(Guid groupId)
         {
             var result = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification().IncludeSubjects());

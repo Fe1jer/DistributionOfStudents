@@ -3,15 +3,13 @@ using BLL.Services.Base;
 using BLL.Services.Interfaces;
 using DAL.Postgres.Entities;
 using DAL.Postgres.Repositories.Interfaces;
+using FilesManager;
+using System.Reflection.Metadata;
 
 namespace BLL.Services
 {
-    public class FacultiesService : BaseService, IFacultiesService
+    public class FacultiesService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IFacultiesService
     {
-        public FacultiesService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<List<FacultyDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.Faculties.GetAllAsync();
@@ -57,13 +55,13 @@ namespace BLL.Services
 
             if (model.FileImg != null)
             {
-                string path = "\\img\\Faculties\\";
-                path += model.Img != null ? model.ShortName.Replace(" ", "_") + "\\" : "Default.jpg";
-                if (entity.Img != "\\img\\Faculties\\Default.jpg")
+                string lastPath = model.Img != null ? model.ShortName.Replace(" ", "_") : "Default.jpg";
+                var a = ManagerConstants.CombinePath(ManagerConstants.SUB_DIR, "Faculties", "Default.jpg");
+                if (entity.Img != ManagerConstants.CombinePath(ManagerConstants.SUB_DIR, "Faculties", "Default.jpg"))
                 {
-                    IFileService.DeleteWithPreviewsFile(entity.Img);
+                    FilesHelper.DeleteFile(entity.Img);
                 }
-                entity.Img = IFileService.UploadWithPreviewsFile(model.FileImg, path + model.FileImg.FileName);
+                entity.Img = FilesHelper.UploadFile(model.FileImg, ManagerConstants.CombinePath("Faculties", lastPath, model.FileImg.FileName));
             }
 
             await _unitOfWork.Faculties.InsertOrUpdateAsync(entity);

@@ -7,12 +7,8 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class SpecialitiesService : BaseService, ISpecialitiesService
+    public class SpecialitiesService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), ISpecialitiesService
     {
-        public SpecialitiesService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<List<SpecialityDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.Specialities.GetAllAsync();

@@ -2,14 +2,9 @@
 
 namespace Shared.Helpers
 {
-    public class PathHelper
+    public class PathHelper(IWebHostEnvironment env)
     {
-        private IWebHostEnvironment _env;
-
-        public PathHelper(IWebHostEnvironment env)
-        {
-            _env = env;
-        }
+        private readonly IWebHostEnvironment _env = env;
 
         public static string GetFullPathNormalized(string path)
         {

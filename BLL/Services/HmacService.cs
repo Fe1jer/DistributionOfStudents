@@ -4,7 +4,7 @@ namespace BLL.Services
 {
     public class HmacService
     {
-        private static readonly byte[] _privateKey = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
+        private static readonly byte[] _privateKey = [0xDE, 0xAD, 0xBE, 0xEF];
         private static readonly TimeSpan _passwordResetExpiry = TimeSpan.FromMinutes(5);
         private const byte _version = 1; // Increment this whenever the structure of the message changes.
 
@@ -19,7 +19,7 @@ namespace BLL.Services
             using HMACSHA256 hmacSha256 = new(key: _privateKey);
             byte[] hash = hmacSha256.ComputeHash(buffer: message, offset: 0, count: message.Length);
 
-            byte[] outputMessage = message.Concat(hash).ToArray();
+            byte[] outputMessage = [.. message, .. hash];
             string outputCodeB64 = Convert.ToBase64String(outputMessage);
             string outputCode = outputCodeB64.Replace('+', '-').Replace('/', '_');
             return outputCode;
@@ -60,7 +60,7 @@ namespace BLL.Services
             using HMACSHA256 hmacSha256 = new(key: _privateKey);
             byte[] hash = hmacSha256.ComputeHash(message, offset: 0, count: _messageLength);
 
-            byte[] messageHash = message.Skip(_messageLength).ToArray();
+            byte[] messageHash = [.. message.Skip(_messageLength)];
             return hash.SequenceEqual(messageHash);
         }
     }

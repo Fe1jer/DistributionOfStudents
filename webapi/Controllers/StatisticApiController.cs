@@ -2,20 +2,14 @@
 using ChartJSCore.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace webapi.Controllers.Api
+namespace webapi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StatisticApiController : BaseController
+    public class StatisticApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<StatisticApiController> logger, IStatisticService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<StatisticApiController> _logger;
-        private readonly IStatisticService _service;
-
-        public StatisticApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<StatisticApiController> logger, IStatisticService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<StatisticApiController> _logger = logger;
+        private readonly IStatisticService _service = service;
 
         [HttpGet("PlansStatisticChart")]
         public async Task<ActionResult<string>> GetPlansStatistic(string facultyUrl, Guid groupId)

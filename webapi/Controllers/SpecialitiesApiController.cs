@@ -4,20 +4,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using webapi.ViewModels.Specialities;
 
-namespace webapi.Controllers.Api
+namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SpecialitiesApiController : BaseController
+    public class SpecialitiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<SpecialitiesApiController> logger, ISpecialitiesService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<SpecialitiesApiController> _logger;
-        private readonly ISpecialitiesService _service;
-
-        public SpecialitiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<SpecialitiesApiController> logger, ISpecialitiesService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<SpecialitiesApiController> _logger = logger;
+        private readonly ISpecialitiesService _service = service;
 
         [HttpGet("FacultySpecialities/{facultyUrl}")]
         public async Task<ActionResult<IEnumerable<SpecialityViewModel>>> GetFacultySpecialities(string facultyUrl)

@@ -9,63 +9,74 @@ namespace webapi
 {
     public class Program
     {
-        public static Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //MSSQL подключение
-            /*string connection = builder.Configuration.GetConnectionString("MssqlConnection");
-            builder.Services.RegisterApplicationServices(connection);*/
-
+            // Выбор подключения к БД
             string connection = builder.Configuration.GetConnectionString("NpgsqlConnection")!;
             Logger.Info(connection);
             builder.Services.RegisterApplicationServices(connection);
 
-            SetBuilderServices(builder);
+            ConfigureServices(builder);
 
             var app = builder.Build();
-            SetApps(app);
+            ConfigurePipeline(app);
 
             builder.Services.InitDatabase();
 
             app.Run();
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public static void SetBuilderServices(WebApplicationBuilder builder)
+        // Регистрация сервисов
+        public static void ConfigureServices(WebApplicationBuilder builder)
         {
-            builder.Services.AddCors();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddSwaggerGen();
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
             builder.Services.AddMemoryCache();
-            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            builder.Services.AddCors();
 
-            // configure strongly typed settings object
+            // CORS — именованная политика
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddSingleton<LinkGeneratorHelper>();
+
+            // JWT
             var accessTokenSettings = builder.Configuration.GetSection("AccessTokenSettings")!;
             builder.Services.AddJwtAuthentication(accessTokenSettings);
 
-            // NLog: Setup NLog for Dependency injection
+            // NLog
             builder.Logging.ClearProviders();
             builder.Logging.SetMinimumLevel(LogLevel.Debug);
             builder.Host.UseNLog();
-
-            builder.Services.AddSingleton<LinkGeneratorHelper>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void SetApps(WebApplication app)
+        // Конфигурация middleware и пайплайна
+        public static void ConfigurePipeline(WebApplication app)
         {
-            // Configure the HTTP request pipeline.
+            app.UseExceptionHandler();
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseRouting();
+            app.UseCors("AllowAll");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             if (app.Environment.IsDevelopment())
             {
-
                 app.UseSwagger();
                 app.UseSwaggerUI();
                 app.UseMigrationsEndPoint();
@@ -77,25 +88,7 @@ namespace webapi
                 app.UseHsts();
             }
 
-            app.UseExceptionHandler();
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-            app.UseHttpsRedirection();
-
-            // configure HTTP request pipeline
-            {
-                // global cors policy
-                app.UseCors(x => x
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-            }
+            app.MapControllers();
         }
     }
 }

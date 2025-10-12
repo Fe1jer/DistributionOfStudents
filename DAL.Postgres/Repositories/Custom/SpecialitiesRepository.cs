@@ -8,12 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class SpecialitiesRepository : Repository<Speciality>, ISpecialitiesRepository
+    public class SpecialitiesRepository(ApplicationDbContext appDBContext) : Repository<Speciality>(appDBContext), ISpecialitiesRepository
     {
-        public SpecialitiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task<int> GetCountByUrlAsync(string url, Guid excludeId)
         {
             return await EntitySet.CountAsync(p => p.FullName == url && p.Id != excludeId);

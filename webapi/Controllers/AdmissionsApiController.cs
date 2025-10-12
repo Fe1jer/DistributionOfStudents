@@ -9,16 +9,10 @@ namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdmissionsApiController : BaseController
+    public class AdmissionsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<AdmissionsApiController> logger, IAdmissionsService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<AdmissionsApiController> _logger;
-        private readonly IAdmissionsService _service;
-
-        public AdmissionsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<AdmissionsApiController> logger, IAdmissionsService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<AdmissionsApiController> _logger = logger;
+        private readonly IAdmissionsService _service = service;
 
         // GET: api/AdmissionsApi
         [HttpGet]
@@ -63,9 +57,9 @@ namespace webapi.Controllers
                     return Ok();
                 }
             }
-            catch(Exception ex)
+            catch (Exception e)
             {
-                _logger.LogError("Произошла ошибка при изменении заявки аббитуриента - {Surname} {Name} {Patronymic}", model.Student.Surname, model.Student.Name, model.Student.Patronymic);
+                _logger.LogError(e, "Произошла ошибка при изменении заявки аббитуриента - {Surname} {Name} {Patronymic}", model.Student.Surname, model.Student.Name, model.Student.Patronymic);
             }
 
             return BadRequest(ModelState);

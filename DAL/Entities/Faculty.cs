@@ -6,7 +6,7 @@ namespace DAL.Entities
     {
         public string FullName { get; set; } = string.Empty;
         public string ShortName { get; set; } = string.Empty;
-        public string Img { get; set; } = "\\img\\Faculties\\Default.jpg";
+        public string Img { get; set; } = null!;
         public List<Speciality>? Specialities { get; set; }
     }
 }

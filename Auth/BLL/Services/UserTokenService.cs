@@ -7,21 +7,12 @@ using DAL.Repositories.Interfaces;
 
 namespace BLL.Services
 {
-    public class UserTokenService : BaseService, IUserTokenService
+    public class UserTokenService(IUnitOfWork unitOfWork, ICryptographyService cryptographyService, IJwtService jwtService) : BaseService(unitOfWork), IUserTokenService
     {
-        private readonly IJwtService _jwtService;
-        private readonly ICryptographyService _cryptographyService;
+        private readonly IJwtService _jwtService = jwtService;
+        private readonly ICryptographyService _cryptographyService = cryptographyService;
 
-        public UserTokenService(
-            IUnitOfWork unitOfWork,
-            ICryptographyService cryptographyService,
-            IJwtService jwtService) : base(unitOfWork)
-        {
-            _jwtService = jwtService;
-            _cryptographyService = cryptographyService;
-        }
-
-        public async Task<object?> AuthenticateAsync(LoginDTO model, string? deviceInfo = null, string? ipAddress = null)
+        public async Task<object?> AuthenticateAsync(LoginDTO model, RequestContextDTO? context = null)
         {
             var user = await _unitOfWork.Users.GetByUserNameAsync(model.Username);
             if (user == null) return null;
@@ -36,8 +27,8 @@ namespace BLL.Services
                 UserId = user.Id,
                 CreatedAt = DateTime.UtcNow,
                 LastUsedAt = DateTime.UtcNow,
-                DeviceInfo = deviceInfo,
-                IpAddress = ipAddress
+                DeviceInfo = context?.DeviceInfo,
+                IpAddress = context?.IpAddress
             };
 
             await _unitOfWork.UserTokens.InsertOrUpdateAsync(token);

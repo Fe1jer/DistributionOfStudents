@@ -12,17 +12,13 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class ArchiveService : BaseService, IArchiveService
+    public class ArchiveService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IArchiveService
     {
-        public ArchiveService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<List<int>> GetYears()
         {
             int maxYear = DateTime.Now.Year - 1;
             List<GroupOfSpecialities> groups = await _unitOfWork.GroupsOfSpecialities.GetAllAsync(new GroupsOfSpecialitiesSpecification(i => i.FormOfEducation.Year <= maxYear).WhereCompleted());
-            List<int> allYears = groups.Select(i => i.FormOfEducation.Year).Distinct().OrderBy(i => i).ToList();
+            List<int> allYears = [.. groups.Select(i => i.FormOfEducation.Year).Distinct().OrderBy(i => i)];
 
             return allYears;
         }
@@ -30,7 +26,7 @@ namespace BLL.Services
         public async Task<List<string>> GetForms(int year)
         {
             List<GroupOfSpecialities> groups = await _unitOfWork.GroupsOfSpecialities.GetAllAsync(new GroupsOfSpecialitiesSpecification().WhereCompleted().WhereYear(year));
-            return groups.Select(i => i.Name).Distinct().ToList();
+            return [.. groups.Select(i => i.Name).Distinct()];
         }
 
         public async Task<List<ArchiveFacultyDTO>> GetFacultiesArchive(int year, string form)
@@ -39,7 +35,7 @@ namespace BLL.Services
 
             foreach (ArchiveFacultyDTO faculty in models)
             {
-                List<ArchiveGroupOfSpecialitiesDTO> archiveGroups = new();
+                List<ArchiveGroupOfSpecialitiesDTO> archiveGroups = [];
                 List<GroupOfSpecialities> groups = await _unitOfWork.GroupsOfSpecialities.GetAllAsync(new GroupsOfSpecialitiesSpecification(i => i.Name == form)
                     .WhereFaculty(faculty.ShortName).WhereYear(year).WhereCompleted().IncludeAdmissions());
 
@@ -53,7 +49,7 @@ namespace BLL.Services
 
                     ArchiveGroupOfSpecialitiesDTO archiveGroup = Mapper.Map<ArchiveGroupOfSpecialitiesDTO>(group);
                     archiveGroup.Competition = planDtos.Distribution(addmissionDtos).Competition(addmissionDtos);
-                    archiveGroup.SpetialityPlans = Mapper.Map<List<ArchiveSpecialityPlanDTO>>(plans).OrderBy(i => i.Code).ToList();
+                    archiveGroup.SpetialityPlans = [.. Mapper.Map<List<ArchiveSpecialityPlanDTO>>(plans).OrderBy(i => i.Code)];
 
                     archiveGroups.Add(archiveGroup);
                 }

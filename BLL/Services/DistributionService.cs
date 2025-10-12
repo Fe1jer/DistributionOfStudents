@@ -11,12 +11,8 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class DistributionService : BaseService, IDistributionService
+    public class DistributionService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IDistributionService
     {
-        public DistributionService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<Dictionary<RecruitmentPlanDTO, List<AdmissionDTO>>> GetAsync(string facultyUrl, Guid groupId)
         {
             var distribution = await GetDistribution(facultyUrl, groupId);
@@ -110,7 +106,7 @@ namespace BLL.Services
                 RecruitmentPlan? plan = await _unitOfWork.RecruitmentPlans.GetByIdAsync(distributedPlan.Id, new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group));
                 if (plan is not null)
                 {
-                    plan.EnrolledStudents = new();
+                    plan.EnrolledStudents = [];
                     plan.PassingScore = distributedPlan.PassingScore;
                     foreach (IsDistributedStudentDTO distributedStudent in distributedPlan.DistributedStudents.Where(i => i.IsDistributed))
                     {
@@ -120,7 +116,7 @@ namespace BLL.Services
                             plan.EnrolledStudents.Add(new EnrolledStudent() { Student = student });
                         }
                     }
-                    plans = plans.Select(i => i.Id != plan.Id ? i : plan).ToList();
+                    plans = [.. plans.Select(i => i.Id != plan.Id ? i : plan)];
                 }
             }
 

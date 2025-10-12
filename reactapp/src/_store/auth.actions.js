@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWrapper } from '../_helpers';
 
 const config = {
-    api: '/auth/api/UserTokensApi/',
+    api: '/auth/api/UserTokensApi',
 };
 
 // logout
@@ -10,7 +10,7 @@ export const logout = createAsyncThunk(
     'auth/logout',
     async (_, { getState }) => {
         const refreshToken = getState().auth.refreshToken; // берём из state
-        return await fetchWrapper.post(`${config.api}sign-out`, JSON.stringify(refreshToken))
+        return await fetchWrapper.post(`${config.api}/sign-out`, JSON.stringify(refreshToken))
     }
 );
 

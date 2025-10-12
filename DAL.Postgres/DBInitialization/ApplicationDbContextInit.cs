@@ -42,12 +42,12 @@ namespace DAL.Postgres.DBInitialization
 
         private static void CreateFacultiesWithSpecialties(ApplicationDbContext context)
         {
-            List<Faculty> faculties = new();
-            List<IFacultyInit> facultiesInit = new()
-            {
+            List<Faculty> faculties = [];
+            List<IFacultyInit> facultiesInit =
+            [
                 new ATFInit(), new FGDEInit(),new MSFInit(), new MTFInit(), new FMMP(), new EFInit(), new FITRInit(),
 
-            };
+            ];
             foreach (var facultyInit in facultiesInit)
             {
                 Faculty faculty = facultyInit.GetFaculty();
@@ -59,13 +59,13 @@ namespace DAL.Postgres.DBInitialization
                 if (faculty.Specialities != null && faculty.Specialities.Count != 0)
                 {
                     FormOfEducation form = context.FormsOfEducation.First();
-                    List<RecruitmentPlan> plans = facultyInit.GetRecruitmentPlans(faculty.Specialities.Take(3).ToList(), form);
+                    List<RecruitmentPlan> plans = facultyInit.GetRecruitmentPlans([.. faculty.Specialities.Take(3)], form);
                     if (plans.Count != 0)
                     {
                         context.RecruitmentPlans.AddRange(plans);
                         context.SaveChanges();
                     }
-                    List<GroupOfSpecialities> groups = facultyInit.GetGroupsOfSpecialties(faculty.Specialities.Take(3).ToList(), context.Subjects.Take(3).ToList(), form);
+                    List<GroupOfSpecialities> groups = facultyInit.GetGroupsOfSpecialties([.. faculty.Specialities.Take(3)], [.. context.Subjects.Take(3)], form);
                     if (groups.Count != 0)
                     {
                         context.GroupsOfSpecialties.AddRange(groups);

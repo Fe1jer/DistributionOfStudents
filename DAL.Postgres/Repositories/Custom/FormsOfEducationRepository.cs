@@ -6,12 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class FormsOfEducationRepository : Repository<FormOfEducation>, IFormsOfEducationRepository
+    public class FormsOfEducationRepository(ApplicationDbContext appDBContext) : Repository<FormOfEducation>(appDBContext), IFormsOfEducationRepository
     {
-        public FormsOfEducationRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task<FormOfEducation?> GetByFormAsync(FormOfEducation form)
         {
             return await EntitySet.SingleOrDefaultAsync(p => p.Year == form.Year && p.IsDailyForm == form.IsDailyForm

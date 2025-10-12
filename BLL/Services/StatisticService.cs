@@ -10,17 +10,13 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class StatisticService : BaseService, IStatisticService
+    public class StatisticService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IStatisticService
     {
-        public StatisticService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<Chart> GetGroupStatisticAsync(Guid groupId)
         {
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId);
-            List<Dataset> Datasets = new();
-            List<double?> data = new();
+            List<Dataset> Datasets = [];
+            List<double?> data = [];
             int lastCount = 0;
 
             foreach (DateTime date in GetRangeDates(group.StartDate, group.EnrollmentDate))
@@ -40,7 +36,7 @@ namespace BLL.Services
             {
                 Data = new()
                 {
-                    Labels = GetRangeDates(group.StartDate, group.EnrollmentDate).Select(i => i.ToString("dd.MM")).ToArray(),
+                    Labels = [.. GetRangeDates(group.StartDate, group.EnrollmentDate).Select(i => i.ToString("dd.MM"))],
                     Datasets = Datasets
                 }
             };
@@ -52,13 +48,13 @@ namespace BLL.Services
         {
             GroupOfSpecialities? group = await _unitOfWork.GroupsOfSpecialities.GetByIdAsync(groupId, new GroupsOfSpecialitiesSpecification(facultyUrl).IncludeSpecialties());
             IEnumerable<RecruitmentPlan> plans;
-            List<Dataset> Datasets = new();
+            List<Dataset> Datasets = [];
 
             plans = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification().WhereFaculty(facultyUrl).WhereGroup(group).IncludeSpecialty());
             foreach (var plan in plans)
             {
                 int lastScore = 0;
-                List<double?> data = new();
+                List<double?> data = [];
                 foreach (DateTime date in GetRangeDates(group.StartDate, group.EnrollmentDate))
                 {
                     RecruitmentPlanStatistic? planStatistic = await _unitOfWork.RecruitmentPlansStatistic.GetByPlanAndDateAsync(plan.Id, date);
@@ -76,7 +72,7 @@ namespace BLL.Services
             {
                 Data = new()
                 {
-                    Labels = GetRangeDates(group.StartDate, group.EnrollmentDate).Select(i => i.ToString("dd.MM")).ToArray(),
+                    Labels = [.. GetRangeDates(group.StartDate, group.EnrollmentDate).Select(i => i.ToString("dd.MM"))],
                     Datasets = Datasets
                 }
             };
@@ -96,7 +92,7 @@ namespace BLL.Services
         {
             GroupOfSpecialitiesStatistic groupStatistic = await _unitOfWork.GroupsOfSpecialitiesStatistic.GetByGroupAndDateAsync(group.Id, DateTime.Today)
                 ?? new() { GroupOfSpecialties = group };
-            groupStatistic.CountOfAdmissions = (group.Admissions ?? new()).Count;
+            groupStatistic.CountOfAdmissions = (group.Admissions ?? []).Count;
 
             await _unitOfWork.GroupsOfSpecialitiesStatistic.InsertOrUpdateAsync(groupStatistic);
         }

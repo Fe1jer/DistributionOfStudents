@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FilesManager;
+using System.ComponentModel.DataAnnotations;
 using webapi.Validations;
 using webapi.ViewModels.General;
 
@@ -8,7 +9,7 @@ namespace webapi.ViewModels.Faculties
     {
         public string FullName { get; set; } = string.Empty;
         public string ShortName { get; set; } = string.Empty;
-        public string Img { get; set; } = "\\img\\Faculties\\Default.jpg";
+        public string Img { get; set; } = ManagerConstants.CombinePath(ManagerConstants.SUB_DIR, "Faculties", "Default.jpg");
 
         [Display(Name = "Изображение")]
         [ValidateImg]
