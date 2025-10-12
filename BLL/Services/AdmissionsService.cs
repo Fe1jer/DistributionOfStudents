@@ -9,12 +9,8 @@ using Shared.Filters.Base;
 
 namespace BLL.Services
 {
-    public class AdmissionsService : BaseService, IAdmissionsService
+    public class AdmissionsService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IAdmissionsService
     {
-        public AdmissionsService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<List<AdmissionDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.Admissions.GetAllAsync();
@@ -43,10 +39,7 @@ namespace BLL.Services
         {
             var entity = await _unitOfWork.Admissions.GetByIdAsync(id, new AdmissionsSpecification().IncludeSpecialtyPriorities().IncludeStudentScoresWithSubject());
 
-            if (entity != null)
-            {
-                entity.SpecialityPriorities = entity.SpecialityPriorities.OrderBy(i => i.Priority).ToList();
-            }
+            entity?.SpecialityPriorities = [.. entity.SpecialityPriorities.OrderBy(i => i.Priority)];
 
             return Mapper.Map<AdmissionDTO>(entity);
         }
@@ -61,7 +54,6 @@ namespace BLL.Services
         public async Task<AdmissionDTO> SaveAsync(AdmissionDTO model)
         {
             Admission? entity;
-            List<SpecialityPriority> specialityPriorities = new();
 
             if (model.IsNew)
             {

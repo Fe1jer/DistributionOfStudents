@@ -14,13 +14,13 @@ namespace webapi.Controllers
 
         public BaseController(IHttpContextAccessor accessor, LinkGenerator generator)
         {
-            var config = new MapperConfiguration(cfg =>
+            Mapper = new MapperConfiguration(cfg =>
             {
-                cfg.AddProfile(typeof(DtoToViewModelMappingProfile));
-                cfg.AddProfile(typeof(ViewModelToDtoMappingProfile));
+                cfg.AddProfile<DtoToViewModelMappingProfile>();
+                cfg.AddProfile<ViewModelToDtoMappingProfile>();
                 cfg.AllowNullCollections = true;
-            });
-            Mapper = config.CreateMapper();
+            }, new LoggerFactory()).CreateMapper();
+
             LinkGeneratorHelper.Current = new LinkGeneratorHelper(accessor, generator);
         }
 

@@ -7,11 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class FacultiesRepository : Repository<Faculty>, IFacultiesRepository
+    public class FacultiesRepository(ApplicationDbContext appDBContext) : Repository<Faculty>(appDBContext), IFacultiesRepository
     {
-        public FacultiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
         public async Task<int> GetCountByUrlAsync(string newUrl, string oldUrl)
         {
             return await EntitySet.CountAsync(p => p.ShortName == newUrl && p.ShortName != oldUrl);

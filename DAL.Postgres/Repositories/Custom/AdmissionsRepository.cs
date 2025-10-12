@@ -7,12 +7,8 @@ using Shared.Filters.Base;
 
 namespace DAL.Postgres.Repositories.Custom
 {
-    public class AdmissionsRepository : Repository<Admission>, IAdmissionsRepository
+    public class AdmissionsRepository(ApplicationDbContext appDBContext) : Repository<Admission>(appDBContext), IAdmissionsRepository
     {
-        public AdmissionsRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task DeleteAsync(Guid id)
         {
             Admission? admission = await GetByIdAsync(id);
@@ -31,7 +27,7 @@ namespace DAL.Postgres.Repositories.Custom
                 IEnumerable<string> searchWords = filter.Search.Split(" ");
                 foreach (string word in searchWords)
                 {
-                    admissions = admissions.Where(i => string.Join(" ", i.Student.Name, i.Student.Surname, i.Student.Patronymic).Contains(word.ToLower())).ToList();
+                    admissions = [.. admissions.Where(i => string.Join(" ", i.Student.Name, i.Student.Surname, i.Student.Patronymic).Contains(word, StringComparison.CurrentCultureIgnoreCase))];
                 }
             }
 

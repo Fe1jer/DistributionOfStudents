@@ -45,7 +45,7 @@ namespace webapi.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("sign-out")]
-        public async Task<IActionResult> SignOut(string refreshToken)
+        public async Task<IActionResult> SignOutAsync(string refreshToken)
         {
             var result = await _service.SignOutAsync(refreshToken);
 

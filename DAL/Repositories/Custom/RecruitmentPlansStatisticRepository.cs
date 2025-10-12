@@ -1,17 +1,12 @@
 ﻿using DAL.Context;
 using DAL.Entities;
-using DAL.Context;
 using DAL.Repositories.Base;
 using DAL.Repositories.Interfaces.Custom;
 
 namespace DAL.Repositories.Custom
 {
-    public class RecruitmentPlansStatisticRepository : Repository<RecruitmentPlanStatistic>, IRecruitmentPlansStatisticRepository
+    public class RecruitmentPlansStatisticRepository(ApplicationDbContext appDBContext) : Repository<RecruitmentPlanStatistic>(appDBContext), IRecruitmentPlansStatisticRepository
     {
-        public RecruitmentPlansStatisticRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task DeleteAsync(Guid id)
         {
             RecruitmentPlanStatistic? statistic = await GetByIdAsync(id);
@@ -23,7 +18,7 @@ namespace DAL.Repositories.Custom
 
         public async Task<List<RecruitmentPlanStatistic>> GetAllAsync(Guid planId)
         {
-            return (await GetAllAsync()).Where(i => i.RecruitmentPlanId == planId).OrderBy(i => i.Date).ToList();
+            return [.. (await GetAllAsync()).Where(i => i.RecruitmentPlanId == planId).OrderBy(i => i.Date)];
         }
 
         public async Task<RecruitmentPlanStatistic?> GetByPlanAndDateAsync(Guid planId, DateTime date)

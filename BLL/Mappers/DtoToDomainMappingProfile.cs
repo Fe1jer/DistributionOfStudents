@@ -20,7 +20,7 @@ namespace BLL.Mappers
             CreateMap<AdmissionDTO, Admission>()
                 .ForMember(p => p.SpecialityPriorities, opts => opts.MapFrom(p => p.SpecialityPriorities.Where(p => p.Priority > 0)));
             CreateMap<Admission, StudentItemDTO>()
-                .ForMember(p => p.FullName, opts => opts.MapFrom(p => string.Join(' ', p.Student.Surname, p.Student.Name, p.Student.Patronymic)))
+                .ForMember(p => p.FullName, opts => opts.MapFrom(p => string.Join(' ', new object?[] { p.Student.Surname, p.Student.Name, p.Student.Patronymic })))
                 .ForMember(p => p.FacultyName, opts => opts.MapFrom(p => p.GroupOfSpecialties.Specialities!.First().Faculty.ShortName))
                 .ForMember(p => p.GroupName, opts => opts.MapFrom(p => p.GroupOfSpecialties.Name));
 

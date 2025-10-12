@@ -1,7 +1,5 @@
 ﻿using DAL.Context;
 using DAL.Entities;
-using DAL.Context;
-using DAL.Specifications;
 using DAL.Repositories.Base;
 using DAL.Repositories.Interfaces.Custom;
 using DAL.Specifications;
@@ -10,12 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories.Custom
 {
-    public class SpecialitiesRepository : Repository<Speciality>, ISpecialitiesRepository
+    public class SpecialitiesRepository(ApplicationDbContext appDBContext) : Repository<Speciality>(appDBContext), ISpecialitiesRepository
     {
-        public SpecialitiesRepository(ApplicationDbContext appDBContext) : base(appDBContext)
-        {
-        }
-
         public async Task<int> GetCountByUrlAsync(string url, Guid excludeId)
         {
             return await EntitySet.CountAsync(p => p.FullName == url && p.Id != excludeId);

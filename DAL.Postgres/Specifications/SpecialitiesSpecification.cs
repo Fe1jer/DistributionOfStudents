@@ -57,7 +57,7 @@ namespace DAL.Postgres.Specifications
 
         public SpecialitiesSpecification IncludeRecruitmentPlans(int year)
         {
-            AddInclude(i => i.RecruitmentPlans.Where(p => p.FormOfEducation.Year == year));
+            AddInclude(i => i.RecruitmentPlans!.Where(p => p.FormOfEducation.Year == year));
             AddInclude("RecruitmentPlans.FormOfEducation");
 
             return this;

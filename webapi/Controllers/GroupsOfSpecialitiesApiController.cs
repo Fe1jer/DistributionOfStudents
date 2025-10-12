@@ -8,16 +8,10 @@ namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GroupsOfSpecialitiesApiController : BaseController
+    public class GroupsOfSpecialitiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<GroupsOfSpecialitiesApiController> logger, IGroupsOfSpecialitiesService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<GroupsOfSpecialitiesApiController> _logger;
-        private readonly IGroupsOfSpecialitiesService _service;
-
-        public GroupsOfSpecialitiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<GroupsOfSpecialitiesApiController> logger, IGroupsOfSpecialitiesService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<GroupsOfSpecialitiesApiController> _logger = logger;
+        private readonly IGroupsOfSpecialitiesService _service = service;
 
         [HttpGet("FacultyGroups/{facultyUrl}/{year}")]
         public async Task<ActionResult<IEnumerable<GroupOfSpecialitiesViewModel>>> GetFacultyGroups(string facultyUrl, int year)
@@ -64,9 +58,9 @@ namespace webapi.Controllers
                     return Ok();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError("Произошла ошибка при изменении группы - {GroupName}", model.Name);
+                _logger.LogError(ex, "Произошла ошибка при изменении группы - {GroupName}", model.Name);
             }
 
             return BadRequest(ModelState);

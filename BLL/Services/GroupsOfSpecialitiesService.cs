@@ -9,11 +9,8 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class GroupsOfSpecialitiesService : BaseService, IGroupsOfSpecialitiesService
+    public class GroupsOfSpecialitiesService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IGroupsOfSpecialitiesService
     {
-        public GroupsOfSpecialitiesService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
         public async Task<List<GroupOfSpecialitiesDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.GroupsOfSpecialities.GetAllAsync();
@@ -67,7 +64,7 @@ namespace BLL.Services
 
         private async Task<List<Speciality>> GetSelectedSpecialitiesAsync(IEnumerable<SelectedSpecialityDTO>? selectedSpecialities)
         {
-            List<Speciality> specialities = new();
+            List<Speciality> specialities = [];
 
             if (selectedSpecialities != null)
             {
@@ -86,7 +83,7 @@ namespace BLL.Services
 
         private async Task<List<Subject>> GetSelectedSubjectsAsync(IEnumerable<SelectedSubjectDTO>? selectedSubjects)
         {
-            List<Subject> subjects = new();
+            List<Subject> subjects = [];
 
             if (selectedSubjects != null)
             {

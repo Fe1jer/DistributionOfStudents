@@ -11,16 +11,10 @@ namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DistributionApiController : BaseController
+    public class DistributionApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<DistributionApiController> logger, IDistributionService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<DistributionApiController> _logger;
-        private readonly IDistributionService _service;
-
-        public DistributionApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<DistributionApiController> logger, IDistributionService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<DistributionApiController> _logger = logger;
+        private readonly IDistributionService _service = service;
 
         [HttpGet("{facultyUrl}/{groupId}/Competition")]
         public async Task<ActionResult<float>> GetCompetition(string facultyUrl, Guid groupId) => await _service.GetCompetitionAsync(facultyUrl, groupId);
@@ -38,7 +32,7 @@ namespace webapi.Controllers
                 return new { plans = result.OrderBy(s => int.TryParse(s.Speciality.Code, out int n) ? n : int.MaxValue), areControversialStudents = false };
             }
 
-            result = Mapper.Map<List<DistributedPlanViewModel>>(GetDistributedPlans(distributedPlans.Keys.ToList()));
+            result = Mapper.Map<List<DistributedPlanViewModel>>(GetDistributedPlans([.. distributedPlans.Keys]));
             return new { plans = result, areControversialStudents = true };
         }
 
@@ -61,7 +55,7 @@ namespace webapi.Controllers
                     }
 
                     //TODO: Отбросить специальности после спорной
-                    result = Mapper.Map<List<DistributedPlanViewModel>>(GetDistributedPlans(distributedPlans.Keys.ToList()));
+                    result = Mapper.Map<List<DistributedPlanViewModel>>(GetDistributedPlans([.. distributedPlans.Keys]));
                     return new { plans = result, areControversialStudents = true };
                 }
                 catch
@@ -91,7 +85,7 @@ namespace webapi.Controllers
 
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 return BadRequest(ModelState);
             }
@@ -109,7 +103,7 @@ namespace webapi.Controllers
 
         private static List<RecruitmentPlanDTO> GetDistributedPlans(List<RecruitmentPlanDTO> plans)
         {
-            List<RecruitmentPlanDTO> distributedPlans = new();
+            List<RecruitmentPlanDTO> distributedPlans = [];
 
             foreach (RecruitmentPlanDTO plan in plans.OrderByDescending(i => i.PassingScore))
             {

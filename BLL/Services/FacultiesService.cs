@@ -6,12 +6,8 @@ using DAL.Postgres.Repositories.Interfaces;
 
 namespace BLL.Services
 {
-    public class FacultiesService : BaseService, IFacultiesService
+    public class FacultiesService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IFacultiesService
     {
-        public FacultiesService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public async Task<List<FacultyDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.Faculties.GetAllAsync();

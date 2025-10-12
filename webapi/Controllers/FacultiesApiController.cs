@@ -4,20 +4,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using webapi.ViewModels.Faculties;
 
-namespace webapi.Controllers.Api
+namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FacultiesApiController : BaseController
+    public class FacultiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<FacultiesApiController> logger, IFacultiesService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<FacultiesApiController> _logger;
-        private readonly IFacultiesService _service;
-
-        public FacultiesApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<FacultiesApiController> logger, IFacultiesService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<FacultiesApiController> _logger = logger;
+        private readonly IFacultiesService _service = service;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DetailsFacultyViewModel>>> GetFaculties() =>

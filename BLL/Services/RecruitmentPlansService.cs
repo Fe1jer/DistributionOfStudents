@@ -7,11 +7,8 @@ using DAL.Postgres.Specifications;
 
 namespace BLL.Services
 {
-    public class RecruitmentPlansService : BaseService, IRecruitmentPlansService
+    public class RecruitmentPlansService(IUnitOfWork unitOfWork) : BaseService(unitOfWork), IRecruitmentPlansService
     {
-        public RecruitmentPlansService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
         public async Task<List<RecruitmentPlanDTO>> GetAllAsync()
         {
             var result = await _unitOfWork.RecruitmentPlans.GetAllAsync(new RecruitmentPlansSpecification());
@@ -26,7 +23,7 @@ namespace BLL.Services
 
         public async Task<List<FacultyRecruitmentPlanDTO>> GetLastFacultiesPlansAsync()
         {
-            List<FacultyRecruitmentPlanDTO> result = new();
+            List<FacultyRecruitmentPlanDTO> result = [];
             List<Faculty> faculties = await _unitOfWork.Faculties.GetAllAsync();
             int lastYear = await _unitOfWork.RecruitmentPlans.GetLastYearAsync();
 
@@ -58,7 +55,7 @@ namespace BLL.Services
         {
             List<Speciality> specialities = await _unitOfWork.Specialities.GetAllAsync(new SpecialitiesSpecification(i => !i.IsDisabled).WhereFaculty(facultyUrl).IncludeRecruitmentPlans(year));
 
-            return specialities.Select(i => new SpecialityPlansDTO(i)).ToList();
+            return [.. specialities.Select(i => new SpecialityPlansDTO(i))];
         }
 
         public async Task<List<RecruitmentPlanDTO>> GetByGroupAsync(Guid groupId)
@@ -127,7 +124,7 @@ namespace BLL.Services
 
         private async Task<List<RecruitmentPlan>> CreateFacultyPlans(IEnumerable<SpecialityPlansDTO> facultyPlans, int year)
         {
-            List<RecruitmentPlan> recruitmentPlans = new();
+            List<RecruitmentPlan> recruitmentPlans = [];
 
             foreach (SpecialityPlansDTO plans in facultyPlans)
             {

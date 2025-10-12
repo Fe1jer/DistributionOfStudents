@@ -8,16 +8,10 @@ namespace webapi.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubjectsApiController : BaseController
+    public class SubjectsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<SubjectsApiController> logger, ISubjectsService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<SubjectsApiController> _logger;
-        private readonly ISubjectsService _service;
-
-        public SubjectsApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<SubjectsApiController> logger, ISubjectsService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<SubjectsApiController> _logger = logger;
+        private readonly ISubjectsService _service = service;
 
         // GET: api/ApiSubjects
         [HttpGet]

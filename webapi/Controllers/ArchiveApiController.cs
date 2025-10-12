@@ -2,20 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using webapi.ViewModels.Archive;
 
-namespace webapi.Controllers.Api
+namespace webapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArchiveApiController : BaseController
+    public class ArchiveApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<ArchiveApiController> logger, IArchiveService service) : BaseController(accessor, generator)
     {
-        private readonly ILogger<ArchiveApiController> _logger;
-        private readonly IArchiveService _service;
-
-        public ArchiveApiController(IHttpContextAccessor accessor, LinkGenerator generator, ILogger<ArchiveApiController> logger, IArchiveService service) : base(accessor, generator)
-        {
-            _logger = logger;
-            _service = service;
-        }
+        private readonly ILogger<ArchiveApiController> _logger = logger;
+        private readonly IArchiveService _service = service;
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<int>>> GetArchive() => await _service.GetYears();

@@ -9,7 +9,7 @@ namespace webapi
 {
     public class Program
     {
-        public static Logger Logger = LogManager.GetCurrentClassLogger();
+        private readonly static Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
         {
