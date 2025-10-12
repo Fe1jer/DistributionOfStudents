@@ -8,7 +8,7 @@
 
         public static string CombinePath(params string[] pathSegments)
         {
-            pathSegments = pathSegments.Select(i => i.Replace('\\', '/').Trim('/')).ToArray();
+            pathSegments = [.. pathSegments.Select(i => i.Replace('\\', '/').Trim('/'))];
             return Path.Combine(pathSegments).Replace('\\', '/');
         }
     }

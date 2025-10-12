@@ -4,7 +4,7 @@ namespace Shared.Helpers
 {
     public static class TransliterateHelper
     {
-        private static readonly Dictionary<string, string> Dictionary = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> Dictionary = new()
         {
             {"а", "a"},
             {"б", "b"},
@@ -47,6 +47,7 @@ namespace Shared.Helpers
             {";", "-"},
             {" ", "-"}
         };
+
         public static string TransliterateString(string value)
         {
             value = Dictionary.Aggregate(value.ToLower(), (current, pair) => current.Replace(pair.Key, pair.Value));
